@@ -1,0 +1,13 @@
+{
+  "name": "kiritek-marketplace",
+  "owner": {
+    "name": "Kiritek"
+  },
+  "plugins": [
+    {
+      "name": "kiritek",
+      "source": "./",
+      "description": "Kiritek Framework — skills, agentes y setup unificado pa' dev workflow AI en Kiritek."
+    }
+  ]
+}

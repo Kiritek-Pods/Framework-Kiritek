@@ -1,0 +1,22 @@
+{
+  "name": "kiritek-init",
+  "version": "0.1.0",
+  "description": "Instala el mínimo obligatorio del Framework Kiritek en un proyecto: skills, agentes, indexado de código (Graphify) y memoria persistente (claude-mem-lite).",
+  "bin": {
+    "kiritek-init": "bin/kiritek-init.js"
+  },
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}

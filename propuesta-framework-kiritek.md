@@ -36,29 +36,29 @@ Otros comandos: `--stack=java-spring,react` (salta detección, útil en CI) · `
 
 ### Skills core (obligatorias, todo proyecto)
 
-| Skill | Qué hace |
-|---|---|
-| `git-workflow` | Conventional commits, branch naming `feature/TICKET-123-...` (conecta con Jira), reglas no-negociables (nunca push directo a main, nunca force sin lease) |
-| `spec-driven-dev` | spec → plan → tasks → **aprobación humana** → implementación, con templates reales |
-| `mcp-jira` | Trae el ticket, confirma entendido, comenta al cerrar, nunca transiciona estado sin humano |
+| Skill             | Qué hace                                                                                                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `git-workflow`    | Conventional commits, branch naming `feature/TICKET-123-...` (conecta con Jira), reglas no-negociables (nunca push directo a main, nunca force sin lease) |
+| `spec-driven-dev` | spec → plan → tasks → **aprobación humana** → implementación, con templates reales                                                                        |
+| `mcp-jira`        | Trae el ticket, confirma entendido, comenta al cerrar, nunca transiciona estado sin humano                                                                |
 
 ### Stack packs (según detección)
 
-| Stack | Skills | Estado |
-|---|---|---|
-| `java-spring` (Boot 3.x) | layered-architecture, testing-pyramid, spring-data-jpa, flyway-migrations, transactional-patterns | ✅ Construido |
-| `flutter` (BLoC/Cubit) | dart-flutter-patterns, flutter-dart-code-review, owasp-mobile-security-checker (+4 scripts Python reales) | ✅ Construido |
-| `python` (FastAPI) | fastapi (skill oficial FastAPI), python-testing | ✅ Construido |
-| `react` / `vue` / `angular` / `express` | — | ⏳ Pendiente |
+| Stack                                   | Skills                                                                                                    | Estado        |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------- | ------------- |
+| `java-spring` (Boot 3.x)                | layered-architecture, testing-pyramid, spring-data-jpa, flyway-migrations, transactional-patterns         | ✅ Construido |
+| `flutter` (BLoC/Cubit)                  | dart-flutter-patterns, flutter-dart-code-review, owasp-mobile-security-checker (+4 scripts Python reales) | ✅ Construido |
+| `python` (FastAPI)                      | fastapi (skill oficial FastAPI), python-testing                                                           | ✅ Construido |
+| `react` / `vue` / `angular` / `express` | —                                                                                                         | ⏳ Pendiente  |
 
 ### Resto del stack
 
-| Pieza | Decisión |
-|---|---|
-| CodeGraph | **Graphify** — indexa código + docs/PDFs, resuelve el problema de reglas de negocio no escritas en MYSCIE |
-| Memoria persistente | **claude-mem-lite** — namespace por proyecto por defecto (se descartó *claude-mem* original: sin aislamiento real entre proyectos, casos reales de sesiones de $2 a $25 en costo) |
-| Agentes | dev-front, dev-back, QA + orquestador, tope 2–3 reintentos — ⏳ pendiente de construir |
-| Front | Playwright — captura antes/después de cada cambio visual |
+| Pieza               | Decisión                                                                                                                                                                          |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CodeGraph           | **Graphify** — indexa código + docs/PDFs, resuelve el problema de reglas de negocio no escritas en MYSCIE                                                                         |
+| Memoria persistente | **claude-mem-lite** — namespace por proyecto por defecto (se descartó _claude-mem_ original: sin aislamiento real entre proyectos, casos reales de sesiones de $2 a $25 en costo) |
+| Agentes             | dev-front, dev-back, QA + orquestador, tope 2–3 reintentos — ⏳ pendiente de construir                                                                                            |
+| Front               | Playwright — captura antes/después de cada cambio visual                                                                                                                          |
 
 MYSCIE (legacy multi-tecnología) queda fuera del ajuste fino por stack — sigue bajo reglas generales: la IA nunca toca carpetas de terceros, nunca trabaja "full" sola ahí.
 
@@ -78,14 +78,14 @@ Rutina programada (estilo KIRA), semanal, por repo de POD. Primero chequea lo ob
 
 ## Estado del CLI
 
-| Componente | Estado |
-|---|---|
-| Skills core + 3 stack packs | ✅ Construido |
-| `.graphifyignore` base | ✅ Construido |
-| Stack packs react/vue/angular/express | ⏳ Pendiente |
-| CLI (`detect`/`install`/`audit`) | ⏳ Pendiente |
-| Agentes (orchestrator/dev-front/dev-back/QA) | ⏳ Pendiente |
-| Publicación npm | ⏳ Pendiente |
+| Componente                                   | Estado        |
+| -------------------------------------------- | ------------- |
+| Skills core + 3 stack packs                  | ✅ Construido |
+| `.graphifyignore` base                       | ✅ Construido |
+| Stack packs react/vue/angular/express        | ⏳ Pendiente  |
+| CLI (`detect`/`install`/`audit`)             | ⏳ Pendiente  |
+| Agentes (orchestrator/dev-front/dev-back/QA) | ⏳ Pendiente  |
+| Publicación npm                              | ⏳ Pendiente  |
 
 ---
 
@@ -99,10 +99,10 @@ Rutina programada (estilo KIRA), semanal, por repo de POD. Primero chequea lo ob
 
 ## Próximos pasos
 
-| Acción | Responsable | Fecha |
-|---|---|---|
-| Decidir automatización de asignación de tickets | Vladimir, Oscar, Miguel | Hoy |
-| Completar stack packs restantes | Por asignar | Post-propuesta |
-| Construir CLI + agentes | Por asignar | Post-propuesta |
-| Análisis migración CodeCommit → GitHub | Alan | Pendiente de agendar |
-| Sumar a Heriberto y Joana | Vladimir, Oscar, Miguel | Etapa 1 |
+| Acción                                          | Responsable             | Fecha                |
+| ----------------------------------------------- | ----------------------- | -------------------- |
+| Decidir automatización de asignación de tickets | Vladimir, Oscar, Miguel | Hoy                  |
+| Completar stack packs restantes                 | Por asignar             | Post-propuesta       |
+| Construir CLI + agentes                         | Por asignar             | Post-propuesta       |
+| Análisis migración CodeCommit → GitHub          | Alan                    | Pendiente de agendar |
+| Sumar a Heriberto y Joana                       | Vladimir, Oscar, Miguel | Etapa 1              |
