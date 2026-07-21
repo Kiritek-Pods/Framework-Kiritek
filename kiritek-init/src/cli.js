@@ -3,7 +3,7 @@
 const { detectStacks, KNOWN_STACKS } = require("./detect.js");
 const { confirmStacks, confirm } = require("./prompts.js");
 const installer = require("./installer.js");
-const { runAudit, appendComplianceLog } = require("./audit.js");
+const { runAudit, appendComplianceLog, sendMetricsReport } = require("./audit.js");
 
 function parseArgs(argv) {
   const [command = "init", ...rest] = argv;
@@ -64,6 +64,17 @@ async function cmdAudit(flags, cwd) {
     console.log(`  ${r.pass ? "✅" : "❌"} ${r.name}`);
   }
   console.log(`\nEstado: ${result.ok ? "cumple" : "incompleto"}. Registrado en ${logPath}`);
+
+  const webhookUrl = flags.webhook || process.env.KIRITEK_METRICS_WEBHOOK;
+  if (webhookUrl) {
+    const report = await sendMetricsReport(webhookUrl, cwd, result);
+    console.log(
+      report.ok
+        ? "  métricas: enviadas al reporte central"
+        : `  métricas: no se pudieron enviar (${report.error}) — auditoría local sigue válida`
+    );
+  }
+
   if (!result.ok) process.exitCode = 1;
 }
 

@@ -1,0 +1,27 @@
+name: Kiritek — auditoría semanal
+
+on:
+  schedule:
+    - cron: "0 13 * * 1" # lunes 7am hora Kiritek (ajustar UTC según corresponda)
+  workflow_dispatch: {} # permite correrlo manual desde la pestaña Actions
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # necesario para que git log tenga historial completo
+
+      - name: Auditar cumplimiento Kiritek
+        env:
+          KIRITEK_METRICS_WEBHOOK: ${{ secrets.KIRITEK_METRICS_WEBHOOK }}
+        run: npx github:Kiritek-Pods/Framework-Kiritek#npx-release audit
+
+      - name: Commitear kiritek-compliance.md actualizado
+        run: |
+          git config user.name "kiritek-bot"
+          git config user.email "kiritek-bot@users.noreply.github.com"
+          git add kiritek-compliance.md
+          git diff --staged --quiet || git commit -m "chore: auditoría Kiritek semanal"
+          git push
