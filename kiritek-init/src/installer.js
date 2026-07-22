@@ -67,8 +67,19 @@ function copyStack(stackName, destDir) {
   return mergeCopyDir(stackDir, path.join(destDir, ".claude"));
 }
 
-function renderProjectDocs(destDir, stacks) {
+function copyOptional(name, destDir) {
+  const optionalDir = path.join(TEMPLATES_DIR, "optional", name, ".claude");
+  if (!fs.existsSync(optionalDir)) {
+    throw new Error(`Pieza opcional desconocida: ${name}`);
+  }
+  return mergeCopyDir(optionalDir, path.join(destDir, ".claude"));
+}
+
+function renderProjectDocs(destDir, stacks, { jiraInstalled = false } = {}) {
   const stackList = stacks.length > 0 ? stacks.join(", ") : "(ninguno detectado)";
+  const jiraLine = jiraInstalled
+    ? "- **Jira**: ver skill `mcp-jira` — traer ticket, confirmar entendido, branch/commit con clave del ticket, comentar al cerrar, nunca transicionar estado sin humano.\n"
+    : "";
   const result = { copied: [], skipped: [] };
 
   for (const filename of ["CLAUDE.md", "AGENTS.md"]) {
@@ -78,7 +89,8 @@ function renderProjectDocs(destDir, stacks) {
       continue;
     }
     const template = fs.readFileSync(path.join(TEMPLATES_DIR, "core", filename), "utf8");
-    fs.writeFileSync(destPath, template.replace("{{STACKS}}", stackList));
+    const rendered = template.replace("{{STACKS}}", stackList).replace("{{JIRA_LINE}}", jiraLine);
+    fs.writeFileSync(destPath, rendered);
     result.copied.push(filename);
   }
 
@@ -134,6 +146,7 @@ module.exports = {
   mergeCopyDir,
   copyCore,
   copyStack,
+  copyOptional,
   renderProjectDocs,
   setupGraphify,
   installUv,

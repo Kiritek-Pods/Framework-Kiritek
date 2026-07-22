@@ -70,7 +70,13 @@ test("detecta express + react juntos (full-stack JS)", () => {
   assert.deepEqual(detectStacks(dir).sort(), ["express", "react"]);
 });
 
-test("package.json sin express/react no detecta esos stacks", () => {
+test("detecta vue por package.json con dependencia vue", () => {
+  const dir = tmpProject();
+  fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify({ dependencies: { vue: "^3.4.0" } }));
+  assert.deepEqual(detectStacks(dir), ["vue"]);
+});
+
+test("package.json sin express/react/vue no detecta esos stacks", () => {
   const dir = tmpProject();
   fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify({ dependencies: { lodash: "^4.0.0" } }));
   assert.deepEqual(detectStacks(dir), []);

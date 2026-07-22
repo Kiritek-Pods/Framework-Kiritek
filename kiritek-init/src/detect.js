@@ -39,6 +39,7 @@ const DETECTORS = {
   },
   express: (cwd) => hasDependency(cwd, "express"),
   react: (cwd) => hasDependency(cwd, "react"),
+  vue: (cwd) => hasDependency(cwd, "vue"),
 };
 
 function hasDependency(cwd, pkgName) {
