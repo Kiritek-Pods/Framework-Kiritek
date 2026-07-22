@@ -1,7 +1,7 @@
 "use strict";
 
 const { detectStacks, KNOWN_STACKS } = require("./detect.js");
-const { confirmStacks, confirm } = require("./prompts.js");
+const { confirmStacks, confirm, closePrompts } = require("./prompts.js");
 const installer = require("./installer.js");
 const { runAudit, appendComplianceLog, sendMetricsReport } = require("./audit.js");
 
@@ -25,13 +25,23 @@ async function cmdInit(flags, cwd) {
     ? flags.stack.split(",").map((s) => s.trim()).filter((s) => KNOWN_STACKS.includes(s))
     : await confirmStacks(detectStacks(cwd), KNOWN_STACKS);
 
+  const wantsJira =
+    flags.jira !== undefined
+      ? flags.jira === "true"
+      : await confirm(
+          "¿Instalar integración con Jira (skill mcp-jira)? Requiere el servidor MCP oficial de Atlassian conectado."
+        );
+
   console.log("\nInstalando Kiritek Framework...\n");
 
   report("core", installer.copyCore(cwd));
   for (const stack of stacks) {
     report(`stack:${stack}`, installer.copyStack(stack, cwd));
   }
-  report("docs", installer.renderProjectDocs(cwd, stacks));
+  if (wantsJira) {
+    report("mcp-jira", installer.copyOptional("mcp-jira", cwd));
+  }
+  report("docs", installer.renderProjectDocs(cwd, stacks, { jiraInstalled: wantsJira }));
 
   const wantsGraphify = await confirm("\n¿Instalar/configurar Graphify (indexado de código)?");
   if (wantsGraphify) {
@@ -87,17 +97,21 @@ async function run(argv) {
   const { command, flags } = parseArgs(argv);
   const cwd = process.cwd();
 
-  switch (command) {
-    case "init":
-      return cmdInit(flags, cwd);
-    case "audit":
-      return cmdAudit(flags, cwd);
-    case "update":
-      return cmdUpdate(flags, cwd);
-    default:
-      console.error(`Comando desconocido: ${command}`);
-      console.error("Uso: npx kiritek-init [init|audit|update] [--stack=java-spring,flutter]");
-      process.exitCode = 1;
+  try {
+    switch (command) {
+      case "init":
+        return await cmdInit(flags, cwd);
+      case "audit":
+        return await cmdAudit(flags, cwd);
+      case "update":
+        return await cmdUpdate(flags, cwd);
+      default:
+        console.error(`Comando desconocido: ${command}`);
+        console.error("Uso: npx kiritek-init [init|audit|update] [--stack=java-spring,flutter]");
+        process.exitCode = 1;
+    }
+  } finally {
+    closePrompts();
   }
 }
 

@@ -4,8 +4,7 @@ Este proyecto usa el **Framework Kiritek**. Reglas obligatorias:
 
 - **Spec antes de código**: ver skill `spec-driven-dev` — no se implementa sin spec+plan aprobado, salvo fixes triviales de una línea.
 - **Git**: ver skill `git-workflow` — conventional commits, no push directo a main, no force sin `--force-with-lease`.
-- **Jira**: ver skill `mcp-jira` — traer ticket, confirmar entendido, branch/commit con clave del ticket, comentar al cerrar, nunca transicionar estado sin humano.
-- **Revisión humana siempre requerida antes de producción.**
+{{JIRA_LINE}}- **Revisión humana siempre requerida antes de producción.**
 
 ## Stacks detectados en este proyecto
 
