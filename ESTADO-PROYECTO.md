@@ -37,8 +37,8 @@ empaquetarse. Todo vive bajo `templates/`:
 | Skill | Contenido | Origen | Licencia |
 |---|---|---|---|
 | `git-workflow` | Conventional commits, commits atómicos, branch naming `feature/TICKET-123-...` (conectado a la clave de Jira), reglas no-negociables (no push a main, no force sin lease, etc.) | Adaptado de [netresearch/git-workflow-skill](https://github.com/netresearch/git-workflow-skill) | MIT + CC-BY-SA-4.0 |
-| `spec-driven-dev` | Metodología spec → plan → tasks → aprobación → implement, con templates reales de spec.md/plan.md | Metodología inspirada en [github/spec-kit](https://github.com/github/spec-kit) (oficial de GitHub), reescrita como skill ligera sin dependencia de scripts | MIT (metodología) |
 | `mcp-jira` | Flujo Kiritek sobre el servidor MCP **oficial** de Atlassian: traer ticket → confirmar entendido → branch/commit con clave del ticket → comentar al cerrar → nunca transicionar estado sin humano | Contenido propio de Kiritek, sobre [atlassian/atlassian-mcp-server](https://github.com/atlassian/atlassian-mcp-server) | Apache-2.0 (servidor) |
+| Spec Kit | Metodología spec → plan → tasks → aprobación → implement (`/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, etc.). No es un skill empaquetado en `templates/`: `kiritek-init` corre el CLI **oficial** de GitHub (`uvx --from git+https://github.com/github/spec-kit.git specify init --here --integration claude`) en cada proyecto — sin fork ni reescritura propia | [github/spec-kit](https://github.com/github/spec-kit) (oficial de GitHub) | MIT |
 | `.graphifyignore` | Reglas base: excluye deps de terceros, artefactos generados, y sección explícita para marcar frameworks legacy vendored (regla MYSCIE: nunca indexar ni tocar terceros) | Propio de Kiritek | — |
 
 ### 2.2 Stack packs (`templates/stacks/`) — según detección del proyecto

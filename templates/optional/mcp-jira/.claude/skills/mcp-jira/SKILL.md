@@ -35,8 +35,8 @@ Respeta los permisos de Jira existentes por proyecto — no da acceso de más.
 ## Flujo Kiritek
 
 1. **Al empezar una historia**: traer el ticket completo (no copiar/pegar
-   manualmente) antes de arrancar `spec-driven-dev` — la spec debe basarse en
-   la descripción real del ticket, no en un resumen de memoria.
+   manualmente) antes de arrancar spec/plan — deben basarse en la descripción
+   real del ticket, no en un resumen de memoria.
 2. **Conversar el entendido**: confirmar con el developer qué entendió la IA
    del ticket vs. lo que el developer entendió, antes de generar spec/plan
    (evita editar la ventana equivocada en proyectos con archivos duplicados).

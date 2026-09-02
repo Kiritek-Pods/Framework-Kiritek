@@ -15,7 +15,7 @@ npx github:Kiritek-Pods/Framework-Kiritek#npx-release init --stack=java-spring,r
 
 ```
 1. Traer ticket (Jira, si instalaste mcp-jira)  -> skill mcp-jira      [opcional]
-2. Spec + plan, aprobar humano                  -> skill spec-driven-dev   ⚠️ no saltarse salvo fix trivial
+2. Spec + plan, aprobar humano                  -> /speckit.specify + /speckit.plan (Spec Kit oficial) ⚠️ no saltarse salvo fix trivial
 3. Implementar por capa/stack                   -> orchestrator delega a dev-back-*/dev-front-*
 4. QA antes de PR                               -> agente qa
 5. Branch + commits + PR                        -> skill git-workflow       ⚠️ nunca push directo a main

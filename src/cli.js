@@ -43,6 +43,26 @@ async function cmdInit(flags, cwd) {
   }
   report("docs", installer.renderProjectDocs(cwd, stacks, { jiraInstalled: wantsJira }));
 
+  console.log("\nSpec Kit (github/spec-kit oficial — flujo de spec-driven development):");
+  try {
+    if (!installer.commandExists("uvx") && !installer.commandExists("uv")) {
+      const wantsUv = await confirm(
+        "  spec-kit: necesita `uv` y no está instalado. ¿Instalarlo ahora con `curl -LsSf https://astral.sh/uv/install.sh | sh`?"
+      );
+      if (!wantsUv) {
+        throw new Error(
+          "uv no instalado — instálalo manualmente y vuelve a correr `kiritek-init` o `uvx --from git+https://github.com/github/spec-kit.git specify init --here --integration claude`."
+        );
+      }
+      installer.installUv();
+    }
+    installer.setupSpecKit(cwd).forEach((line) => console.log(`  spec-kit: ${line}`));
+  } catch (err) {
+    console.warn(
+      `  spec-kit: falló la instalación automática (${err.message}). Instálalo manualmente: uvx --from git+https://github.com/github/spec-kit.git specify init --here --integration claude`
+    );
+  }
+
   const wantsGraphify = await confirm("\n¿Instalar/configurar Graphify (indexado de código)?");
   if (wantsGraphify) {
     try {

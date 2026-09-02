@@ -2,7 +2,7 @@
 
 Este proyecto usa el **Framework Kiritek**. Reglas obligatorias:
 
-- **Spec antes de código**: ver skill `spec-driven-dev` — no se implementa sin spec+plan aprobado, salvo fixes triviales de una línea.
+- **Spec antes de código**: usa [Spec Kit](https://github.com/github/spec-kit) (`/speckit.specify`, `/speckit.plan`, `/speckit.tasks`) — no se implementa sin spec+plan aprobado, salvo fixes triviales de una línea.
 - **Git**: ver skill `git-workflow` — conventional commits, no push directo a main, no force sin `--force-with-lease`.
 {{JIRA_LINE}}- **Revisión humana siempre requerida antes de producción.**
 
