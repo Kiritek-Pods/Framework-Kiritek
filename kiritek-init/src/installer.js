@@ -135,6 +135,20 @@ function setupGraphify(destDir) {
   return log;
 }
 
+function setupSpecKit(destDir) {
+  const log = [];
+  if (fs.existsSync(path.join(destDir, ".specify"))) {
+    log.push("ya instalado (.specify/ existe), no se reinstala");
+    return log;
+  }
+  log.push("corriendo `specify init` (github/spec-kit oficial) vía uvx...");
+  execSync(
+    "uvx --from git+https://github.com/github/spec-kit.git specify init --here --force --integration claude --non-interactive --script sh",
+    { cwd: destDir, stdio: "inherit" }
+  );
+  return log;
+}
+
 function claudeMemLiteInstructions() {
   return [
     "claude-mem-lite no se instala automáticamente (requiere Linux/macOS, setup manual).",
@@ -149,6 +163,7 @@ module.exports = {
   copyOptional,
   renderProjectDocs,
   setupGraphify,
+  setupSpecKit,
   installUv,
   claudeMemLiteInstructions,
   commandExists,

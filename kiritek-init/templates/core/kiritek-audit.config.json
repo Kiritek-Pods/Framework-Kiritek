@@ -1,7 +1,6 @@
 {
   "checks": [
     { "name": "Skill git-workflow instalada", "path": ".claude/skills/git-workflow/SKILL.md" },
-    { "name": "Skill spec-driven-dev instalada", "path": ".claude/skills/spec-driven-dev/SKILL.md" },
     { "name": "Agente orchestrator instalado", "path": ".claude/agents/orchestrator.md" },
     { "name": "Agente QA instalado", "path": ".claude/agents/qa.md" },
     { "name": ".graphifyignore presente", "path": ".graphifyignore" },

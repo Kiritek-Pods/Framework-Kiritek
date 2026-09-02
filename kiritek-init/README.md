@@ -20,7 +20,7 @@ Corre el comando de arriba **dentro del repo del proyecto**, no en una carpeta v
    ```bash
    npx github:Kiritek-Pods/Framework-Kiritek#npx-release init --stack=java-spring,react
    ```
-2. **Instala el core** (siempre, sin importar stack): skills `git-workflow`, `spec-driven-dev`; agentes `orchestrator` y `qa`; `.graphifyignore`; `kiritek-audit.config.json`.
+2. **Instala el core** (siempre, sin importar stack): skill `git-workflow`; agentes `orchestrator` y `qa`; `.graphifyignore`; `kiritek-audit.config.json`; y [Spec Kit](https://github.com/github/spec-kit) oficial de GitHub (vía `uvx`, sin fork ni versión propia — instala `uv` primero si hace falta, con confirmación).
 3. **Instala el/los stack pack(s)** detectados — skills + agente `dev-back-*`/`dev-front-*` correspondiente. Es aditivo: un proyecto full-stack (ej. Java + React) instala ambos sin conflicto.
 4. **Pregunta si quieres la integración con Jira** (skill `mcp-jira`, opcional — no todo proyecto usa Jira o tiene el MCP de Atlassian conectado). Saltable con `--jira=false` / `--jira=true`.
 5. **Genera `CLAUDE.md`/`AGENTS.md`** — solo si no existen ya. Si el proyecto ya tiene uno con contenido custom, no lo toca (avisa que lo saltó). Solo menciona Jira ahí si la instalaste.
@@ -47,7 +47,7 @@ Nada de esto sobreescribe algo que ya exista en el proyecto. Si corres `init` do
 Este es el flujo que las skills/agentes instalados hacen cumplir:
 
 1. **Traer el ticket** (si instalaste `mcp-jira`) — pídele a Claude que traiga el ticket de Jira. Confirma que entendió el alcance antes de seguir. Sin `mcp-jira`, arranca directo del paso 2 con el alcance que le des a mano.
-2. **Spec antes de código** — la skill `spec-driven-dev` genera spec (qué/por qué) + plan (cómo) a partir del ticket. **No se implementa nada sin aprobación humana explícita del spec+plan**, salvo fixes triviales de una línea.
+2. **Spec antes de código** — `/speckit.specify` genera spec (qué/por qué), `/speckit.plan` genera el plan (cómo), `/speckit.tasks` la lista de tareas — via [Spec Kit](https://github.com/github/spec-kit) oficial (instalado automático en el paso 2 de la instalación, ver abajo). **No se implementa nada sin aprobación humana explícita del spec+plan**, salvo fixes triviales de una línea.
 3. **Implementación, delegada por capa** — si el ticket toca varias capas/stacks, el agente `orchestrator` reparte el trabajo entre los agentes de stack instalados (`dev-back-java`, `dev-front-react`, etc.). Cada uno sigue las skills de su stack (arriba).
 4. **QA antes de PR** — el agente `qa` revisa contra el spec, corre tests existentes, busca casos borde. No inventa "probado/funciona" sin output real de comando.
 5. **Git al cierre** — la skill `git-workflow` se encarga de: branch `feature/TICKET-123-descripcion` (clave de Jira incluida), Conventional Commits, nunca push directo a main, nunca `--force` sin `--force-with-lease`.

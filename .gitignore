@@ -1,3 +1,7 @@
 node_modules/
 *.tgz
 .DS_Store
+
+# notas sueltas de trabajo en la raíz (encuestas, guiones, borradores) —
+# no aplica a .md dentro de subcarpetas (SKILL.md, READMEs, etc.)
+/*.md
