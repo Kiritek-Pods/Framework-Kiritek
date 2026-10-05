@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "id": "engineering/guardrails",
+  "version": "1.0.0",
+  "digest": "sha256:180e9d6b53b9b481bc02a921ffc9fc0bc0136e3136d52a68df4cae92b6d4fd93",
+  "compatibility": {
+    "node": ">=18",
+    "kiritekInit": ">=0.1.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "profiles": [
+    {
+      "id": "web",
+      "version": "1.0.0",
+      "description": "Unidad con interfaz web entregada a usuarios.",
+      "extends": []
+    },
+    {
+      "id": "mobile-app",
+      "version": "1.0.0",
+      "description": "Aplicación móvil distribuida por stores o canal enterprise.",
+      "extends": []
+    },
+    {
+      "id": "search",
+      "version": "1.0.0",
+      "description": "Búsqueda interactiva que dispara trabajo remoto o costoso.",
+      "extends": []
+    },
+    {
+      "id": "module-launch",
+      "version": "1.0.0",
+      "description": "La unidad lanza módulos/funcionalidades que pueden requerir anuncio.",
+      "extends": []
+    }
+  ],
+  "controls": [
+    {
+      "schemaVersion": 1,
+      "id": "search.input-rate",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "search"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "agent",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 1500,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/search.input-rate.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "minChars": 3,
+          "cadence": {
+            "strategy": "equivalent",
+            "windowMs": 250
+          },
+          "dedupeWindowMs": 500,
+          "maxEvidenceAgeHours": 24
+        }
+      },
+      "collectors": [
+        "search-input-rate/collector"
+      ],
+      "normalizer": "search-input-rate/normalizer",
+      "applicability": "search-input-rate/applicability",
+      "evaluator": "search-input-rate/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 86400
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/search-input-rate.md"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "app.minimum-supported-version",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "mobile-app"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/app.minimum-supported-version.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "versionScheme": "semver",
+          "environments": [
+            "production"
+          ],
+          "cache": {
+            "ttlSeconds": 21600,
+            "staleIfOfflineSeconds": 86400
+          },
+          "firstRunOffline": "allow-with-warning",
+          "timeoutMs": 3000,
+          "maxEvidenceAgeHours": 12
+        }
+      },
+      "collectors": [
+        "app-minimum-supported-version/collector"
+      ],
+      "normalizer": "app-minimum-supported-version/normalizer",
+      "applicability": "app-minimum-supported-version/applicability",
+      "evaluator": "app-minimum-supported-version/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 43200
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/app-minimum-supported-version.md"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "web.module-announcement",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "web",
+          "module-launch"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "agent",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 1500,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/web.module-announcement.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "supportedChannels": [
+            "in-app",
+            "release-notes"
+          ],
+          "accessibilityStandard": "WCAG-2.2-AA",
+          "maxEvidenceAgeHours": 24
+        }
+      },
+      "collectors": [
+        "web-module-announcement/collector"
+      ],
+      "normalizer": "web-module-announcement/normalizer",
+      "applicability": "web-module-announcement/applicability",
+      "evaluator": "web-module-announcement/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 86400
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/web-module-announcement.md"
+    }
+  ],
+  "migrations": [],
+  "publishedAt": "2026-10-05T00:00:00Z"
+}

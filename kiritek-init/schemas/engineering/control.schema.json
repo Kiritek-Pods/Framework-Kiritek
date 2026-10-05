@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/control.schema.json",
+  "title": "Kiritek Engineering ControlDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "version", "contractVersion", "profiles", "moments", "parametersSchemaRef", "supportedLevels", "defaults", "collectors", "normalizer", "applicability", "evaluator", "costClass", "timeoutMs", "cachePolicy", "freshness", "permissions", "documentationRef"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "id": { "$ref": "engineering/common.schema.json#/definitions/controlId" },
+    "version": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+    "contractVersion": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "allOf": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "engineering/common.schema.json#/definitions/profileId" } },
+        "anyOf": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "engineering/common.schema.json#/definitions/profileId" } }
+      }
+    },
+    "moments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["moment", "scope", "network", "budgetMs", "fallback"],
+        "properties": {
+          "moment": { "$ref": "engineering/common.schema.json#/definitions/moment" },
+          "scope": { "type": "string", "enum": ["change", "full", "artifact"] },
+          "network": { "type": "boolean" },
+          "budgetMs": { "type": "integer", "minimum": 1 },
+          "fallback": { "type": "string", "enum": ["warn", "error-operational", "defer-to-later-surface"] }
+        }
+      }
+    },
+    "parametersSchemaRef": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+    "supportedLevels": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "engineering/common.schema.json#/definitions/level" } },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "parameters"],
+      "properties": {
+        "level": { "type": "string", "enum": ["off", "warn"] },
+        "parameters": { "type": "object" }
+      }
+    },
+    "enforcementContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidenceTypes", "conformanceSuite", "approvedVersion", "moments"],
+      "properties": {
+        "evidenceTypes": { "type": "array", "minItems": 1, "items": { "type": "string", "enum": ["deterministic", "manual"] } },
+        "conformanceSuite": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+        "approvedVersion": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+        "moments": { "type": "array", "minItems": 1, "items": { "$ref": "engineering/common.schema.json#/definitions/moment" } }
+      }
+    },
+    "collectors": { "type": "array", "minItems": 1, "items": { "$ref": "engineering/common.schema.json#/definitions/ref" } },
+    "normalizer": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+    "applicability": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+    "evaluator": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+    "costClass": { "type": "string", "enum": ["tiny", "small", "medium", "large"] },
+    "timeoutMs": { "type": "integer", "minimum": 1 },
+    "cachePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "ttlSeconds"],
+      "properties": { "enabled": { "type": "boolean" }, "ttlSeconds": { "type": "integer", "minimum": 0 } }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxAgeSeconds"],
+      "properties": { "maxAgeSeconds": { "type": "integer", "minimum": 1 } }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filesystemRead", "networkHosts", "envNames", "processes"],
+      "properties": {
+        "filesystemRead": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/repoGlob" } },
+        "networkHosts": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "envNames": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "processes": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "documentationRef": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+    "deprecation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["since", "reason"],
+      "properties": {
+        "since": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+        "reason": { "type": "string", "minLength": 1 },
+        "replacement": { "$ref": "engineering/common.schema.json#/definitions/controlId" }
+      }
+    }
+  }
+}

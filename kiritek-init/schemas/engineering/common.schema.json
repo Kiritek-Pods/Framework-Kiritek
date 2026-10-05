@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/common.schema.json",
+  "title": "Kiritek Engineering — definiciones comunes",
+  "description": "Definiciones compartidas por los contratos de engineering/guardrails. Requiere el modo 'extended' del validador (pattern, minItems, uniqueItems, $ref entre schemas).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {},
+  "definitions": {
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    },
+    "namespacedId": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "controlId": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/)?[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$"
+    },
+    "profileId": {
+      "anyOf": [
+        { "type": "string", "enum": ["web", "mobile-app", "search", "module-launch"] },
+        { "$ref": "#/definitions/namespacedId" }
+      ]
+    },
+    "sha256": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "revision": { "type": "string", "pattern": "^[0-9a-f]{7,64}$" },
+    "isoTimestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "ref": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![/~])(?![A-Za-z]:)(?!(?:.*/)?\\.\\.(?:/|$))[A-Za-z0-9._\\-/#:@~]+$"
+    },
+    "repoPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?:\\.|(?![/~])(?![A-Za-z]:)(?!.*\\\\)(?!(?:.*/)?\\.{1,2}(?:/|$))(?!.*//)[^\\u0000*?\\[\\]{}]+)$"
+    },
+    "repoGlob": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?:\\.|(?![/~])(?![A-Za-z]:)(?!.*\\\\)(?!(?:.*/)?\\.{1,2}(?:/|$))(?!.*//)[^\\u0000]+)$"
+    },
+    "level": { "type": "string", "enum": ["off", "warn", "enforce"] },
+    "moment": { "type": "string", "enum": ["agent", "pre-commit", "pr", "release"] },
+    "confidence": { "type": "string", "enum": ["deterministic", "high", "medium", "low", "unknown"] },
+    "evidenceClass": { "type": "string", "enum": ["deterministic", "heuristic", "manual"] },
+    "freshness": { "type": "string", "enum": ["fresh", "stale", "missing", "conflict"] },
+    "cache": { "type": "string", "enum": ["hit", "miss", "bypass"] },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "message": { "type": "string", "minLength": 1 },
+        "stage": { "type": "string", "minLength": 1 },
+        "remediation": { "type": "string", "minLength": 1 },
+        "retryable": { "type": "boolean" }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceKind", "sourceRef"],
+      "properties": {
+        "sourceKind": {
+          "type": "string",
+          "enum": ["flag", "env", "unit", "repo", "organization", "catalog", "discovery", "inherited"]
+        },
+        "sourceRef": { "$ref": "#/definitions/ref" },
+        "sourceVersion": { "type": "string", "minLength": 1 }
+      }
+    },
+    "catalogRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "digest"],
+      "properties": {
+        "id": { "$ref": "#/definitions/namespacedId" },
+        "version": { "$ref": "#/definitions/semver" },
+        "digest": { "$ref": "#/definitions/sha256" }
+      }
+    },
+    "profileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/definitions/profileId" },
+        "version": { "$ref": "#/definitions/semver" }
+      }
+    }
+  }
+}

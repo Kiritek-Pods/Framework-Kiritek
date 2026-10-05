@@ -7,6 +7,12 @@
  * type, const, enum, required, properties, additionalProperties, items,
  * minLength, minimum, exclusiveMinimum, anyOf, $ref local (#/definitions/...).
  *
+ * Modo `extended` (opt-in): añade pattern, maxLength, maximum, minItems,
+ * maxItems, uniqueItems, minProperties, propertyNames y $ref a otro schema
+ * del registro (`engineering/common.schema.json#/definitions/x`). Lo usan los
+ * contratos de engineering/guardrails; los schemas de security se validan sin
+ * él para no alterar su semántica actual.
+ *
  * Se mantiene deliberadamente pequeño y auditable para no incorporar una
  * dependencia nueva (política de supply chain, requisito 24). No pretende
  * cubrir todo draft-07, sólo lo que estos contratos necesitan.
@@ -31,11 +37,8 @@ function matchesType(value, expected) {
   return actual === expected;
 }
 
-function resolveRef(ref, root) {
-  if (!ref.startsWith("#/")) {
-    throw new Error(`$ref no soportado (sólo locales '#/...'): ${ref}`);
-  }
-  const segments = ref.slice(2).split("/");
+function resolvePointer(pointer, root, ref) {
+  const segments = pointer === "" ? [] : pointer.slice(1).split("/");
   let node = root;
   for (const seg of segments) {
     node = node && node[seg];
@@ -44,9 +47,75 @@ function resolveRef(ref, root) {
   return node;
 }
 
-function validateNode(value, schema, root, pointer, errors) {
+/** Devuelve `{ schema, root }`: el root cambia al seguir un $ref externo. */
+function resolveRef(ref, root, opts) {
+  if (ref.startsWith("#/")) {
+    return { schema: resolvePointer(ref.slice(1), root, ref), root };
+  }
+  if (!opts.extended) {
+    throw new Error(`$ref no soportado (sólo locales '#/...'): ${ref}`);
+  }
+  const [file, fragment = ""] = ref.split("#");
+  if (!file.endsWith(".schema.json") || file.includes("..") || path.isAbsolute(file)) {
+    throw new Error(`$ref externo no permitido: ${ref}`);
+  }
+  const external = loadSchema(file.slice(0, -".schema.json".length));
+  return { schema: resolvePointer(fragment, external, ref), root: external };
+}
+
+function canonical(value) {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${canonical(value[k])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function validateExtended(value, schema, root, pointer, errors, opts) {
+  const kind = typeOf(value);
+  if (kind === "string") {
+    if (schema.maxLength !== undefined && value.length > schema.maxLength) {
+      errors.push(`${pointer}: string más largo que maxLength ${schema.maxLength}`);
+    }
+    if (schema.pattern !== undefined && !new RegExp(schema.pattern, "u").test(value)) {
+      errors.push(`${pointer}: no coincide con pattern ${schema.pattern}`);
+    }
+  }
+  if ((kind === "number" || kind === "integer") && schema.maximum !== undefined && value > schema.maximum) {
+    errors.push(`${pointer}: número mayor que maximum ${schema.maximum}`);
+  }
+  if (kind === "array") {
+    if (schema.minItems !== undefined && value.length < schema.minItems) {
+      errors.push(`${pointer}: menos elementos que minItems ${schema.minItems}`);
+    }
+    if (schema.maxItems !== undefined && value.length > schema.maxItems) {
+      errors.push(`${pointer}: más elementos que maxItems ${schema.maxItems}`);
+    }
+    if (schema.uniqueItems === true) {
+      const seen = new Set(value.map(canonical));
+      if (seen.size !== value.length) errors.push(`${pointer}: elementos duplicados (uniqueItems)`);
+    }
+  }
+  if (kind === "object") {
+    const keys = Object.keys(value);
+    if (schema.minProperties !== undefined && keys.length < schema.minProperties) {
+      errors.push(`${pointer}: menos propiedades que minProperties ${schema.minProperties}`);
+    }
+    if (schema.propertyNames) {
+      for (const key of keys) {
+        validateNode(key, schema.propertyNames, root, `${pointer}{${key}}`, errors, opts);
+      }
+    }
+  }
+}
+
+function validateNode(value, schema, root, pointer, errors, opts) {
   if (schema.$ref) {
-    return validateNode(value, resolveRef(schema.$ref, root), root, pointer, errors);
+    const resolved = resolveRef(schema.$ref, root, opts);
+    return validateNode(value, resolved.schema, resolved.root, pointer, errors, opts);
   }
 
   if (schema.type) {
@@ -80,8 +149,10 @@ function validateNode(value, schema, root, pointer, errors) {
     }
   }
 
+  if (opts.extended) validateExtended(value, schema, root, pointer, errors, opts);
+
   if (typeOf(value) === "array" && schema.items) {
-    value.forEach((item, i) => validateNode(item, schema.items, root, `${pointer}[${i}]`, errors));
+    value.forEach((item, i) => validateNode(item, schema.items, root, `${pointer}[${i}]`, errors, opts));
   }
 
   if (typeOf(value) === "object") {
@@ -95,9 +166,11 @@ function validateNode(value, schema, root, pointer, errors) {
     const props = schema.properties || {};
     for (const [key, propValue] of Object.entries(value)) {
       if (props[key]) {
-        validateNode(propValue, props[key], root, `${pointer}.${key}`, errors);
+        validateNode(propValue, props[key], root, `${pointer}.${key}`, errors, opts);
       } else if (schema.additionalProperties === false) {
         errors.push(`${pointer}: propiedad no permitida "${key}"`);
+      } else if (opts.extended && schema.additionalProperties && typeof schema.additionalProperties === "object") {
+        validateNode(propValue, schema.additionalProperties, root, `${pointer}.${key}`, errors, opts);
       }
     }
   }
@@ -105,7 +178,7 @@ function validateNode(value, schema, root, pointer, errors) {
   if (Array.isArray(schema.anyOf)) {
     const anyOk = schema.anyOf.some((sub) => {
       const subErrors = [];
-      validateNode(value, sub, root, pointer, subErrors);
+      validateNode(value, sub, root, pointer, subErrors, opts);
       return subErrors.length === 0;
     });
     if (!anyOk) {
@@ -116,11 +189,13 @@ function validateNode(value, schema, root, pointer, errors) {
 
 /**
  * Valida `value` contra `schema`.
+ * @param {object} [options]
+ * @param {boolean} [options.extended] Habilita las palabras clave extendidas.
  * @returns {{ valid: boolean, errors: string[] }}
  */
-function validate(value, schema) {
+function validate(value, schema, options = {}) {
   const errors = [];
-  validateNode(value, schema, schema, "$", errors);
+  validateNode(value, schema, schema, "$", errors, { extended: !!options.extended });
   return { valid: errors.length === 0, errors };
 }
 
@@ -137,10 +212,10 @@ function loadSchema(name) {
 /**
  * Valida contra un schema nombrado. El registro es aditivo y por nombre de
  * archivo (`<name>.schema.json`): result | evidence | config | audit |
- * exception | break-glass | provider-plan.
+ * exception | break-glass | provider-plan | engineering/<contrato>.
  */
-function validateAgainst(name, value) {
-  return validate(value, loadSchema(name));
+function validateAgainst(name, value, options) {
+  return validate(value, loadSchema(name), options);
 }
 
 module.exports = {

@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/organization-policy.schema.json",
+  "title": "Kiritek Engineering — política organizacional",
+  "description": "Sólo participa en la precedencia si su origen y firma fueron verificados por la trust policy local. 'locked' impide que repo/unidad/env/flags cambien ese valor.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "controls"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "controls": {
+      "type": "object",
+      "propertyNames": { "$ref": "engineering/common.schema.json#/definitions/controlId" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "level": { "$ref": "engineering/common.schema.json#/definitions/level" },
+          "parameters": { "type": "object" },
+          "locked": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

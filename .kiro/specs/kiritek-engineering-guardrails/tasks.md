@@ -12,78 +12,78 @@
 
 ## Fase 1 — Contratos, schemas y aislamiento de dominio
 
-- [ ] **T01. Crear contratos versionados del dominio engineering** **[CP]**
+- [x] **T01. Crear contratos versionados del dominio engineering** **[CP]**
   - **Depende de:** ninguna.
   - **Objetivo/rutas:** `src/engineering/guardrails/contracts/**`, `schemas/engineering/**`, adaptación explícita de `src/domain/result.js` sin modificar la semántica security.
-  - [ ] T01.1 Implementar y validar `Profile`, `Unit`, `Catalog`, `ControlDefinition`, `Observation`, `Applicability`, `PracticeInput`, `EngineeringEvidence` y `EngineeringResultEnvelope`.
-  - [ ] T01.2 Mantener `PolicyResult` v1 como payload interno y crear envelope v2 con `domain`, pack, catálogo, unidad, perfiles, momento, confianza, aplicabilidad, frescura y elegibilidad de bloqueo.
-  - [ ] T01.3 Rechazar propiedades desconocidas, IDs no namespaceados, versiones inválidas, rutas absolutas y estados no reconocidos.
-  - [ ] T01.4 Definir estados independientes para `off`, `not_evaluated`, `not_applicable`, `unknown`, `unavailable`, `timeout`, `conflict` y `stale`; ninguno equivale a `allow` verificado.
-  - [ ] T01.5 Implementar fixtures y pruebas de round-trip/schema, compatibilidad PolicyResult v1 y separación de resultados security/engineering.
-  - [ ] T01.6 **Validar gate:** ningún `allow` de un dominio prueba conformidad del otro y pack ausente no rompe auditoría security.
+  - [x] T01.1 Implementar y validar `Profile`, `Unit`, `Catalog`, `ControlDefinition`, `Observation`, `Applicability`, `PracticeInput`, `EngineeringEvidence` y `EngineeringResultEnvelope`.
+  - [x] T01.2 Mantener `PolicyResult` v1 como payload interno y crear envelope v2 con `domain`, pack, catálogo, unidad, perfiles, momento, confianza, aplicabilidad, frescura y elegibilidad de bloqueo.
+  - [x] T01.3 Rechazar propiedades desconocidas, IDs no namespaceados, versiones inválidas, rutas absolutas y estados no reconocidos.
+  - [x] T01.4 Definir estados independientes para `off`, `not_evaluated`, `not_applicable`, `unknown`, `unavailable`, `timeout`, `conflict` y `stale`; ninguno equivale a `allow` verificado.
+  - [x] T01.5 Implementar fixtures y pruebas de round-trip/schema, compatibilidad PolicyResult v1 y separación de resultados security/engineering.
+  - [x] T01.6 **Validar gate:** ningún `allow` de un dominio prueba conformidad del otro y pack ausente no rompe auditoría security.
   - **Requisitos:** R1, R5–R8, R16, R27; G1, G5.
 
 ## Fase 2 — Catálogo reproducible y configuración independiente
 
-- [ ] **T02. Implementar catálogo versionado, fijado y verificable** **[CP]**
+- [x] **T02. Implementar catálogo versionado, fijado y verificable** **[CP]**
   - **Depende de:** T01.
   - **Objetivo/rutas:** `src/engineering/guardrails/catalog/**`, `catalogs/engineering/guardrails/1.0.0/**`, schemas de catálogo/control/perfil.
-  - [ ] T02.1 Publicar catálogo inicial con versiones exactas, digest SHA-256, compatibilidad, perfiles, momentos, parámetros, niveles soportados y contratos de enforcement.
-  - [ ] T02.2 Resolver una sola snapshot inmutable por ejecución; prohibir `latest`, fallback silencioso y mezcla de versiones.
-  - [ ] T02.3 Implementar verificación de digest/firma opcional, cache segura, modo offline, diff, deprecaciones y migraciones semánticas.
-  - [ ] T02.4 Crear suite de conformidad para catálogos/plugins y rechazar controles que declaren `enforce` sin contrato aprobado.
-  - [ ] T02.5 **Validar gate:** misma revisión+config+catálogo produce resolución idéntica; mismatch/incompatibilidad falla antes de evaluar.
+  - [x] T02.1 Publicar catálogo inicial con versiones exactas, digest SHA-256, compatibilidad, perfiles, momentos, parámetros, niveles soportados y contratos de enforcement.
+  - [x] T02.2 Resolver una sola snapshot inmutable por ejecución; prohibir `latest`, fallback silencioso y mezcla de versiones.
+  - [x] T02.3 Implementar verificación de digest/firma opcional, cache segura, modo offline, diff, deprecaciones y migraciones semánticas.
+  - [x] T02.4 Crear suite de conformidad para catálogos/plugins y rechazar controles que declaren `enforce` sin contrato aprobado.
+  - [x] T02.5 **Validar gate:** misma revisión+config+catálogo produce resolución idéntica; mismatch/incompatibilidad falla antes de evaluar.
   - **Requisitos:** R4, R22, R25–R27; G1, G6.
 
-- [ ] **T03. Implementar configuración engineering con procedencia por hoja** **[CP]**
+- [x] **T03. Implementar configuración engineering con procedencia por hoja** **[CP]**
   - **Depende de:** T01–T02.
   - **Objetivo/rutas:** `src/engineering/guardrails/config/**`, `schemas/engineering/config.schema.json`, template `kiritek-engineering.config.json`.
-  - [ ] T03.1 Soportar `off|warn|enforce` por control, unidades, perfiles, parámetros, budgets, evidencia, waivers, N/A, plugins y telemetría.
-  - [ ] T03.2 Implementar precedencia flags allowlisted > env allowlisted > unidad > repo > organización verificada > catálogo.
-  - [ ] T03.3 Mantener procedencia de cada valor y locks organizacionales; conflictos o ambigüedad deben fallar explícitamente.
-  - [ ] T03.4 Impedir que `mode` de security eleve o reduzca niveles engineering.
-  - [ ] T03.5 Rechazar secretos/credenciales por flags, campos desconocidos, roots fuera del repo y `enforce` no soportado.
-  - [ ] T03.6 **Validar gate:** tabla completa de precedencia, overrides multiunidad, locks, config inválida y origen efectivo redactado.
+  - [x] T03.1 Soportar `off|warn|enforce` por control, unidades, perfiles, parámetros, budgets, evidencia, waivers, N/A, plugins y telemetría.
+  - [x] T03.2 Implementar precedencia flags allowlisted > env allowlisted > unidad > repo > organización verificada > catálogo.
+  - [x] T03.3 Mantener procedencia de cada valor y locks organizacionales; conflictos o ambigüedad deben fallar explícitamente.
+  - [x] T03.4 Impedir que `mode` de security eleve o reduzca niveles engineering.
+  - [x] T03.5 Rechazar secretos/credenciales por flags, campos desconocidos, roots fuera del repo y `enforce` no soportado.
+  - [x] T03.6 **Validar gate:** tabla completa de precedencia, overrides multiunidad, locks, config inválida y origen efectivo redactado.
   - **Requisitos:** R1–R4, R14, R20, R22; G1–G2.
 
 ## Fase 3 — Perfiles, unidades y alcance de monorepo
 
-- [ ] **T04. Resolver perfiles funcionales y unidades explícitas** **[CP]**
+- [x] **T04. Resolver perfiles funcionales y unidades explícitas** **[CP]**
   - **Depende de:** T02–T03.
   - **Objetivo/rutas:** `src/engineering/guardrails/workspace/{discover,units,identity,ownership}.js`.
-  - [ ] T04.1 Soportar `web`, `mobile-app`, `search`, `module-launch` y perfiles namespaceados extensibles por unidad.
-  - [ ] T04.2 Hacer que detección de stack/rutas/dependencias sólo produzca sugerencias con confianza y razones; nunca activar perfiles o enforcement.
-  - [ ] T04.3 Resolver herencia explícita, parámetros, perfiles compuestos, IDs estables, aliases gobernados y roots confinados.
-  - [ ] T04.4 Distinguir perfil no declarado, sugerido, heredado y explícito en auditoría/salida.
-  - [ ] T04.5 Probar repos sin perfil, unidades superpuestas, symlinks, rutas Unicode/espacios y perfiles incompatibles.
+  - [x] T04.1 Soportar `web`, `mobile-app`, `search`, `module-launch` y perfiles namespaceados extensibles por unidad.
+  - [x] T04.2 Hacer que detección de stack/rutas/dependencias sólo produzca sugerencias con confianza y razones; nunca activar perfiles o enforcement.
+  - [x] T04.3 Resolver herencia explícita, parámetros, perfiles compuestos, IDs estables, aliases gobernados y roots confinados.
+  - [x] T04.4 Distinguir perfil no declarado, sugerido, heredado y explícito en auditoría/salida.
+  - [x] T04.5 Probar repos sin perfil, unidades superpuestas, symlinks, rutas Unicode/espacios y perfiles incompatibles.
   - **Requisitos:** R2, R5, R14, R23, R26; G2, G6.
 
-- [ ] **T05. Implementar ownership, grafo de impacto y alcance multiunidad** **[CP]**
+- [x] **T05. Implementar ownership, grafo de impacto y alcance multiunidad** **[CP]**
   - **Depende de:** T04.
   - **Objetivo/rutas:** `src/engineering/guardrails/workspace/{impact-graph,scope}.js`, integración staged/PR/release.
-  - [ ] T05.1 Mapear paths a unidades por `owns/excludes`, shared paths y dependencias, preservando razones.
-  - [ ] T05.2 Resolver ciclos como componentes, deduplicar y expandir ante ambigüedad o fallar según política; nunca reducir cobertura silenciosamente.
-  - [ ] T05.3 Evaluar staged exacto en pre-commit, rango completo en PR y artefacto/unidades seleccionadas en release.
-  - [ ] T05.4 Particionar evidencia, cache, waiver y N/A por unidad/control/perfil/catálogo.
-  - [ ] T05.5 Probar monorepos, worktrees, moves/renames, cambios compartidos, ranges incompletos y repos shallow.
-  - [ ] T05.6 **Validar gate:** cada path tiene owner o diagnóstico; ambigüedad nunca produce conformidad ni deny arbitrario.
+  - [x] T05.1 Mapear paths a unidades por `owns/excludes`, shared paths y dependencias, preservando razones.
+  - [x] T05.2 Resolver ciclos como componentes, deduplicar y expandir ante ambigüedad o fallar según política; nunca reducir cobertura silenciosamente.
+  - [x] T05.3 Evaluar staged exacto en pre-commit, rango completo en PR y artefacto/unidades seleccionadas en release.
+  - [x] T05.4 Particionar evidencia, cache, waiver y N/A por unidad/control/perfil/catálogo.
+  - [x] T05.5 Probar monorepos, worktrees, moves/renames, cambios compartidos, ranges incompletos y repos shallow.
+  - [x] T05.6 **Validar gate:** cada path tiene owner o diagnóstico; ambigüedad nunca produce conformidad ni deny arbitrario.
   - **Requisitos:** R5, R12, R14, R23, R27; G2–G3.
 
 ## Fase 4 — Pipeline común y predicado anti-deny
 
-- [ ] **T06. Implementar orquestador y pipeline compartido** **[CP]**
+- [x] **T06. Implementar orquestador y pipeline compartido** **[CP]**
   - **Depende de:** T01–T05.
   - **Objetivo/rutas:** `src/engineering/guardrails/{orchestrator,index}.js`, `pipeline/{collect,normalize,applicability,evaluate,aggregate,exceptions}.js`.
-  - [ ] T06.1 Implementar flujo único `collector → normalizer → applicability → evaluator → waiver/N-A → trust gate → redactor → adapter`.
-  - [ ] T06.2 Aislar collectors de decisiones y E/S de evaluators; evaluators deben ser puros con reloj/datos inyectados.
-  - [ ] T06.3 Normalizar observaciones con schema, procedencia, revisión, scope/config/catalog hashes, confianza y limitaciones.
-  - [ ] T06.4 Resolver aplicabilidad antes de evaluar y abstenerse ante `unknown`, `not_applicable`, `unavailable` o conflicto.
-  - [ ] T06.5 Implementar `mayDeny` central exactamente como contrato de diseño; recalcularlo y no confiar en plugins/evaluators.
-  - [ ] T06.6 Degradar `deny` inelegible a `warn/error` con `DENY_NOT_ELIGIBLE` y evento auditable.
-  - [ ] T06.7 Separar findings deterministas de heurísticos; sólo los primeros participan en bloqueo.
-  - [ ] T06.8 Agregar resultados sin perder unidad/control/dominio ni transformar error operativo en policy deny.
-  - [ ] T06.9 **Validación negativa obligatoria:** regex, nombres, presencia de dependencia, AST parcial, evidencia manual no autorizada, timeout, partial, stale, conflict, cache con hash distinto, unavailable y aplicabilidad ambigua jamás producen `deny`.
-  - [ ] T06.10 **Validar gate:** property tests demuestran que `mayDeny` sólo es true con nivel enforce + aplicabilidad/evidencia deterministas fresh + hashes/revisión/unidad coincidentes + contrato aprobado + sin conflicto/waiver.
+  - [x] T06.1 Implementar flujo único `collector → normalizer → applicability → evaluator → waiver/N-A → trust gate → redactor → adapter`.
+  - [x] T06.2 Aislar collectors de decisiones y E/S de evaluators; evaluators deben ser puros con reloj/datos inyectados.
+  - [x] T06.3 Normalizar observaciones con schema, procedencia, revisión, scope/config/catalog hashes, confianza y limitaciones.
+  - [x] T06.4 Resolver aplicabilidad antes de evaluar y abstenerse ante `unknown`, `not_applicable`, `unavailable` o conflicto.
+  - [x] T06.5 Implementar `mayDeny` central exactamente como contrato de diseño; recalcularlo y no confiar en plugins/evaluators.
+  - [x] T06.6 Degradar `deny` inelegible a `warn/error` con `DENY_NOT_ELIGIBLE` y evento auditable.
+  - [x] T06.7 Separar findings deterministas de heurísticos; sólo los primeros participan en bloqueo.
+  - [x] T06.8 Agregar resultados sin perder unidad/control/dominio ni transformar error operativo en policy deny.
+  - [x] T06.9 **Validación negativa obligatoria:** regex, nombres, presencia de dependencia, AST parcial, evidencia manual no autorizada, timeout, partial, stale, conflict, cache con hash distinto, unavailable y aplicabilidad ambigua jamás producen `deny`.
+  - [x] T06.10 **Validar gate:** property tests demuestran que `mayDeny` sólo es true con nivel enforce + aplicabilidad/evidencia deterministas fresh + hashes/revisión/unidad coincidentes + contrato aprobado + sin conflicto/waiver.
   - **Requisitos:** R5–R8, R12–R13, R16, R27; G3–G5.
 
 ## Fase 5 — Runtime, privacidad, evidencia y cache

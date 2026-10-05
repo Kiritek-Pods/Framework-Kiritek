@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/evidence.schema.json",
+  "title": "Kiritek Engineering Evidence v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "type", "evidenceClass", "confidence", "domain", "packId", "catalog", "control", "collectorVersions", "evaluatorVersion", "unitId", "revision", "scopeHash", "configHash", "platformKey", "createdAt", "durationMs", "cache", "observationRefs", "redaction"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 2 },
+    "id": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+    "type": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+    "evidenceClass": { "$ref": "engineering/common.schema.json#/definitions/evidenceClass" },
+    "confidence": { "$ref": "engineering/common.schema.json#/definitions/confidence" },
+    "domain": { "type": "string", "const": "engineering" },
+    "packId": { "type": "string", "const": "engineering/guardrails" },
+    "catalog": { "$ref": "engineering/common.schema.json#/definitions/catalogRef" },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "contractVersion"],
+      "properties": {
+        "id": { "$ref": "engineering/common.schema.json#/definitions/controlId" },
+        "version": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+        "contractVersion": { "$ref": "engineering/common.schema.json#/definitions/semver" }
+      }
+    },
+    "collectorVersions": { "type": "object", "additionalProperties": { "$ref": "engineering/common.schema.json#/definitions/semver" } },
+    "evaluatorVersion": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+    "unitId": { "$ref": "engineering/common.schema.json#/definitions/namespacedId" },
+    "revision": { "$ref": "engineering/common.schema.json#/definitions/revision" },
+    "scopeHash": { "$ref": "engineering/common.schema.json#/definitions/sha256" },
+    "configHash": { "$ref": "engineering/common.schema.json#/definitions/sha256" },
+    "platformKey": { "type": "string", "minLength": 1 },
+    "createdAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+    "expiresAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+    "durationMs": { "type": "integer", "minimum": 0 },
+    "cache": { "$ref": "engineering/common.schema.json#/definitions/cache" },
+    "observationRefs": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/ref" } },
+    "reportRef": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+    "manualReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer", "scope", "checklistRef", "reviewedAt", "expiresAt", "reference"],
+      "properties": {
+        "reviewer": { "type": "string", "minLength": 1 },
+        "scope": { "type": "string", "minLength": 1 },
+        "checklistRef": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+        "reviewedAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+        "expiresAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+        "reference": { "$ref": "engineering/common.schema.json#/definitions/ref" }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policyVersion", "verified"],
+      "properties": {
+        "policyVersion": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+        "verified": { "type": "boolean", "const": true }
+      }
+    }
+  }
+}

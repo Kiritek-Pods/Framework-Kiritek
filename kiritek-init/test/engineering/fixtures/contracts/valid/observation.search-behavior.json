@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "observationId": "obs/search-burst-1",
+  "kind": "search-behavior",
+  "controlId": "search.input-rate",
+  "unitId": "acme/search-web",
+  "source": { "collectorId": "search-input-rate/collector", "version": "1.0.0", "mechanism": "test", "locationRef": "apps/search web/tests/contracts/search-rate.test.js" },
+  "revision": "0123456789abcdef0123456789abcdef01234567",
+  "scopeHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "configHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "catalogDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "observedAt": "2026-10-01T12:00:00Z",
+  "status": "complete",
+  "confidence": "deterministic",
+  "evidenceClass": "deterministic",
+  "facts": { "scenario": "burst", "requestsStarted": 4, "maxAllowed": 1, "minChars": 3 },
+  "limitations": [],
+  "durationMs": 42,
+  "cache": "miss"
+}

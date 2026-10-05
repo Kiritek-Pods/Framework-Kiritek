@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "id": "acme/search-web",
+  "root": "apps/search web",
+  "kind": "application",
+  "profiles": [
+    {
+      "schemaVersion": 1,
+      "id": "search",
+      "version": "1.0.0",
+      "catalog": {
+        "id": "engineering/guardrails",
+        "version": "1.0.0",
+        "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "extends": [],
+      "parameters": {},
+      "source": "explicit",
+      "provenance": {
+        "sourceKind": "unit",
+        "sourceRef": "kiritek-engineering.config.json#/workspace/units/0"
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "acme/checkout",
+      "version": "0.1.0",
+      "catalog": {
+        "id": "engineering/guardrails",
+        "version": "1.0.0",
+        "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "extends": [
+        {
+          "id": "web",
+          "version": "1.0.0"
+        }
+      ],
+      "parameters": {},
+      "source": "explicit",
+      "provenance": {
+        "sourceKind": "unit",
+        "sourceRef": "kiritek-engineering.config.json#/workspace/units/0"
+      }
+    }
+  ],
+  "owns": [
+    "../outside/**"
+  ],
+  "excludes": [
+    "apps/search web/fixtures/**"
+  ],
+  "dependsOn": [
+    "acme/shared-ui"
+  ],
+  "identityAliases": [],
+  "provenance": {
+    "sourceKind": "repo",
+    "sourceRef": "kiritek-engineering.config.json"
+  }
+}

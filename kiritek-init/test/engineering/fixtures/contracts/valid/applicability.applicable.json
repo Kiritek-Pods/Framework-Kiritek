@@ -1,0 +1,11 @@
+{
+  "status": "applicable",
+  "confidence": "deterministic",
+  "reasons": [],
+  "sources": ["obs/search-burst-1"],
+  "unitId": "acme/search-web",
+  "controlId": "search.input-rate",
+  "profileRefs": [{ "id": "search", "version": "1.0.0" }],
+  "moment": "pr",
+  "scopeHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}
