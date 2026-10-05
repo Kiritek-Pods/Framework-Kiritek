@@ -1,0 +1,35 @@
+{
+  "_comment": "Kiritek pack GitHub — ruleset PREFERIDO (requisito 17.2/17.3). Artefacto DESCRITO: el pack NO lo aplica. Aplicarlo requiere confirmación humana explícita, p. ej. 'gh api --method POST /repos/{owner}/{repo}/rulesets --input ruleset.json'. {{DEFAULT_BRANCH}} y {{REQUIRED_REVIEWS}} se resuelven desde la config del plan.",
+  "name": "kiritek-default-branch-protection",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "include": ["refs/heads/{{DEFAULT_BRANCH}}"],
+      "exclude": []
+    }
+  },
+  "rules": [
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": "{{REQUIRED_REVIEWS}}",
+        "dismiss_stale_reviews_on_push": true,
+        "require_code_owner_review": true,
+        "require_last_push_approval": true,
+        "required_review_thread_resolution": true
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "required_status_checks": [
+          { "context": "Kiritek Security (GitHub pack) / scan" }
+        ]
+      }
+    }
+  ]
+}

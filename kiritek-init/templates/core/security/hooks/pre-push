@@ -1,0 +1,31 @@
+#!/bin/sh
+# Kiritek managed pre-push hook (dispatcher).
+# Recibe por stdin las refs a actualizar; las reenvía al hook previo y a Kiritek.
+
+if [ -n "$KIRITEK_HOOK_RUNNING" ]; then
+  exit 0
+fi
+export KIRITEK_HOOK_RUNNING=1
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+
+# stdin se consume una vez; se guarda para reenviarlo a ambos consumidores.
+STDIN_DATA=$(cat)
+
+PREV="$REPO_ROOT/.kiritek/hooks/pre-push.previous"
+if [ -x "$PREV" ]; then
+  printf '%s' "$STDIN_DATA" | "$PREV" "$@" || exit $?
+fi
+
+if command -v kiritek-init >/dev/null 2>&1; then
+  mkdir -p "$REPO_ROOT/.kiritek/tmp"
+  # Secretos en los commits a publicar (motor de archivos + Gitleaks) y guardas
+  # Git (push directo a la rama default, force push).
+  printf '%s\n' "$STDIN_DATA" | kiritek-init scan --scope=push --format=json > "$REPO_ROOT/.kiritek/tmp/pre-push.json" || exit $?
+  # Claves Jira del alcance.
+  printf '%s\n' "$STDIN_DATA" | kiritek-init validate push --format=json > "$REPO_ROOT/.kiritek/tmp/pre-push-jira.json" || exit $?
+else
+  echo "kiritek ⚠ kiritek-init no está en el PATH: controles de seguridad OMITIDOS en este push." >&2
+fi
+
+exit 0

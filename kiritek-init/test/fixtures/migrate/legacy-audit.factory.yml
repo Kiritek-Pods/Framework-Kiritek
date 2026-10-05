@@ -1,0 +1,19 @@
+name: Kiritek — auditoría semanal (0.1.0, insegura)
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Auditar cumplimiento Kiritek
+        run: npx github:Kiritek-Pods/Framework-Kiritek#npx-release audit
+      - name: Commitear reporte (INSEGURO)
+        run: |
+          git add kiritek-compliance.md
+          git commit -m "chore: reporte de cumplimiento"
+          git push origin HEAD

@@ -1,0 +1,55 @@
+{
+  "note": "Fixtures sintéticos de mensajes de commit para la política de Conventional Commits y sintaxis Jira local (Tarea 22). Ningún valor es un secreto real; las claves Jira son placeholders no funcionales.",
+  "valid": [
+    { "name": "feat simple", "message": "feat: agrega validación de commits" },
+    { "name": "fix con scope", "message": "fix(policy): corrige extracción de clave" },
+    { "name": "chore sin scope", "message": "chore: actualiza dependencias de desarrollo" },
+    {
+      "name": "feat con body y footer",
+      "message": "feat(cli): nuevo comando validate commit\n\nAgrega el enrutado del hook commit-msg al validador core.\n\nRefs: PROJ-1234"
+    }
+  ],
+  "invalid": [
+    { "name": "sin tipo", "message": "agrega algo", "expectRule": "header-format" },
+    { "name": "tipo desconocido", "message": "wip: trabajo en progreso", "expectRule": "unknown-type" },
+    { "name": "scope vacío", "message": "feat(): subject", "expectRule": "empty-scope" },
+    {
+      "name": "subject demasiado largo",
+      "message": "feat: este subject es intencionalmente excesivamente largo para superar con holgura el limite configurado de longitud maxima permitida",
+      "expectRule": "subject-too-long"
+    },
+    {
+      "name": "body sin línea en blanco",
+      "message": "fix: algo\nsin línea en blanco antes del body",
+      "expectRule": "missing-blank-line"
+    }
+  ],
+  "breaking": [
+    { "name": "breaking con bang", "message": "feat!: cambia el contrato de salida", "breaking": true },
+    {
+      "name": "breaking con footer",
+      "message": "feat(api): nuevo formato\n\nBREAKING CHANGE: el campo legacy se eliminó",
+      "breaking": true
+    },
+    { "name": "no breaking", "message": "feat: adición compatible", "breaking": false }
+  ],
+  "automatic": [
+    { "name": "merge estándar", "message": "Merge branch 'feature/PROJ-1' into main", "kind": "merge" },
+    { "name": "merge PR", "message": "Merge pull request #42 from org/feature", "kind": "merge" },
+    { "name": "revert estándar", "message": "Revert \"feat: algo\"\n\nThis reverts commit 0123456789abcdef0123456789abcdef01234567.", "kind": "revert" }
+  ],
+  "jira": {
+    "pattern": "[A-Z][A-Z0-9]+-[0-9]+",
+    "withKeyInCommit": "feat: añade módulo\n\nRefs: PROJ-1234",
+    "withKeyInBranch": "feat: añade módulo",
+    "branchWithKey": "feature/PROJ-5678-add-module",
+    "withoutKey": "feat: añade módulo sin referencia",
+    "customPattern": "TASK_[0-9]+",
+    "customKeyMessage": "feat: tarea custom\n\nRefs: TASK_9001"
+  },
+  "noJira": {
+    "authorizedChore": "chore: limpieza menor de scripts\n\nNO-JIRA: cambio interno sin ticket asociado",
+    "unauthorizedFeat": "feat: nueva funcionalidad\n\nNO-JIRA: sin ticket",
+    "missingReason": "chore: limpieza\n\nNO-JIRA:"
+  }
+}

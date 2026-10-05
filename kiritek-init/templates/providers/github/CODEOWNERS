@@ -1,0 +1,36 @@
+# Kiritek — CODEOWNERS del pack GitHub endurecido (tarea 39, requisito 17.6).
+#
+# Protege que los cambios a políticas de seguridad, workflows, hooks, allowlists
+# y configuración de seguridad requieran revisión de propietarios apropiados.
+#
+# Cómo usarlo:
+#  - Reemplaza `@your-org/security-team` por el equipo/propietarios reales.
+#  - CODEOWNERS por sí solo NO obliga la revisión: debe acompañarse de un ruleset
+#    o branch protection que exija "require review from Code Owners" sobre la
+#    rama default. El plan del pack describe ese ruleset/branch protection.
+#  - Las rutas más específicas al final ganan precedencia en CODEOWNERS.
+
+# Configuración de seguridad de Kiritek (modo, versiones, allowlists de ruta).
+/.kiritek/                                   @your-org/security-team
+/kiritek-security.config.json                @your-org/security-team
+**/kiritek-security.config.json              @your-org/security-team
+
+# Políticas y plantillas de seguridad instaladas por el core.
+/templates/core/security/                    @your-org/security-team
+
+# Workflows de CI (cualquier cambio al pipeline de seguridad pasa por revisión).
+/.github/workflows/                          @your-org/security-team
+
+# Hooks Git versionados y su dispatcher.
+/.kiritek/hooks/                             @your-org/security-team
+/.husky/                                     @your-org/security-team
+/.lefthook.yml                               @your-org/security-team
+/lefthook.yml                                @your-org/security-team
+
+# Allowlists / ignores administrados por Kiritek.
+/.gitleaksignore                             @your-org/security-team
+**/*.entries                                 @your-org/security-team
+
+# El propio CODEOWNERS: cambiar quién revisa requiere revisión del equipo.
+/CODEOWNERS                                  @your-org/security-team
+/.github/CODEOWNERS                          @your-org/security-team

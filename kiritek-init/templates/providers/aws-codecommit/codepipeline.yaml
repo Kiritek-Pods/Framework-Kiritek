@@ -1,0 +1,135 @@
+# Kiritek — pack AWS CodeCommit endurecido: CodePipeline + CodeBuild (tarea 40.3).
+#
+# Artefacto DESCRITO (dry-run): el pack NO lo aplica. Aplicarlo requiere
+# confirmación humana explícita, p. ej.:
+#   aws cloudformation deploy \
+#     --stack-name kiritek-codecommit-{{ENVIRONMENT}}-pipeline \
+#     --template-file codepipeline.yaml \
+#     --parameter-overrides RepositoryName={{REPOSITORY}} DefaultBranch={{DEFAULT_BRANCH}} Environment={{ENVIRONMENT}} \
+#     --capabilities CAPABILITY_NAMED_IAM
+#
+# Endurecimiento (requisito 16.5 / 24.6 / 26.9):
+#  - El build INVOCA los comandos core portables ('npx kiritek-init scan'); NO
+#    reimplementa la detección.
+#  - Artefactos REDACTADOS: no se publican secretos ni líneas fuente; sólo el
+#    reporte JSON schema-valid redactado por el core.
+#  - Rol de build con permisos MÍNIMOS (lectura del repo + logs); sin admin.
+#  - Etapa de APROBACIÓN MANUAL obligatoria ANTES de desplegar a producción.
+#
+# LIMITACIÓN (40.5): el gate de pipeline sobre la rama default NO impide que un
+# secreto llegue a una feature branch; mantén los escaneos local/pre-push/CI.
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Kiritek CodeCommit security pipeline with core gates, redacted artifacts and a
+  mandatory manual approval before production (synthetic; apply requires explicit
+  human confirmation).
+
+Parameters:
+  RepositoryName:
+    Type: String
+  DefaultBranch:
+    Type: String
+    Default: main
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, prod]
+    Default: prod
+  ArtifactBucket:
+    Type: String
+    Description: Bucket S3 para artefactos (ya existente; cifrado en reposo).
+
+Resources:
+  KiritekBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "kiritek-codecommit-build-${Environment}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: codebuild.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub "kiritek-build-least-privilege-${Environment}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ReadRepoOnly
+                Effect: Allow
+                Action:
+                  - codecommit:GitPull
+                  - codecommit:GetBranch
+                  - codecommit:GetRepository
+                Resource: !Sub "arn:aws:codecommit:*:*:${RepositoryName}"
+              - Sid: BuildLogs
+                Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:*:*:log-group:/aws/codebuild/kiritek-${Environment}:*"
+
+  KiritekSecurityBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub "kiritek-security-${Environment}"
+      ServiceRole: !GetAtt KiritekBuildRole.Arn
+      Artifacts: { Type: CODEPIPELINE }
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            build:
+              commands:
+                # Invoca el comando core portable; el pipeline NO re-escanea.
+                - npx kiritek-init scan --scope=repository --format=json > report.json
+          artifacts:
+            # Sólo el reporte JSON REDACTADO del core; nunca secretos ni fuente.
+            files:
+              - report.json
+
+  KiritekPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub "kiritek-${Environment}"
+      ArtifactStore: { Type: S3, Location: !Ref ArtifactBucket }
+      RoleArn: !GetAtt KiritekBuildRole.Arn
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                { Category: Source, Owner: AWS, Provider: CodeCommit, Version: "1" }
+              Configuration:
+                RepositoryName: !Ref RepositoryName
+                BranchName: !Ref DefaultBranch
+              OutputArtifacts: [{ Name: SourceOutput }]
+        - Name: SecurityGate
+          Actions:
+            - Name: KiritekSecurityScan
+              ActionTypeId:
+                { Category: Build, Owner: AWS, Provider: CodeBuild, Version: "1" }
+              Configuration: { ProjectName: !Ref KiritekSecurityBuild }
+              InputArtifacts: [{ Name: SourceOutput }]
+              OutputArtifacts: [{ Name: ScanReport }]
+        # APROBACIÓN MANUAL obligatoria ANTES de producción (40.3).
+        - Name: ManualApprovalBeforeProd
+          Actions:
+            - Name: HumanApproval
+              ActionTypeId:
+                { Category: Approval, Owner: AWS, Provider: Manual, Version: "1" }
+              Configuration:
+                CustomData: >-
+                  Revisa el reporte de seguridad redactado antes de aprobar el
+                  despliegue a producción. La aprobación es humana y explícita.
+
+Outputs:
+  PipelineName:
+    Value: !Ref KiritekPipeline
+  BuildProject:
+    Value: !Ref KiritekSecurityBuild

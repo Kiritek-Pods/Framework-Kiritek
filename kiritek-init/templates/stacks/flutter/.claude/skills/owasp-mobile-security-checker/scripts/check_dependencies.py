@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """
-Check Flutter dependencies for security vulnerabilities (OWASP M2).
+Check Flutter dependencies for security hygiene (OWASP M2).
 
-This script analyzes pubspec.yaml for outdated packages, version constraints,
-and known vulnerabilities.
+This script analyzes pubspec.yaml for outdated packages and loose/unconstrained
+version constraints. It uses VERSION HEURISTICS only — it does NOT consult a
+vulnerability advisory feed, and therefore never asserts a verified CVE. Findings
+describe "outdated" or "unconstrained" dependencies; confirm against a real
+advisory source (OSV, GitHub Advisories, pub.dev) before claiming a CVE.
 """
 
 import re
@@ -14,6 +17,9 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from redact import safe_findings, RedactionError  # noqa: E402
 
 
 def load_pubspec(project_root: str) -> Dict:
@@ -155,26 +161,36 @@ def version_below_threshold(version: Tuple[int, int, int], threshold_str: str) -
     return version < threshold
 
 
-def check_dangerous_packages(pubspec: Dict) -> List[Dict]:
-    """Check for known packages where old versions have security issues."""
+def check_outdated_version_heuristics(pubspec: Dict) -> List[Dict]:
+    """Heuristic version check for packages whose OLD pins are commonly outdated.
+
+    IMPORTANT — honesty of claims (requirement 12.4):
+    This is a VERSION HEURISTIC, not a verified-CVE lookup. It does NOT consult a
+    vulnerability advisory feed (OSV, GitHub Advisories, pub.dev advisories).
+    It therefore MUST NOT assert that a package has a "known CVE" or a verified
+    vulnerability. It only flags constraints that are below a well-known modern
+    baseline as "outdated / below recommended minimum", with the heuristic nature
+    made explicit so operators verify against a real advisory source.
+    """
     findings = []
 
-    dangerous_packages = {
+    # Baselines below which a pin is considered OUTDATED by heuristic (not a CVE).
+    outdated_version_baselines = {
         'http': {
             'versions': ['<0.13.0'],
-            'issue': 'Old versions lack important security features',
-            'severity': 'HIGH',
+            'issue': 'Outdated version pin (below recommended minimum; heuristic, not a verified CVE)',
+            'severity': 'MEDIUM',
         },
         'path_provider': {
             'versions': ['<2.0.0'],
-            'issue': 'Older versions have path traversal vulnerabilities',
+            'issue': 'Outdated version pin (below recommended minimum; heuristic, not a verified CVE)',
             'severity': 'MEDIUM',
         },
     }
 
     dependencies = pubspec.get('dependencies', {})
 
-    for package, version_info in dangerous_packages.items():
+    for package, version_info in outdated_version_baselines.items():
         if package not in dependencies:
             continue
         min_version = parse_min_version(dependencies[package])
@@ -185,7 +201,12 @@ def check_dangerous_packages(pubspec: Dict) -> List[Dict]:
                     'current_constraint': str(dependencies[package]),
                     'issue': version_info['issue'],
                     'severity': version_info['severity'],
-                    'recommendation': f'Update to a version that satisfies {threshold.replace("<", ">=")}',
+                    'advisory_source': 'none (version heuristic; verify against OSV / pub.dev advisories)',
+                    'recommendation': (
+                        f'Consider updating to a version that satisfies '
+                        f'{threshold.replace("<", ">=")}, then confirm against a real '
+                        f'advisory feed before claiming a CVE.'
+                    ),
                 })
 
     return findings
@@ -214,10 +235,17 @@ def main():
         outdated_findings = analyze_outdated_results(outdated_data)
         all_findings.extend(outdated_findings)
 
-    # Check for dangerous packages
-    print("Checking for known vulnerable packages...")
-    dangerous_findings = check_dangerous_packages(pubspec)
-    all_findings.extend(dangerous_findings)
+    # Heuristic version check (NOT a verified-CVE lookup — see requirement 12.4)
+    print("Checking version pins against recommended baselines (heuristic, not CVE lookup)...")
+    outdated_findings = check_outdated_version_heuristics(pubspec)
+    all_findings.extend(outdated_findings)
+
+    # Mandatory redaction (12.3, G.12) before printing/persisting.
+    try:
+        all_findings = safe_findings(all_findings)
+    except RedactionError as e:
+        print(f"ERROR: redaction failed, aborting output: {e}", file=sys.stderr)
+        sys.exit(3)
 
     # Group by severity (initialised before the findings check so it's always defined)
     by_severity: Dict[str, List] = {'CRITICAL': [], 'HIGH': [], 'MEDIUM': [], 'LOW': []}

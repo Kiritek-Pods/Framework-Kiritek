@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/evidence.schema.json",
+  "title": "Kiritek Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "control",
+    "command",
+    "toolVersion",
+    "configHash",
+    "scope",
+    "exitCode",
+    "decision",
+    "createdAt"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "control": { "type": "string", "minLength": 1 },
+    "command": { "type": "string", "minLength": 1 },
+    "toolVersion": { "type": "string", "minLength": 1 },
+    "configHash": { "type": "string", "minLength": 1 },
+    "scope": { "type": "string", "minLength": 1 },
+    "exitCode": { "type": "integer" },
+    "decision": { "type": "string", "enum": ["allow", "warn", "deny", "error"] },
+    "createdAt": { "type": "string", "format": "date-time", "minLength": 1 },
+    "reportRef": { "type": "string", "minLength": 1 },
+    "commit": { "type": "string", "minLength": 1 }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "controlId": "secrets.gitleaks",
+  "reason": "Sin alcance mínimo, debe rechazarse.",
+  "owner": "equipo-seguridad",
+  "ticket": "SEC-101",
+  "createdAt": "2026-10-01T12:00:00.000Z",
+  "expiresAt": "2026-10-15T12:00:00.000Z"
+}

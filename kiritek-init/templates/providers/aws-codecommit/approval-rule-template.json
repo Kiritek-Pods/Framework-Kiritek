@@ -1,0 +1,14 @@
+{
+  "_comment": "Kiritek pack AWS CodeCommit — approval rule template (tarea 40.2, requisito 16.4). Artefacto DESCRITO: el pack NO lo aplica. Aplicarlo requiere confirmación humana explícita, p. ej. 'aws codecommit create-approval-rule-template --approval-rule-template-name kiritek-default-branch --approval-rule-template-content file://approval-rule-template.json'. {{DEFAULT_BRANCH}} y {{MIN_REVIEWERS}} se resuelven desde la config del plan. SEPARACIÓN DE FUNCIONES: el ApprovalPoolMembers se restringe a un rol IAM distinto del autor del PR; CodeCommit no excluye nativamente al autor del conteo, por eso el pool se define por rol release y se refuerza con la política IAM. LIMITACIÓN (40.5): la approval sobre la rama default NO impide que un secreto llegue a una feature branch; mantener escaneos local/pre-push/CI.",
+  "Version": "2018-11-08",
+  "DestinationReferences": ["refs/heads/{{DEFAULT_BRANCH}}"],
+  "Statements": [
+    {
+      "Type": "Approvers",
+      "NumberOfApprovalsNeeded": "{{MIN_REVIEWERS}}",
+      "ApprovalPoolMembers": [
+        "arn:aws:sts::*:assumed-role/kiritek-codecommit-release-{{ENVIRONMENT}}/*"
+      ]
+    }
+  ]
+}

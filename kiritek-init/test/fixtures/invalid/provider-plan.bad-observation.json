@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "provider": "aws-codecommit",
+  "generatedAt": "2026-10-01T12:00:00.000Z",
+  "planId": "plan-aws-bad-obs",
+  "observation": "not-applicable",
+  "observationReason": null,
+  "dryRun": true,
+  "applied": false,
+  "apply": {
+    "supported": false,
+    "requiresHumanConfirmation": true,
+    "note": "Este plan es un artefacto dry-run."
+  },
+  "changes": [],
+  "requiredPermissions": [],
+  "parameters": [],
+  "rollback": [],
+  "reason": "observation fuera del enum del plan"
+}

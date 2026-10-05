@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/result.schema.json",
+  "title": "Kiritek PolicyResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "controlId", "decision", "severity", "toolStatus", "findings"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "controlId": { "type": "string", "minLength": 1 },
+    "decision": { "type": "string", "enum": ["allow", "warn", "deny", "error"] },
+    "severity": { "type": "string", "enum": ["info", "low", "medium", "high", "critical"] },
+    "toolStatus": {
+      "type": "string",
+      "enum": ["ok", "unavailable", "integrity_failed", "incompatible", "not_applicable"]
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/finding" }
+    },
+    "reason": { "type": "string", "minLength": 1 },
+    "scope": { "type": "string", "minLength": 1 },
+    "remediation": { "type": "string", "minLength": 1 },
+    "evidenceRef": { "type": "string", "minLength": 1 }
+  },
+  "definitions": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ruleId", "path", "severity", "fingerprint", "status"],
+      "properties": {
+        "ruleId": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "severity": { "type": "string", "enum": ["info", "low", "medium", "high", "critical"] },
+        "fingerprint": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "enum": ["new", "existing", "resolved", "suppressed", "error"] },
+        "lineNumber": { "type": "integer", "minimum": 1 },
+        "remediation": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

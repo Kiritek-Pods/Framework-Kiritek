@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/break-glass.schema.json",
+  "title": "Kiritek Break-Glass Exception",
+  "description": "Excepción break-glass gobernada: identidad autorizada, motivo, ticket/incidente, alcance, expiración y revisión posterior. NUNCA equivale a --no-verify ni a apagar workflows.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "type",
+    "controlId",
+    "reason",
+    "owner",
+    "approver",
+    "ticket",
+    "motive",
+    "createdAt",
+    "expiresAt"
+  ],
+  "anyOf": [
+    { "required": ["scopeFingerprint"] },
+    { "required": ["scopePath"] }
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "type": { "type": "string", "const": "break-glass" },
+    "controlId": { "type": "string", "minLength": 1 },
+    "scopeFingerprint": { "type": "string", "minLength": 1 },
+    "scopePath": { "type": "string", "minLength": 1 },
+    "reason": { "type": "string", "minLength": 1 },
+    "motive": { "type": "string", "minLength": 1 },
+    "owner": { "type": "string", "minLength": 1 },
+    "approver": { "type": "string", "minLength": 1 },
+    "ticket": { "type": "string", "minLength": 1 },
+    "incident": { "type": "string", "minLength": 1 },
+    "postReview": { "type": "boolean" },
+    "postReviewTicket": { "type": "string", "minLength": 1 },
+    "createdAt": { "type": "string", "format": "date-time", "minLength": 1 },
+    "expiresAt": { "type": "string", "format": "date-time", "minLength": 1 }
+  }
+}

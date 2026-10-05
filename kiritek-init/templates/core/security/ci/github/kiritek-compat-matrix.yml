@@ -1,0 +1,52 @@
+# Kiritek — matriz de compatibilidad (GitHub Actions).
+#
+# Ejecuta la suite (unit + integración + smoke) en el subconjunto de
+# plataformas declarado como soportado, dejando evidencia por estado
+# (requisitos 23.1, 26.7, G.14).
+#
+# Principios (iguales al workflow de seguridad endurecido):
+#  - permisos mínimos (sólo lectura),
+#  - sin commit/push desde CI,
+#  - actions fijadas por SHA inmutable,
+#  - concurrency y timeout acotados.
+#
+# Los tests específicos de POSIX (symlinks, modos de archivo) se saltan en
+# Windows registrando la razón; nunca se omiten en silencio.
+
+name: Kiritek Compat Matrix
+
+on:
+  pull_request: {}
+  push:
+    branches-ignore: []
+  schedule:
+    - cron: "0 6 * * 1" # lunes 06:00 UTC
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kiritek-compat-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ["18", "20"]
+    steps:
+      # actions/checkout v4.2.2 fijado por commit SHA inmutable.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # actions/setup-node v4.1.0 fijado por commit SHA inmutable.
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Run test suite
+        run: npm test

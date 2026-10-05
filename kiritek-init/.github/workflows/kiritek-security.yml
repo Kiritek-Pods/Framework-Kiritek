@@ -1,0 +1,37 @@
+# Kiritek — gate de seguridad en CI (GitHub Actions), workflow endurecido.
+#
+# Ejecuta el escaneo portable de Kiritek en PR y push. Principios:
+#  - permisos mínimos (sólo lectura),
+#  - sin commit/push desde CI,
+#  - actions fijadas por SHA inmutable,
+#  - concurrency y timeout acotados,
+#  - en PR de forks no se exponen secretos privilegiados.
+
+name: Kiritek Security
+
+on:
+  pull_request: {}
+  push:
+    branches-ignore: []
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kiritek-security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # actions/checkout v4.2.2 fijado por commit SHA inmutable.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          # PR necesita historial del rango; 0 = completo. Para repos grandes,
+          # ajustar a una profundidad suficiente para el evento.
+          fetch-depth: 0
+
+      - name: Kiritek security scan
+        run: npx kiritek-init scan --scope=repository --format=json

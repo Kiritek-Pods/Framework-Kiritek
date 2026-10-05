@@ -1,0 +1,1761 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "22.1 Validar tipos configurables, scope opcional, breaking changes, subject/body/footer y límites de longitud.": [
+      {
+        "executionId": "cc6f481e-c435-446b-a456-910a4091013a",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886028539
+      },
+      {
+        "executionId": "cc6f481e-c435-446b-a456-910a4091013a",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886489765
+      }
+    ],
+    "22.2 Extraer clave Jira con regex configurable (default estándar) desde ubicaciones configuradas de rama/commit/PR; omitirla si Jira está disabled sin desactivar otros controles.": [
+      {
+        "executionId": "cc6f481e-c435-446b-a456-910a4091013a",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886493425
+      }
+    ],
+    "22.3 Definir merge/revert automáticos con fixtures positivos/negativos; modelar `NO-JIRA` como excepción limitada por rol/tipo, razón y evidencia.": [
+      {
+        "executionId": "cc6f481e-c435-446b-a456-910a4091013a",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886496721
+      }
+    ],
+    "22.4 Etiquetar resultado local como validación sintáctica, nunca existencia remota.": [
+      {
+        "executionId": "cc6f481e-c435-446b-a456-910a4091013a",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886500044
+      }
+    ],
+    "22.5 **Validar:** tabla de mensajes válidos/inválidos, breaking/merge/revert, Jira on/off, patrón custom y NO-JIRA autorizado/no autorizado; integración real de commit-msg.": [
+      {
+        "executionId": "cc6f481e-c435-446b-a456-910a4091013a",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886515743
+      }
+    ],
+    "**22. Implementar Conventional Commits y sintaxis Jira local** **[H] [P con 23 tras 21]**": [
+      {
+        "executionId": "cc6f481e-c435-446b-a456-910a4091013a",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886515802
+      }
+    ],
+    "23.1 Consultar API/MCP configurable por clave nueva del rango, con credenciales sólo desde secret store/env, timeout, rate limit y deduplicación.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886932565
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886944730
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790887899954
+      }
+    ],
+    "23.2 Cachear por tenant/base URL+clave con TTL; impedir reutilización entre instancias y no registrar metadata sensible.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886932604
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790887904829
+      }
+    ],
+    "23.3 Mapear existe/accesible/política inválida/no existe/401/429/timeout; una negativa deniega y la indisponibilidad aplica `fail-closed|warn` según modo.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886932646
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790887909844
+      }
+    ],
+    "23.4 En fallback warn emitir `unverified/no_verificado_remotamente`, nunca `verified`; credenciales obligatorias ausentes fallan sin imprimirse.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886932709
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790887915723
+      }
+    ],
+    "23.5 Integrar pre-push y CI sobre las mismas claves y evidencia mínima.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886932755
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790887920806
+      }
+    ],
+    "23.6 **Validar:** mock 200/404/401/429/timeout, tenants distintos, TTL, credenciales ausentes, ambos fallbacks y paridad pre-push/CI sin fugas.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886932813
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790887925332
+      }
+    ],
+    "24.1 Generar hooks `PreToolUse` con matchers de escritura (`Edit|Write`) y comando (`Bash`) que invoquen el CLI core; parsear `tool_name`/`tool_input` y normalizar rutas absolutas/separadores a `PolicyInput`.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886932855
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790887939261
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888364883
+      }
+    ],
+    "24.2 Mapear decisión del motor a JSON: `deny → permissionDecision:\"deny\"` con `permissionDecisionReason` redactado; riesgo medio configurable a `permissionDecision:\"ask\"`; `allow` cuando la política lo permita. Usar **exit 2 como fail-safe** ante fallo del hook o JSON inválido, nunca permitir por defecto.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886932898
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888368672
+      }
+    ],
+    "24.3 Bloquear archivos sensibles, push a rama default, `--force` peligroso y `--no-verify`; no intentar `allow` por encima de reglas deny y respetar precedencia multi-hook; no registrar prompts/código/valores.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886932939
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888372288
+      }
+    ],
+    "24.4 Detectar versión/capacidad y marcar operaciones no interceptables como `unavailable`, sin atribuir protección falsa; mantener instalación/update/uninstall ownership-aware e independiente de Kiro.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933004
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888375778
+      }
+    ],
+    "24.5 **Validar:** payloads válidos/maliciosos, salidas `deny`/`ask`/`allow` y exit 2 fail-safe; hook que falla o emite JSON inválido debe bloquear, no permitir; coexistencia con Kiro sin doble ejecución; precedencia deny respetada; logs/stderr sin canario ni `permissionDecisionReason` sensible.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933052
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888379532
+      }
+    ],
+    "25.1 Generar hooks `PreToolUse` v1 con matchers para tools de escritura (`fs_write`/`write`, `str_replace`) y de comando (`execute_bash`/`shell`, `use_aws`), cuya acción `command` invoque el CLI core; parsear `tool_name`/`tool_input` desde stdin y normalizar a `PolicyInput` sin asumir claves no documentadas.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933110
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888384245
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888853474
+      }
+    ],
+    "25.2 Mapear la decisión del motor a exit code: `deny → exit 2` con `stderr` redactado (causa/ruta/remediación), `allow`/`warn → exit 0`; nunca usar otros códigos para denegar, porque Kiro los trata como fallo no bloqueante.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933146
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888857355
+      }
+    ],
+    "25.3 Bloquear archivos sensibles, push a rama default, `--force` peligroso y `--no-verify` únicamente cuando pasen por una tool interceptada; para operaciones fuera de alcance declarar la limitación y delegar en hooks Git/CI, sin atribuir protección inexistente.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933185
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888861064
+      }
+    ],
+    "25.4 Compartir motor/política/redacción core y deduplicar con Claude cuando ambos estén activos; no depender de Claude ni de confirmación interactiva en `PreToolUse`.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933222
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888864610
+      }
+    ],
+    "25.5 Detectar compatibilidad de versión/formato de hooks; si el formato o el bloqueo por exit 2 no están disponibles, marcar la capa `unavailable` en auditoría en vez de simular enforcement; migrar sólo el adaptador ante cambios de API y preservar hooks/integraciones del usuario.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933261
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888868447
+      }
+    ],
+    "25.6 Excluir prompts, código, `tool_input` sensible y valores de los logs por defecto.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933305
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888871707
+      }
+    ],
+    "25.7 **Validar:** en un workspace de prueba, confirmar que un `fs_write` de `.env`/secreto sintético y un `execute_bash` con push a default/`--no-verify` se **bloquean con exit 2** y aparecen redactados; que exit 0 permite; que un código inesperado no bloquea (y la auditoría lo refleja como fallo de hook); coexistencia con Claude sin doble ejecución; payload malformado usa fallback seguro; y ausencia de canario en stderr/logs/evidencia.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933346
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888876004
+      }
+    ],
+    "26.1 Demostrar Conventional Commit y Jira sintáctico en commit-msg, Jira remoto en pre-push/CI y fallbacks correctos.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933394
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790891368844
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790891923874
+      }
+    ],
+    "26.2 Demostrar Claude y Kiro por separado y juntos, sin duplicidad, bloqueando políticas soportadas y declarando límites.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933445
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790891928622
+      }
+    ],
+    "26.3 Escanear logs/reportes/evidencia para confirmar ausencia de prompts, código, credenciales Jira y canarios.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933486
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790891933589
+      }
+    ],
+    "27.1 Retirar el gate genérico divergente o convertirlo en delegación al Gitleaks core; evitar doble ejecución.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933553
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790891949645
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790892585709
+      }
+    ],
+    "27.2 Mantener controles móviles especializados de dependencias, red, almacenamiento y revisión manual.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933587
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790892589353
+      }
+    ],
+    "27.3 Pasar todos los resultados por redactor, incluyendo líneas, headers, URLs con credenciales y payloads.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933626
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790892592928
+      }
+    ],
+    "27.4 Renombrar heurísticas de versión para no afirmar CVE sin fuente real de advisories; declarar `not_applicable` fuera de Flutter.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933661
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790892596602
+      }
+    ],
+    "27.5 **Validar:** proyecto Flutter/no Flutter, comparación de gates sin divergencia, outputs móviles con canarios y assertions de nomenclatura/advisory.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933695
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790892600108
+      }
+    ],
+    "28.1 Añadir compatibilidad/enlace real de Claude/Kiro, Jira configurado/verificable y aplicabilidad Flutter.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933727
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790892610357
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893497063
+      }
+    ],
+    "28.2 Añadir observación remota con estados `observed|unauthorized|not-configured|not-applicable|unknown`, sin inferir por archivos locales.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933762
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893501164
+      }
+    ],
+    "28.3 Verificar última ejecución, freshness, commit/config hash y enforcement efectivo; reportar drift de default branch y excepciones.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933809
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893504908
+      }
+    ],
+    "28.4 Ejecutar self-checks sintéticos seguros en `--deep`, con cleanup y redacción garantizados.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933878
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893510333
+      }
+    ],
+    "28.5 **Validar:** matriz por capacidad/capa incluyendo no autorizado/no verificable, evidencia expirada y scanner desconectado; JSON estable y exit codes.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933912
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893513993
+      }
+    ],
+    "29.1 Limitar PR a ticket, resumen/riesgo, evidencia pruebas/seguridad, impacto secretos/datos y rollback cuando aplique.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933947
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893521919
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893887481
+      }
+    ],
+    "29.2 Limitar ticket a objetivo, criterios, riesgo/datos, dependencias y evidencia; permitir `N/A` con razón breve.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886933987
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893897073
+      }
+    ],
+    "29.3 Prohibir solicitudes de secretos, dumps, tokens, prompts o logs sin redactar; enlazar estados verificados a evidencia válida.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934022
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893906277
+      }
+    ],
+    "29.4 **Validar:** snapshots/linters de campos permitidos, fixtures N/A y declaración verificada con/sin evidencia.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934061
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893916138
+      }
+    ],
+    "30.1 Confirmar que el control genérico de secretos no reside en Flutter y que OWASP móvil sigue operativo.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934096
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893943694
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790894184405
+      }
+    ],
+    "30.2 Ejecutar auditoría profunda en estado sano y degradaciones representativas por cada capa.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934135
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790894187862
+      }
+    ],
+    "30.3 Confirmar que templates no solicitan datos sensibles y que toda afirmación verificada tiene evidencia vigente.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934184
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790894191671
+      }
+    ],
+    "31.1 Exigir control, fingerprint/ruta mínima, razón, owner, ticket, creación, expiración y aprobador distinto cuando aplique.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934224
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790894203988
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895046320
+      }
+    ],
+    "31.2 Rechazar excepciones sin expiración/excesivas; reactivar al expirar o cambiar fingerprint y reportar cantidad/edad/owner/estado sin contenido.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934261
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895051994
+      }
+    ],
+    "31.3 Modelar break-glass con identidad autorizada, motivo, ticket/incidente, alcance, expiración y revisión posterior; nunca usar `--no-verify` ni apagar workflows.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934302
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895056090
+      }
+    ],
+    "31.4 Proteger cambios de política/hook/workflow/allowlist mediante ownership remoto cuando esté disponible.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934362
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895059845
+      }
+    ],
+    "31.5 **Validar:** schema/property tests de amplitud/expiración/fingerprint, author=approver, bypasses prohibidos y auditoría redactada.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934398
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895064823
+      }
+    ],
+    "32.1 Diferenciar local bloqueado vs publicado/histórico y guiar contener, revocar/rotar, evaluar uso, eliminar, decidir historial, notificar y cerrar.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934434
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895075033
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895403645
+      }
+    ],
+    "32.2 Declarar que borrar el último commit/default protegida no revoca una credencial ni protege feature branches.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934467
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895407468
+      }
+    ],
+    "32.3 Para reescritura exigir coordinación, backup, clones/refs/tags afectados, invalidación previa y verificación posterior.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934502
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895411333
+      }
+    ],
+    "32.4 Registrar sólo evidencia redactada de rotación/alcance/controles; auditar fechas de rotación cuando la fuente permita observarlas.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934538
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895415840
+      }
+    ],
+    "32.5 **Validar:** tabletop fixtures local/publicado/feature branch/historial, checklist completo, ausencia del secreto y thresholds de rotación warn/fail.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934572
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895419930
+      }
+    ],
+    "33.1 Verificar integridad de herramientas, hooks, CI, Jira cuando aplique, hallazgos legacy/nuevos y excepciones antes de promover.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934610
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895428251
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895930288
+      }
+    ],
+    "33.2 Mantener detector/alcance idénticos entre warning/enforcement; cambiar sólo decisión de bloqueo y registrar deuda/baseline.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934645
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895934807
+      }
+    ],
+    "33.3 Registrar actor/origen, fecha, config anterior/nueva y evidencia; avisar expiraciones y aplicar política al vencer.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934679
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895940388
+      }
+    ],
+    "33.4 Permitir baseline temporal por fingerprint con owner/justificación/expiración y bloquear nuevos hallazgos.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934715
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895944632
+      }
+    ],
+    "33.5 **Validar:** repos nuevo/existente, readiness exitoso/fallido, Jira unavailable, legacy baseline, hallazgo nuevo y expiración; comparar scopes warning/enforce byte a byte.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934752
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895948929
+      }
+    ],
+    "34.1 Emitir eventos locales estructurados con control, versión, modo, duración, alcance agregado, resultado y categoría de error.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934789
+      },
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895957465
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790950329299
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790950672132
+      }
+    ],
+    "34.2 Excluir contenido, prompts, PII, personas, repo URL completa, rutas absolutas y URLs con credenciales.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934829
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790950677243
+      }
+    ],
+    "34.3 Para envío remoto exigir opt-in, TLS, auth, ID pseudónimo configurable, idempotency key, timeout, anti-replay, retención y destino documentado.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934866
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790950680821
+      }
+    ],
+    "34.4 Conservar local ante fallo remoto y no marcar delivered sin confirmación; soportar alertas agregadas para tool/Jira/bypass/excepciones.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934906
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790950684762
+      }
+    ],
+    "34.5 Registrar exceso de presupuesto sin omitir controles y mostrar instalación/cobertura/recencia/hallazgos/enforcement separadamente.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934944
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790950689348
+      }
+    ],
+    "34.6 **Validar:** telemetría off por defecto, mock entrega/fallo/replay/timeout, deduplicación y escaneo anti-canario/PII; assertions de dimensiones separadas.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886934979
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790950693379
+      }
+    ],
+    "35.1 Detectar artefactos legacy, registrar ownership/inventario y preservar hooks/config/docs personalizados.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935013
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790950703676
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951186441
+      }
+    ],
+    "35.2 Instalar baseline en warning, corregir workflow inseguro mediante replace seguro o propuesta/diff y reconciliar stacks/Jira/asistentes/providers.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935051
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951190396
+      }
+    ],
+    "35.3 Identificar parches críticos sin sobrescribir; impedir declaración conforme mientras existan conflictos críticos.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935089
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951194196
+      }
+    ],
+    "35.4 Soportar offline/cache, fallo parcial reentrante, rollback y propuesta lado a lado.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935153
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951197657
+      }
+    ],
+    "35.5 **Validar:** smoke completo 0.1.0 limpio/personalizado/parcial, doble migración, fallo inyectado, offline y promoción posterior; verificar tree del usuario y workflow.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935189
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951201443
+      }
+    ],
+    "36.1 Implementar preflight de Node, Git, shell/runtime, permisos, arquitectura, conectividad/proxy/CA y compatibilidad antes de mutar.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935222
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951209825
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951674742
+      }
+    ],
+    "36.2 Soportar macOS/Linux mantenidos y Windows mediante Node/PowerShell o Git compatible; detectar y explicar capacidades POSIX no soportadas.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935258
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951678286
+      }
+    ],
+    "36.3 Resolver raíz Git/workspaces sin escanear fuera del repo; manejar espacios, separadores, CRLF/LF, ejecutabilidad y worktrees.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935294
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951682513
+      }
+    ],
+    "36.4 Bloquear escapes por symlink y documentar follow/no-follow; validar cache/manual install offline.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935327
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951685843
+      }
+    ],
+    "36.5 **Validar:** matriz macOS/Linux/Windows declarada, paths con espacios/Unicode, CRLF, monorepo/subdir/worktree, symlink escape, proxy/offline; skips sólo con razón registrada.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935358
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951691619
+      }
+    ],
+    "37.1 Ejecutar migración 0.1.0, doctor/promote, excepciones/break-glass e incidente publicado sin fuga.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935394
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951702830
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952052222
+      }
+    ],
+    "37.2 Ejecutar matriz de compatibilidad disponible y confirmar telemetría off por defecto/segura con opt-in.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935432
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952055631
+      }
+    ],
+    "37.3 Confirmar que ningún bypass usa `--no-verify`, que findings legacy no ocultan nuevos y que workflow sigue sin push directo.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935469
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952059153
+      }
+    ],
+    "38.1 Generar planes deterministas con cambios, permisos requeridos, parámetros, dry-run, rollback y estado `observed|unauthorized|not-configured|unknown`.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935502
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952066621
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952490426
+      }
+    ],
+    "38.2 Separar instalación local de observación/aplicación remota; cualquier apply futuro requerirá confirmación humana explícita fuera de este plan.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935540
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952495300
+      }
+    ],
+    "38.3 Asegurar selección exclusiva/independiente: core no instala providers y cada provider no instala al otro.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935578
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952498640
+      }
+    ],
+    "38.4 **Validar:** dry-run sin llamadas mutantes, planes schema-valid, permisos ausentes diferenciados y snapshots que demuestren aislamiento de packs.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935616
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952502445
+      }
+    ],
+    "39.1 Planificar rulesets preferidos o branch protection equivalente: PR, reviews, checks, conversaciones, sin force/delete.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935654
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952515397
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952947994
+      }
+    ],
+    "39.2 Generar Actions con SHA inmutable, permisos mínimos, forks seguros y comandos core; nunca reimplementar detección.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935692
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952951453
+      }
+    ],
+    "39.3 Generar CODEOWNERS para políticas, workflows, hooks, allowlists y config de seguridad.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935732
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952955294
+      }
+    ],
+    "39.4 Observar/planificar secret scanning/push protection según plan/permisos; reportar unavailable sin reemplazar Gitleaks.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935770
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952958875
+      }
+    ],
+    "39.5 Diferenciar no autorizado/no configurado y producir comandos/diff, sin afirmar éxito ni ejecutar cambios remotos.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935812
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952963962
+      }
+    ],
+    "39.6 **Validar:** snapshots/schema de ruleset y fallback, linter de SHA/permisos/forks, mocks 403/404/capability y smoke `--provider=github` aislado.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935878
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952967671
+      }
+    ],
+    "40.1 Generar IaC/plan IAM mínimo privilegio para default/destructivos por rol, parámetros por entorno y rollback.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935919
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952974885
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790953564664
+      }
+    ],
+    "40.2 Incluir approval rule templates/rules, revisores mínimos, separación de funciones y prevención de autoaprobación donde AWS lo permita.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935961
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790953568955
+      }
+    ],
+    "40.3 Generar CodeBuild/CodePipeline con gates core, artefactos redactados y aprobación manual antes de producción.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886935996
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790953572663
+      }
+    ],
+    "40.4 Añadir planes SNS/EventBridge sin secretos y preferencia por roles/credenciales temporales, rotación/revocación y detección de claves obsoletas redactada.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936038
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790953576492
+      }
+    ],
+    "40.5 Repetir explícitamente en templates/docs: IAM sobre default no impide que un secreto llegue a una feature branch; mantener local/pre-push/CI.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936079
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790953580113
+      }
+    ],
+    "40.6 No aplicar cloud: sólo dry-run/plan; cualquier mutación requiere confirmación explícita y mecanismo posterior fuera de esta tarea.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936113
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790953583745
+      }
+    ],
+    "40.7 **Validar:** análisis estático IAM/IaC, snapshots por entorno, least privilege, pipeline/approval/alertas, ausencia de secretos y smoke `--provider=aws-codecommit` aislado sin llamadas mutantes.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936148
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790953587826
+      }
+    ],
+    "41.1 Auditar local present vs remoto observed/no autorizado/no configurado/no aplicable para cada pack.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936186
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790953595664
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954019117
+      }
+    ],
+    "41.2 Detectar drift de rulesets/IAM/workflows/pins/owners sin auto-corregir cloud.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936229
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954022579
+      }
+    ],
+    "41.3 Marcar capacidades dependientes de plan/licencia/permisos y su fallback; proteger cambios críticos mediante owner distinto cuando sea posible.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936270
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954026347
+      }
+    ],
+    "41.4 **Validar:** mocks de permisos/capacidades/drift y comparación de auditoría GitHub/AWS instalados por separado y juntos sólo si configuración lo permite.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936306
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954030168
+      }
+    ],
+    "42.1 Ejecutar instalación/plan/audit de GitHub y AWS por separado; confirmar que core y el provider opuesto no cambian.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936345
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954037920
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954355149
+      }
+    ],
+    "42.2 Inspeccionar permisos, pins, forks, IAM, approvals, rollback y estados no autorizados.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936383
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954358794
+      }
+    ],
+    "42.3 Confirmar por logs/mocks que no ocurrió ninguna llamada cloud mutante.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936420
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954362294
+      }
+    ],
+    "43.1 Documentar arquitectura core/adaptadores/packs, matriz por etapa, defaults, flags, precedencia, estados/exit codes y evidencia.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936458
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954378797
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954908700
+      }
+    ],
+    "43.2 Separar instalación nueva, repo existente, update 0.1.0, rollback, uninstall y conflictos.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936498
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954912139
+      }
+    ],
+    "43.3 Documentar setup/límites Claude, Kiro, Jira, GitHub y AWS; indicar que hooks cliente son evadibles y capacidades cloud dependen de plan/permisos.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936573
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954916032
+      }
+    ],
+    "43.4 Incluir runbooks de falso positivo, herramienta/Jira caída, secreto local/publicado, rotación, historial y break-glass.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936612
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954919799
+      }
+    ],
+    "43.5 Documentar canal oficial, integridad del tarball, versionado/procedencia reproducible y changelog con impacto/enforcement/migración.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936655
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954923651
+      }
+    ],
+    "43.6 Prohibir detectores de autoría IA como gate y repetir limitación de IAM sobre feature branches.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936695
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954927383
+      }
+    ],
+    "43.7 **Validar:** link/schema/command checks, búsqueda de recomendaciones prohibidas o `latest`, revisión de todos los flags/exit codes y checklist de docs 27.1–27.8.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936731
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954931091
+      }
+    ],
+    "44.1 Ejecutar unitarias de parser/config, branches/scopes/refspecs, commits/Jira, redacción, allowlists, manifests/merge, políticas/excepciones y auditoría.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936770
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954938993
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955348228
+      }
+    ],
+    "44.2 Ejecutar integración Git de hooks/gestores/worktrees/new branch/multiref/default custom/rollback y asistentes.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936811
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955352053
+      }
+    ],
+    "44.3 Ejecutar smoke limpio/repetido/update 0.1.0/parcial/warning/enforce/sin Jira/sin red/provider aislado.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936854
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955355863
+      }
+    ],
+    "44.4 Ejecutar Jira 200/404/401/429/timeout y fallbacks, Flutter/no Flutter, auditoría sana/degradada y telemetría off/on.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936896
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955359691
+      }
+    ],
+    "44.5 Ejecutar macOS/Linux/Windows para el subconjunto soportado; registrar skips con razón, versiones y exit codes.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936935
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955363588
+      }
+    ],
+    "44.6 Inspeccionar workflows/pins/permisos/no push y escanear la totalidad de resultados para ausencia del canario.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886936971
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955367219
+      }
+    ],
+    "44.7 **Validar:** publicar un índice de evidencia por G.1–G.15 con commit/config hash, plataforma, comando, timestamp y exit code; cualquier gap impide cierre.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937012
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955371125
+      }
+    ],
+    "45.1 Todos los criterios 1–28 y G.1–G.15 están mapeados a tareas completadas y evidencia vigente.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937051
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955378917
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955823528
+      }
+    ],
+    "45.2 Core instala sin stack, es idempotente/transaccional, y warning/enforcement usan idéntico detector/alcance.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937087
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955827250
+      }
+    ],
+    "45.3 Staged, push y CI detectan canarios en sus alcances; placeholders pasan; ningún output reconstruye el secreto.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937148
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955830873
+      }
+    ],
+    "45.4 Auditoría distingue todas las capas/estados requeridos y nunca infiere cumplimiento por existencia.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937189
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955834744
+      }
+    ],
+    "45.5 Migración 0.1.0 conserva personalizaciones y corrige workflow sin push directo.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937228
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955838799
+      }
+    ],
+    "45.6 Claude/Kiro/Jira/Flutter funcionan o declaran unavailable/no aplicable con precisión.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937271
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955842374
+      }
+    ],
+    "45.7 GitHub y AWS se validan separados, con pins/permisos mínimos, sin autoaplicar cloud.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937307
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955846186
+      }
+    ],
+    "45.8 Matriz multiplataforma, docs, runbooks, changelog, supply chain y rollback están completos.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937345
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955849896
+      }
+    ],
+    "45.9 No existe detector de autoría IA en ninguna ruta de bloqueo.": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790886937386
+      },
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955853498
+      }
+    ],
+    "**23. Implementar validador Jira remoto, caché y fallbacks** **[H] [P con 22 tras 21]**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790887925405
+      }
+    ],
+    "**24. Implementar adaptador Claude Code separado mediante hooks `PreToolUse`** **[H] [P con 25 tras 21]**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888379588
+      }
+    ],
+    "**25. Implementar adaptador Kiro separado mediante hooks `.kiro/hooks` v1** **[H] [P con 24 tras 21]**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790888876067
+      }
+    ],
+    "**26. [CP] Verificar trazabilidad y asistentes**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790891934678
+      }
+    ],
+    "**27. Migrar secretos genéricos de Flutter al core y preservar OWASP móvil** **[H] [P con 28 tras 26]**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790892600212
+      }
+    ],
+    "**28. Completar auditoría profunda de asistentes, Jira, Flutter, CI y providers** **[H] [P con 27 tras 26]**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893514158
+      }
+    ],
+    "**29. Crear templates mínimos de PR/ticket y protección de declaraciones de evidencia** **[H]**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790893920588
+      }
+    ],
+    "**30. [CP] Verificar separación core/stack y auditoría por capacidades**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790894191811
+      }
+    ],
+    "**31. Implementar gobernanza de excepciones y break-glass** **[H] [P con 32 tras 30]**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895064900
+      }
+    ],
+    "**32. Implementar clasificación, runbooks y evidencia de incidentes/rotación** **[H] [P con 31 tras 30]**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895420141
+      }
+    ],
+    "**33. Implementar `security doctor` y promoción warning → enforcement** **[H]**": [
+      {
+        "executionId": "e7db7d87-b025-403a-a414-7fadbea6c0b3",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790895949218
+      }
+    ],
+    "**34. Implementar observabilidad y telemetría opt-in segura** **[H] [P con 35 tras 33]**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790950693461
+      }
+    ],
+    "**35. Completar migración desde 0.1.0, parcial y personalizada** **[H] [P con 34 tras 33]**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951201528
+      }
+    ],
+    "**36. Endurecer compatibilidad multiplataforma, worktrees, monorepos y symlinks** **[H]**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790951691680
+      }
+    ],
+    "**37. [CP] Cerrar endurecimiento antes de providers**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952059193
+      }
+    ],
+    "**38. Crear contrato común de planes de provider sin autoaplicación** **[P]**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952502518
+      }
+    ],
+    "**39. Implementar pack GitHub endurecido** **[P] [P con 40 tras 38]**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790952967743
+      }
+    ],
+    "**40. Implementar pack AWS CodeCommit endurecido** **[P] [P con 39 tras 38]**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790953587882
+      }
+    ],
+    "**41. Auditar providers y proteger sus artefactos críticos** **[P]**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954030238
+      }
+    ],
+    "**42. [CP] Aceptar providers sin autoaplicar infraestructura**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954362344
+      }
+    ],
+    "**43. Completar documentación operativa y changelog trazable** **[H/P] [P con 44 tras 42]**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790954931165
+      }
+    ],
+    "**44. Ejecutar suite final multiplataforma y escenarios de aceptación** **[H/P] [P con 43 tras 42]**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955371168
+      }
+    ],
+    "**45. [CP] Definition of Done y aceptación de la iniciativa**": [
+      {
+        "executionId": "5991a60e-3ea3-4e7c-b0cf-413987276da8",
+        "chatSessionId": "sess_15c721de-403c-4957-a593-c292f4fbc972",
+        "timestamp": 1790955853547
+      }
+    ]
+  }
+}

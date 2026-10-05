@@ -1,0 +1,122 @@
+# Kiritek — pack AWS CodeCommit endurecido: IAM de MÍNIMO PRIVILEGIO (tarea 40.1).
+#
+# Artefacto DESCRITO (dry-run): el pack NO lo aplica. Aplicarlo requiere
+# confirmación humana explícita, p. ej.:
+#   aws cloudformation deploy \
+#     --stack-name kiritek-codecommit-{{ENVIRONMENT}}-iam \
+#     --template-file iam-least-privilege.yaml \
+#     --parameter-overrides RepositoryName={{REPOSITORY}} DefaultBranch={{DEFAULT_BRANCH}} Environment={{ENVIRONMENT}} \
+#     --capabilities CAPABILITY_NAMED_IAM
+#
+# Principio de mínimo privilegio (requisito 16.2 / G.9):
+#  - Las operaciones DESTRUCTIVAS / sobre la rama default se DENIEGAN salvo al
+#    rol release autorizado, acotando el Resource al ARN del repo/rama por
+#    condición. NUNCA se usa admin "*:*" ni "Resource: *" sobre destructivos.
+#  - Parámetros POR ENTORNO (dev/staging/prod); un stack por entorno.
+#  - Separación de funciones: el rol de desarrollador no puede empujar/forzar a
+#    la rama default; sólo el rol release (y aun así vía PR aprobado).
+#
+# LIMITACIÓN (requisito 16.3/27.4/40.5/G.10): este control IAM sobre la rama
+# default NO impide que un secreto llegue a una feature branch. Protege la rama
+# default, no las ramas de feature. Mantén los escaneos local, pre-push y CI
+# (Gitleaks del core) activos: este pack los COMPLEMENTA, nunca los reemplaza.
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Kiritek CodeCommit least-privilege IAM for default-branch and destructive
+  operations (synthetic template; apply requires explicit human confirmation).
+
+Parameters:
+  RepositoryName:
+    Type: String
+    Description: Nombre del repositorio CodeCommit a proteger.
+  DefaultBranch:
+    Type: String
+    Default: main
+    Description: Rama default protegida (no se asume main; se pasa explícita).
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, prod]
+    Default: prod
+    Description: Entorno (parámetro por entorno, 40.1).
+
+Resources:
+  # Rol de DESARROLLADOR: sólo lectura + trabajo en ramas de feature. No puede
+  # realizar operaciones destructivas ni sobre la rama default.
+  KiritekDeveloperPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub "kiritek-codecommit-dev-${Environment}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowReadAndFeatureBranchWork
+            Effect: Allow
+            Action:
+              - codecommit:GitPull
+              - codecommit:GetBranch
+              - codecommit:GetRepository
+              - codecommit:CreatePullRequest
+              - codecommit:GitPush
+            Resource: !Sub "arn:aws:codecommit:*:*:${RepositoryName}"
+            Condition:
+              # El push sólo se permite a ramas de feature, NUNCA a la default.
+              StringNotEqualsIfExists:
+                codecommit:References:
+                  - !Sub "refs/heads/${DefaultBranch}"
+          # DENY explícito y de máxima precedencia sobre destructivos/default.
+          - Sid: DenyDestructiveOnDefaultBranch
+            Effect: Deny
+            Action:
+              - codecommit:GitPush
+              - codecommit:DeleteBranch
+              - codecommit:PutFile
+              - codecommit:MergeBranchesByFastForward
+              - codecommit:MergePullRequestByFastForward
+              - codecommit:UpdateDefaultBranch
+            Resource: !Sub "arn:aws:codecommit:*:*:${RepositoryName}"
+            Condition:
+              StringEqualsIfExists:
+                codecommit:References:
+                  - !Sub "refs/heads/${DefaultBranch}"
+
+  # Rol RELEASE: puede actualizar la rama default SÓLO mediante merge de un PR
+  # aprobado (la approval rule template refuerza la separación de funciones).
+  # Aun así se acota el Resource al ARN del repo y se deniega el push directo
+  # con force a la rama default.
+  KiritekReleasePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub "kiritek-codecommit-release-${Environment}"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowMergeApprovedPullRequests
+            Effect: Allow
+            Action:
+              - codecommit:MergePullRequestBySquash
+              - codecommit:MergePullRequestByThreeWay
+              - codecommit:GetPullRequest
+              - codecommit:GetPullRequestApprovalStates
+            Resource: !Sub "arn:aws:codecommit:*:*:${RepositoryName}"
+            Condition:
+              StringEquals:
+                codecommit:References:
+                  - !Sub "refs/heads/${DefaultBranch}"
+          - Sid: DenyForcePushAndDeleteDefault
+            Effect: Deny
+            Action:
+              - codecommit:DeleteBranch
+              - codecommit:MergeBranchesByFastForward
+              - codecommit:MergePullRequestByFastForward
+            Resource: !Sub "arn:aws:codecommit:*:*:${RepositoryName}"
+            Condition:
+              StringEqualsIfExists:
+                codecommit:References:
+                  - !Sub "refs/heads/${DefaultBranch}"
+
+Outputs:
+  DeveloperPolicyArn:
+    Value: !Ref KiritekDeveloperPolicy
+  ReleasePolicyArn:
+    Value: !Ref KiritekReleasePolicy

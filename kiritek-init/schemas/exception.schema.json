@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/exception.schema.json",
+  "title": "Kiritek Exception",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "controlId", "reason", "owner", "ticket", "createdAt", "expiresAt"],
+  "anyOf": [
+    { "required": ["scopeFingerprint"] },
+    { "required": ["scopePath"] }
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "type": { "type": "string", "enum": ["standard", "break-glass"] },
+    "controlId": { "type": "string", "minLength": 1 },
+    "scopeFingerprint": { "type": "string", "minLength": 1 },
+    "scopePath": { "type": "string", "minLength": 1 },
+    "reason": { "type": "string", "minLength": 1 },
+    "owner": { "type": "string", "minLength": 1 },
+    "ticket": { "type": "string", "minLength": 1 },
+    "approver": { "type": "string", "minLength": 1 },
+    "createdAt": { "type": "string", "format": "date-time", "minLength": 1 },
+    "expiresAt": { "type": "string", "format": "date-time", "minLength": 1 }
+  }
+}

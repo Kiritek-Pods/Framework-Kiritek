@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "controlId": "secrets.gitleaks",
+  "decision": "allow",
+  "severity": "info",
+  "toolStatus": "ok",
+  "findings": [
+    {
+      "ruleId": "generic",
+      "path": "a.txt",
+      "severity": "high",
+      "fingerprint": "a.txt:generic:1",
+      "status": "new"
+    }
+  ]
+}

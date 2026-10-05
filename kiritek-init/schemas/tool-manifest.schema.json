@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/tool-manifest.schema.json",
+  "title": "Kiritek Tool Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "tools"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tools": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/tool" }
+    }
+  },
+  "definitions": {
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "artifacts"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "provenance": { "type": "string", "minLength": 1 },
+        "artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/artifact" }
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "arch", "url", "sha256"],
+      "properties": {
+        "platform": { "type": "string", "enum": ["darwin", "linux", "win32"] },
+        "arch": { "type": "string", "enum": ["x64", "arm64"] },
+        "url": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "minLength": 1 },
+        "archiveEntry": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

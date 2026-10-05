@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/provider-plan.schema.json",
+  "title": "Kiritek Provider Plan",
+  "description": "Un plan de provider es un artefacto DESCRITO (no aplicado). Nunca muta estado remoto ni ejecuta llamadas mutantes. Cualquier apply requiere confirmación humana explícita FUERA de este plan.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "provider",
+    "generatedAt",
+    "planId",
+    "observation",
+    "dryRun",
+    "applied",
+    "apply",
+    "changes",
+    "requiredPermissions",
+    "parameters",
+    "rollback"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "provider": { "type": "string", "enum": ["github", "aws-codecommit"] },
+    "generatedAt": { "type": "string", "format": "date-time", "minLength": 1 },
+    "planId": { "type": "string", "minLength": 1 },
+    "observation": {
+      "type": "string",
+      "enum": ["observed", "unauthorized", "not-configured", "unknown"]
+    },
+    "observationReason": { "type": ["string", "null"] },
+    "dryRun": { "type": "boolean", "const": true },
+    "applied": { "type": "boolean", "const": false },
+    "apply": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["supported", "requiresHumanConfirmation", "note"],
+      "properties": {
+        "supported": { "type": "boolean", "const": false },
+        "requiresHumanConfirmation": { "type": "boolean", "const": true },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "changes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/change" }
+    },
+    "requiredPermissions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/permission" }
+    },
+    "parameters": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/parameter" }
+    },
+    "rollback": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/rollbackStep" }
+    },
+    "reason": { "type": ["string", "null"] }
+  },
+  "definitions": {
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "target", "action", "description"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "type": "string",
+          "enum": ["ruleset", "branch-protection", "workflow", "codeowners", "iam", "approval-rule", "pipeline", "notification", "other"]
+        },
+        "target": { "type": "string", "minLength": 1 },
+        "action": { "type": "string", "enum": ["create", "update", "delete", "noop"] },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    },
+    "permission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "scope", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "scope": { "type": "string", "minLength": 1 },
+        "status": {
+          "type": "string",
+          "enum": ["observed", "unauthorized", "not-configured", "unknown"]
+        },
+        "reason": { "type": ["string", "null"] }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "resolved", "source"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "resolved": { "type": ["string", "number", "boolean", "null"] },
+        "source": { "type": "string", "enum": ["default", "config", "env-presence", "flag"] }
+      }
+    },
+    "rollbackStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

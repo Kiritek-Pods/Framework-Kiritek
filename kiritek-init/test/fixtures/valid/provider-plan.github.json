@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "provider": "github",
+  "generatedAt": "2026-10-01T12:00:00.000Z",
+  "planId": "plan-github-fixture",
+  "observation": "not-configured",
+  "observationReason": "sin credencial GitHub en el entorno; nada que observar",
+  "dryRun": true,
+  "applied": false,
+  "apply": {
+    "supported": false,
+    "requiresHumanConfirmation": true,
+    "note": "Este plan es un artefacto dry-run; no muta estado remoto ni ejecuta llamadas mutantes. Cualquier aplicación requiere confirmación humana explícita mediante un mecanismo fuera de este plan."
+  },
+  "changes": [
+    {
+      "id": "ruleset-main",
+      "kind": "ruleset",
+      "target": "branch:default",
+      "action": "create",
+      "description": "Planificar ruleset de protección de la rama default (PR + reviews)."
+    }
+  ],
+  "requiredPermissions": [
+    {
+      "id": "repo-administration",
+      "scope": "administration:write",
+      "status": "not-configured",
+      "reason": "necesario para planificar rulesets"
+    }
+  ],
+  "parameters": [
+    { "name": "credentialPresent", "resolved": false, "source": "env-presence" }
+  ],
+  "rollback": [
+    { "id": "noop", "description": "El contrato base no propone cambios aplicables; no hay rollback que ejecutar." }
+  ],
+  "reason": "Contrato base de GitHub: plan dry-run con forma común."
+}

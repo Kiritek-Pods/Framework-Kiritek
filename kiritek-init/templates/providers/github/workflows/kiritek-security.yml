@@ -1,0 +1,54 @@
+# Kiritek — pack GitHub endurecido: gate de seguridad en CI (GitHub Actions).
+#
+# Este workflow es un ARTEFACTO DEL PACK GitHub (tarea 39). Es independiente del
+# workflow core (`templates/core/security/ci/github/kiritek-security.yml`): el
+# pack puede complementar al core, nunca lo reemplaza ni reimplementa detección.
+#
+# Principios de endurecimiento (requisito 17.4, G.8):
+#  - permisos mínimos a nivel workflow y job (sólo lectura por defecto),
+#  - sin commit/push desde CI (push directo viola rama protegida),
+#  - actions fijadas por SHA inmutable de 40 hex (nunca tag mutable),
+#  - concurrency y timeout acotados,
+#  - manejo seguro de forks: se usa el disparador `pull_request` (NO el
+#    disparador privilegiado que ejecuta en el contexto del repo base con el
+#    código del fork), de modo que no se exponen secretos del repo base a PRs
+#    de forks. Los jobs no requieren secretos privilegiados.
+#  - INVOCA los comandos core portables (`kiritek-init scan`); NO reimplementa
+#    la detección (el CI llama al core, no re-escanea).
+
+name: Kiritek Security (GitHub pack)
+
+on:
+  pull_request: {}
+  push:
+    branches-ignore: []
+
+# Permiso mínimo a nivel workflow: sólo lectura de contenido.
+permissions:
+  contents: read
+
+concurrency:
+  group: kiritek-security-gh-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Permisos mínimos redundantes a nivel job (defensa en profundidad).
+    permissions:
+      contents: read
+    steps:
+      # actions/checkout v4.2.2 fijado por commit SHA inmutable.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          # El rango del PR necesita historial; 0 = completo. Ajustar a una
+          # profundidad suficiente para el evento en repos grandes.
+          fetch-depth: 0
+          # Nunca persistir credenciales en el checkout: evita que un paso
+          # posterior pueda empujar al remoto con el token del runner.
+          persist-credentials: false
+
+      # Llama al comando core portable; el CI NO re-escanea por su cuenta.
+      - name: Kiritek security scan (core)
+        run: npx kiritek-init scan --scope=repository --format=json

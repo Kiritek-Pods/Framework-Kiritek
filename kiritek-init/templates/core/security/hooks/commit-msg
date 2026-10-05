@@ -1,0 +1,22 @@
+#!/bin/sh
+# Kiritek managed commit-msg hook (dispatcher).
+# $1 es la ruta al archivo con el mensaje de commit.
+
+if [ -n "$KIRITEK_HOOK_RUNNING" ]; then
+  exit 0
+fi
+export KIRITEK_HOOK_RUNNING=1
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+
+PREV="$REPO_ROOT/.kiritek/hooks/commit-msg.previous"
+if [ -x "$PREV" ]; then
+  "$PREV" "$@" || exit $?
+fi
+
+if command -v kiritek-init >/dev/null 2>&1; then
+  mkdir -p "$REPO_ROOT/.kiritek/tmp"
+  kiritek-init validate commit --format=json --message-file="$1" > "$REPO_ROOT/.kiritek/tmp/commit-msg.json" || exit $?
+fi
+
+exit 0
