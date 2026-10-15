@@ -22,6 +22,20 @@ const PROFILES = {
   "search.input-rate": ["search"],
   "app.minimum-supported-version": ["mobile-app"],
   "web.module-announcement": ["web", "module-launch"],
+  "ui.data-states": ["data-views"],
+  "ui.form-validation": ["forms"],
+  "net.resilient-requests": ["network-client"],
+  "flags.lifecycle": ["feature-flags"],
+  "auth.session-expiry": ["auth-session"],
+  "ui.file-upload": ["file-upload"],
+  "ui.pagination": ["paginated-lists"],
+  "analytics.events": ["analytics"],
+  "ui.destructive-actions": ["destructive-actions"],
+  "i18n.formatting": ["localized"],
+  "app.offline-mode": ["offline-capable"],
+  "app.device-permissions": ["device-permissions"],
+  "nav.broken-routes": ["routed-app"],
+  "ui.accessible-dialogs": ["dialogs"],
 };
 
 function obs(kind, facts, evidenceClass = "deterministic") {
@@ -55,6 +69,76 @@ const CASES = {
     params: { launchManifest: "apps/x/launch.json", supportedChannels: ["in-app"] },
     deterministic: [obs("announcement-manifest", { declared: true, valid: false, errorCodes: ["MANIFEST_SCHEMA"] })],
     heuristic: [obs("announcement-manifest", { declared: false, valid: false, errorCodes: [] }), obs("announcement-signals", { signals: [{ signal: "POSSIBLE_NEW_MODULE", path: "apps/x/src/modules/m/index.tsx" }], pathsScanned: 1 }, "heuristic")],
+  },
+  "ui.data-states": {
+    params: { statesContract: "apps/x/states.json" },
+    deterministic: [obs("states-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("states-contract", { declared: false, valid: false, errorCodes: [] }), obs("states-signals", { signals: [{ signal: "DATA_LOADING", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.form-validation": {
+    params: { formsContract: "apps/x/forms.json" },
+    deterministic: [obs("forms-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("forms-contract", { declared: false, valid: false, errorCodes: [] }), obs("forms-signals", { signals: [{ signal: "FORM", path: "apps/x/signup.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "net.resilient-requests": {
+    params: { clientContract: "apps/x/client.json" },
+    deterministic: [obs("requests-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("requests-contract", { declared: false, valid: false, errorCodes: [] }), obs("requests-signals", { signals: [{ signal: "HTTP_CALL", path: "apps/x/api.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "flags.lifecycle": {
+    params: { flagRegistry: "apps/x/flags.json" },
+    deterministic: [obs("flags-registry", { declared: true, valid: false, errorCodes: ["REGISTRY_SCHEMA"] })],
+    heuristic: [obs("flags-registry", { declared: false, valid: false, errorCodes: [] }), obs("flags-signals", { signals: [{ signal: "FEATURE_FLAG_USE", path: "apps/x/checkout.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "auth.session-expiry": {
+    params: { sessionContract: "apps/x/session.json" },
+    deterministic: [obs("session-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("session-contract", { declared: false, valid: false, errorCodes: [] }), obs("session-signals", { signals: [{ signal: "SESSION_HANDLING", path: "apps/x/api.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.file-upload": {
+    params: { uploadsContract: "apps/x/uploads.json" },
+    deterministic: [obs("uploads-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("uploads-contract", { declared: false, valid: false, errorCodes: [] }), obs("uploads-signals", { signals: [{ signal: "FILE_UPLOAD", path: "apps/x/upload.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.pagination": {
+    params: { listsContract: "apps/x/lists.json" },
+    deterministic: [obs("lists-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("lists-contract", { declared: false, valid: false, errorCodes: [] }), obs("lists-signals", { signals: [{ signal: "PAGINATED_LIST", path: "apps/x/orders.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "analytics.events": {
+    params: { trackingPlan: "apps/x/tracking.json" },
+    deterministic: [obs("analytics-plan", { declared: true, valid: false, errorCodes: ["PLAN_SCHEMA"] })],
+    heuristic: [obs("analytics-plan", { declared: false, valid: false, errorCodes: [] }), obs("analytics-signals", { signals: [{ signal: "ANALYTICS_CALL", path: "apps/x/track.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.destructive-actions": {
+    params: { actionsContract: "apps/x/actions.json" },
+    deterministic: [obs("actions-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("actions-contract", { declared: false, valid: false, errorCodes: [] }), obs("actions-signals", { signals: [{ signal: "DESTRUCTIVE_ACTION", path: "apps/x/account.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "i18n.formatting": {
+    params: { i18nContract: "apps/x/i18n.json" },
+    deterministic: [obs("i18n-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("i18n-contract", { declared: false, valid: false, errorCodes: [] }), obs("i18n-signals", { signals: [{ signal: "HARDCODED_FORMAT", path: "apps/x/price.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "app.offline-mode": {
+    params: { offlineContract: "apps/x/offline.json" },
+    deterministic: [obs("offline-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("offline-contract", { declared: false, valid: false, errorCodes: [] }), obs("offline-signals", { signals: [{ signal: "OFFLINE_SUPPORT", path: "apps/x/sw.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "app.device-permissions": {
+    params: { permissionsContract: "apps/x/permissions.json" },
+    deterministic: [obs("permissions-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("permissions-contract", { declared: false, valid: false, errorCodes: [] }), obs("permissions-signals", { signals: [{ signal: "PERMISSION_REQUEST", path: "apps/x/scan.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "nav.broken-routes": {
+    params: { routesContract: "apps/x/routes.json" },
+    deterministic: [obs("routes-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("routes-contract", { declared: false, valid: false, errorCodes: [] }), obs("routes-signals", { signals: [{ signal: "ROUTER", path: "apps/x/router.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.accessible-dialogs": {
+    params: { dialogsContract: "apps/x/dialogs.json" },
+    deterministic: [obs("dialogs-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("dialogs-contract", { declared: false, valid: false, errorCodes: [] }), obs("dialogs-signals", { signals: [{ signal: "DIALOG", path: "apps/x/modal.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
   },
 };
 

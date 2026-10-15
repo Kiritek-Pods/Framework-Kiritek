@@ -163,8 +163,9 @@ test("T15.3 audit --deep: self-checks sintéticos (heurística no bloquea, deter
     const r = await runCli(["audit", "--deep"], repo);
     const sc = r.json.audit.selfCheck;
     assert.equal(sc.passed, true, JSON.stringify(sc.checks));
-    assert.equal(sc.checks.filter((c) => c.id === "deterministic-eligible").length, 3);
-    assert.equal(sc.checks.filter((c) => c.id === "heuristic-never-blocks").length, 3);
+    const builtins = Object.keys(require("../../../src/engineering/guardrails/controls/index.js").builtinControls()).length;
+    assert.equal(sc.checks.filter((c) => c.id === "deterministic-eligible").length, builtins);
+    assert.equal(sc.checks.filter((c) => c.id === "heuristic-never-blocks").length, builtins);
     assert.ok(sc.checks.some((c) => c.id === "redaction-canary" && c.passed));
     const text = await runCli(["audit", "--format=text"], repo);
     assert.equal(text.code, 0);

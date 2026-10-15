@@ -21,7 +21,8 @@ function ruleIdsOf(controlDir) {
 }
 
 test("T15D.1 cada documentationRef del catálogo existe y el paquete publica docs/", () => {
-  for (const c of catalog.controls) assert.ok(fs.existsSync(path.join(ROOT, c.documentationRef)), c.documentationRef);
+  const candidate = require("../../../release/candidates/engineering/guardrails/2.0.0/catalog.json");
+  for (const c of [...catalog.controls, ...candidate.controls]) assert.ok(fs.existsSync(path.join(ROOT, c.documentationRef)), c.documentationRef);
   assert.ok(require("../../../package.json").files.includes("docs"));
   for (const f of ["README.md", "architecture.md", "configuration.md", "guides.md", "runbooks.md", "remediation.md", "compatibility.md"]) assert.ok(fs.existsSync(path.join(DOCS, f)), f);
 });
@@ -44,10 +45,10 @@ test("T15D.1/T15D.4 arquitectura documenta límites y estados; remediaciones cub
   assert.match(arch, /kiritek-security\.config\.json/);
   const rem = read("remediation.md");
   assert.match(rem, /heurísticas nunca bloquean/i);
-  for (const dir of ["search-input-rate", "app-minimum-supported-version", "web-module-announcement"]) {
+  for (const dir of ["search-input-rate", "app-minimum-supported-version", "web-module-announcement", "ui-data-states", "ui-form-validation", "net-resilient-requests", "flags-lifecycle", "auth-session-expiry", "ui-file-upload", "ui-pagination", "analytics-events", "ui-destructive-actions", "i18n-formatting", "app-offline-mode", "app-device-permissions", "nav-broken-routes", "ui-accessible-dialogs"]) {
     for (const rule of ruleIdsOf(dir)) assert.ok(rem.includes(`\`${rule}\``), `${dir}: falta ${rule}`);
   }
-  for (const h of ["behavior-evidence-missing", "policy-evidence-missing", "launch-confirmation"]) assert.ok(rem.includes(h), h);
+  for (const h of ["behavior-evidence-missing", "policy-evidence-missing", "launch-confirmation", "states-confirmation", "forms-confirmation", "requests-confirmation", "registry-confirmation", "session-confirmation", "uploads-confirmation", "lists-confirmation", "plan-confirmation", "actions-confirmation", "i18n-confirmation", "offline-confirmation", "permissions-confirmation", "routes-confirmation", "dialogs-confirmation"]) assert.ok(rem.includes(h), h);
 });
 
 test("T15D.2/T15D.3 guías y runbooks cubren lo pedido y sólo citan comandos reales", () => {

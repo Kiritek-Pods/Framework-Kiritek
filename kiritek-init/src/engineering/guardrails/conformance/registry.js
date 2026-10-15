@@ -20,6 +20,20 @@ const SUITES = Object.freeze({
   "search.input-rate": { id: "kiritek/engineering/search-input-rate", version: "1.0.0", slug: "search-input-rate" },
   "app.minimum-supported-version": { id: "kiritek/engineering/app-minimum-supported-version", version: "1.0.0", slug: "app-minimum-supported-version" },
   "web.module-announcement": { id: "kiritek/engineering/web-module-announcement", version: "1.0.0", slug: "web-module-announcement" },
+  "ui.data-states": { id: "kiritek/engineering/ui-data-states", version: "1.0.0", slug: "ui-data-states", catalog: "2.0.0" },
+  "ui.form-validation": { id: "kiritek/engineering/ui-form-validation", version: "1.0.0", slug: "ui-form-validation", catalog: "2.0.0" },
+  "net.resilient-requests": { id: "kiritek/engineering/net-resilient-requests", version: "1.0.0", slug: "net-resilient-requests", catalog: "2.0.0" },
+  "flags.lifecycle": { id: "kiritek/engineering/flags-lifecycle", version: "1.0.0", slug: "flags-lifecycle", catalog: "2.0.0" },
+  "auth.session-expiry": { id: "kiritek/engineering/auth-session-expiry", version: "1.0.0", slug: "auth-session-expiry", catalog: "2.0.0" },
+  "ui.file-upload": { id: "kiritek/engineering/ui-file-upload", version: "1.0.0", slug: "ui-file-upload", catalog: "2.0.0" },
+  "ui.pagination": { id: "kiritek/engineering/ui-pagination", version: "1.0.0", slug: "ui-pagination", catalog: "2.0.0" },
+  "analytics.events": { id: "kiritek/engineering/analytics-events", version: "1.0.0", slug: "analytics-events", catalog: "2.0.0" },
+  "ui.destructive-actions": { id: "kiritek/engineering/ui-destructive-actions", version: "1.0.0", slug: "ui-destructive-actions", catalog: "2.0.0" },
+  "i18n.formatting": { id: "kiritek/engineering/i18n-formatting", version: "1.0.0", slug: "i18n-formatting", catalog: "2.0.0" },
+  "app.offline-mode": { id: "kiritek/engineering/app-offline-mode", version: "1.0.0", slug: "app-offline-mode", catalog: "2.0.0" },
+  "app.device-permissions": { id: "kiritek/engineering/app-device-permissions", version: "1.0.0", slug: "app-device-permissions", catalog: "2.0.0" },
+  "nav.broken-routes": { id: "kiritek/engineering/nav-broken-routes", version: "1.0.0", slug: "nav-broken-routes", catalog: "2.0.0" },
+  "ui.accessible-dialogs": { id: "kiritek/engineering/ui-accessible-dialogs", version: "1.0.0", slug: "ui-accessible-dialogs", catalog: "2.0.0" },
 });
 
 const APPROVED_FILE = path.join(__dirname, "approved.json");

@@ -47,8 +47,11 @@ muestra el impacto antes de actualizar.
 
 ## Perfiles y unidades
 
-Perfiles builtin: `web`, `mobile-app`, `search`, `module-launch` (y
-personalizados namespaceados `<ns>/<nombre>` vía plugins). Un control sólo
+Perfiles builtin: `web`, `mobile-app`, `search`, `module-launch`; desde el
+catálogo 2.0.0 también `data-views`, `forms`, `network-client`,
+`feature-flags`, `auth-session`, `file-upload`, `paginated-lists`,
+`analytics`, `destructive-actions`, `localized`, `offline-capable`,
+`device-permissions`, `routed-app` y `dialogs` (y personalizados namespaceados `<ns>/<nombre>` vía plugins). Un control sólo
 aplica si la unidad **declara** los perfiles que exige; discovery sólo sugiere.
 En monorepos cada unidad declara `owns`/`excludes`, `dependsOn` y, si hace
 falta, `workspace.sharedPaths`: un cambio compartido amplía el alcance a las
@@ -61,6 +64,20 @@ unidades dependientes (nunca las omite en silencio).
 | [`search.input-rate`](controls/search-input-rate.md) | `search` | agent, pre-commit, pr, release | `behaviorContract` |
 | [`app.minimum-supported-version`](controls/app-minimum-supported-version.md) | `mobile-app` | pre-commit, pr, release | `policyContract` |
 | [`web.module-announcement`](controls/web-module-announcement.md) | `web` + `module-launch` | agent, pre-commit, pr, release | `launchManifest` |
+| [`ui.data-states`](controls/ui-data-states.md) (2.0.0) | `data-views` | agent, pre-commit, pr, release | `statesContract` |
+| [`ui.form-validation`](controls/ui-form-validation.md) (2.0.0) | `forms` | agent, pre-commit, pr, release | `formsContract` |
+| [`net.resilient-requests`](controls/net-resilient-requests.md) (2.0.0) | `network-client` | agent, pre-commit, pr, release | `clientContract` |
+| [`flags.lifecycle`](controls/flags-lifecycle.md) (2.0.0) | `feature-flags` | agent, pre-commit, pr, release | `flagRegistry` |
+| [`auth.session-expiry`](controls/auth-session-expiry.md) (2.0.0) | `auth-session` | agent, pre-commit, pr, release | `sessionContract` |
+| [`ui.file-upload`](controls/ui-file-upload.md) (2.0.0) | `file-upload` | agent, pre-commit, pr, release | `uploadsContract` |
+| [`ui.pagination`](controls/ui-pagination.md) (2.0.0) | `paginated-lists` | agent, pre-commit, pr, release | `listsContract` |
+| [`analytics.events`](controls/analytics-events.md) (2.0.0) | `analytics` | agent, pre-commit, pr, release | `trackingPlan` |
+| [`ui.destructive-actions`](controls/ui-destructive-actions.md) (2.0.0) | `destructive-actions` | agent, pre-commit, pr, release | `actionsContract` |
+| [`i18n.formatting`](controls/i18n-formatting.md) (2.0.0) | `localized` | agent, pre-commit, pr, release | `i18nContract` |
+| [`app.offline-mode`](controls/app-offline-mode.md) (2.0.0) | `offline-capable` | agent, pre-commit, pr, release | `offlineContract` |
+| [`app.device-permissions`](controls/app-device-permissions.md) (2.0.0) | `device-permissions` | agent, pre-commit, pr, release | `permissionsContract` |
+| [`nav.broken-routes`](controls/nav-broken-routes.md) (2.0.0) | `routed-app` | agent, pre-commit, pr, release | `routesContract` |
+| [`ui.accessible-dialogs`](controls/ui-accessible-dialogs.md) (2.0.0) | `dialogs` | agent, pre-commit, pr, release | `dialogsContract` |
 
 Niveles: `off` (no evalúa; no es "conforme"), `warn` (avisa), `enforce` (puede
 bloquear sólo lo determinista elegible). `enforce` exige que el catálogo lo

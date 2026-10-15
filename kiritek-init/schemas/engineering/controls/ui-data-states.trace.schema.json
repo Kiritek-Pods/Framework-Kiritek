@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/ui-data-states.trace.schema.json",
+  "title": "Traza conductual de ui.data-states",
+  "description": "Sólo hechos derivados (estado, conteos, booleanos). Nunca datos cargados ni texto renderizado.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harnessInfo" },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "maxItems": 60, "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "steps"],
+      "properties": {
+        "id": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioId" },
+        "status": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioStatus" },
+        "limitation": { "$ref": "engineering/controls/harness.schema.json#/definitions/limitation" },
+        "steps": { "type": "array", "maxItems": 4, "items": { "$ref": "#/definitions/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "requests"],
+      "properties": {
+        "state": { "type": "string", "enum": ["loading", "content", "empty", "error", "blank", "other"] },
+        "items": { "type": "integer", "minimum": 0, "maximum": 100000 },
+        "retry": { "type": "boolean" },
+        "busy": { "type": "boolean" },
+        "requests": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "droppedFields": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

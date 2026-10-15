@@ -11,7 +11,8 @@ const { builtinControls } = require("../../../src/engineering/guardrails/control
 test("T15.3 self-checks pasan con los controles builtin", () => {
   const r = runSelfChecks(builtinControls());
   assert.equal(r.passed, true, JSON.stringify(r.checks.filter((c) => !c.passed)));
-  assert.equal(r.checks.length, 7);
+  // Dos checks por control builtin + el canario de redacción.
+  assert.equal(r.checks.length, Object.keys(builtinControls()).length * 2 + 1);
 });
 
 test("T15.3 un evaluator que no detecta el fallo determinista o que eleva heurísticas falla el self-check", () => {

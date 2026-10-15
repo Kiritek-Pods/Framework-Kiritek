@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/i18n-formatting.trace.schema.json",
+  "title": "Traza conductual de i18n.formatting",
+  "description": "Sólo booleanos y la clase del mensaje. Nunca los textos formateados.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harnessInfo" },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "maxItems": 40, "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "steps"],
+      "properties": {
+        "id": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioId" },
+        "status": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioStatus" },
+        "limitation": { "$ref": "engineering/controls/harness.schema.json#/definitions/limitation" },
+        "steps": { "type": "array", "maxItems": 1, "items": { "$ref": "#/definitions/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ok": { "type": "boolean" },
+        "threw": { "type": "boolean" },
+        "message": { "type": "string", "enum": ["ok", "empty", "internal-key", "markup"] }
+      }
+    }
+  }
+}

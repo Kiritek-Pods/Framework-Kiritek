@@ -54,7 +54,10 @@ const PROVENANCE_KIND = Object.freeze({
   DISCOVERY: "discovery",
   INHERITED: "inherited",
 });
-const BUILTIN_PROFILES = Object.freeze(["web", "mobile-app", "search", "module-launch"]);
+/** Perfiles que todo catálogo base debe traer (catálogo 1.0.0). */
+const CORE_PROFILES = Object.freeze(["web", "mobile-app", "search", "module-launch"]);
+/** Perfiles builtin aceptados sin namespace (núcleo + los de catálogo 2.0.0, T18–T21). */
+const BUILTIN_PROFILES = Object.freeze([...CORE_PROFILES, "data-views", "forms", "network-client", "feature-flags", "auth-session", "file-upload", "paginated-lists", "analytics", "destructive-actions", "localized", "offline-capable", "device-permissions", "routed-app", "dialogs"]);
 
 const LEVELS = Object.freeze(Object.values(LEVEL));
 const MOMENTS = Object.freeze(Object.values(MOMENT));
@@ -362,6 +365,7 @@ module.exports = {
   PROVENANCE_KIND,
   PROVENANCE_KINDS,
   BUILTIN_PROFILES,
+  CORE_PROFILES,
   FORBIDDEN_FIELDS,
   SEMVER_RE,
   NAMESPACED_ID_RE,

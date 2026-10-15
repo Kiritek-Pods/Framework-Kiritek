@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/auth-session-expiry.trace.schema.json",
+  "title": "Traza conductual de auth.session-expiry",
+  "description": "Sólo conteos, pantalla y booleanos. Nunca tokens, credenciales ni el trabajo del usuario.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harnessInfo" },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "maxItems": 20, "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "steps"],
+      "properties": {
+        "id": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioId" },
+        "status": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioStatus" },
+        "limitation": { "$ref": "engineering/controls/harness.schema.json#/definitions/limitation" },
+        "steps": { "type": "array", "maxItems": 1, "items": { "$ref": "#/definitions/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sends", "refreshes"],
+      "properties": {
+        "ok": { "type": "boolean" },
+        "settled": { "type": "boolean" },
+        "sends": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "refreshes": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "screen": { "type": "string", "enum": ["app", "login", "error", "other"] },
+        "draftPreserved": { "type": "boolean" }
+      }
+    }
+  }
+}

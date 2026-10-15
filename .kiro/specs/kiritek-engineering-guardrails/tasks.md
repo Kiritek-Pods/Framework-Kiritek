@@ -3,7 +3,7 @@
 ## 1. Convenciones del plan
 
 - **Pack:** `engineering/guardrails`, independiente de `core/security`.
-- **Ruta crítica (CP):** T01 → T02 → T03 → T04 → T05 → T06 → T10–T12 → T13 → T14 → T15 → T16.
+- **Ruta crítica (CP):** T01 → T02 → T03 → T04 → T05 → T06 → T10–T12 → T13 → T14 → T15 → T16. T18–T31 (catálogo 2.0.0) son paralelizables y entran al gate T17.
 - **[P]:** tarea paralelizable cuando sus dependencias estén completas.
 - **[CP]:** checkpoint obligatorio; no se inicia la fase siguiente indicada hasta superarlo.
 - Ninguna tarea habilita `enforce` antes de demostrar R27 y los predicados anti-falso-positivo.
@@ -274,7 +274,147 @@
   - [ ] T17.7 Publicar catálogo/versionado/changelog/migración/procedencia y evidencia de la suite completa.
   - **Gate final:** todos los criterios globales G1–G7 y R27 deben estar demostrados antes de declarar disponibilidad general.
   - **Estado (2026-10-13):** gate implementado (`kiritek-init/scripts/release-gate.js`, `kiritek-init/release/gate/`), resultado `blocked`. T17.1–T17.5 en verde. T17.6 espera la matriz CI (Linux 18/20/22, Windows 22). T17.7 espera la suite completa del repo en verde (37.3 de security, fuera de engineering), un árbol commiteado y `--approve`. Por R27.7 el pack sigue warning-only: el catálogo 2.0.0 queda como candidato y `approved.json` vacío.
-  - **Requisitos:** R1–R27; G1–G7.
+  - **Requisitos:** R1–R41; G1–G7.
+
+## Fase 17 — Control `ui.data-states`
+
+- [x] **T18. Implementar `ui.data-states` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16.
+  - [x] T18.1 Contrato de estados (schema, pantallas, timeout, vacío y reintento) y perfil `data-views`.
+  - [x] T18.2 Harness con reloj virtual y transporte sintético: carga, contenido, vacío, error, reintento, timeout y carga única.
+  - [x] T18.3 Evaluator con reglas por hecho, heurística sin contrato y adapters de referencia por defecto.
+  - [x] T18.4 Suite R27 (positivos, negativos y bordes) y documentación del control.
+  - **Requisitos:** R28; R7–R8, R15–R16, R27.
+
+## Fase 18 — Control `ui.form-validation`
+
+- [x] **T19. Implementar `ui.form-validation` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16.
+  - [x] T19.1 Contrato de formularios (campos, obligatorios, formato y largo) y perfil `forms`.
+  - [x] T19.2 Harness con valores sintéticos: obligatorios, formato, envío válido, doble envío, error del servidor y corrección.
+  - [x] T19.3 Evaluator con errores asociados, foco, clase de mensaje y heurística sin contrato.
+  - [x] T19.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R29; R7–R8, R15–R16, R27.
+
+## Fase 19 — Control `net.resilient-requests`
+
+- [x] **T20. Implementar `net.resilient-requests` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16.
+  - [x] T20.1 Contrato de operaciones (timeout, reintento, backoff, idempotencia) y perfil `network-client`.
+  - [x] T20.2 Harness con transporte por plan y `random` fijo: timeout, 4xx, transitorios, red, límite, backoff, Retry-After e idempotencia.
+  - [x] T20.3 Evaluator con reglas de contrato (inseguro, timeout, intentos, backoff) y heurística sin contrato.
+  - [x] T20.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R30; R7–R8, R15–R16, R27.
+
+## Fase 20 — Control `flags.lifecycle`
+
+- [x] **T21. Implementar `flags.lifecycle` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16.
+  - [x] T21.1 Registro de flags (dueño, tipo, fechas, default, kill switch, cliente) y perfil `feature-flags`.
+  - [x] T21.2 Reglas del registro: vencida, sin retiro, vida máxima, default inseguro y aviso de vencimiento próximo.
+  - [x] T21.3 Harness del cliente frente a proveedor sintético: valor, caída, timeout, basura, flag desconocida y propagación.
+  - [x] T21.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R31; R7–R8, R15–R16, R27.
+
+## Fase 21 — Control `auth.session-expiry`
+
+- [x] **T22. Implementar `auth.session-expiry` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T22.1 Contrato de sesión (renovación y trabajo conservado) y perfil `auth-session`.
+  - [x] T22.2 Harness con tokens sintéticos: válido, renovación, 401 simultáneos, renovación fallida, 401 repetido y sin renovación.
+  - [x] T22.3 Evaluator con reglas de renovación única, sin bucle, login y trabajo conservado; heurística sin contrato.
+  - [x] T22.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R32; R7–R8, R15–R16, R27.
+
+## Fase 22 — Control `ui.file-upload`
+
+- [x] **T23. Implementar `ui.file-upload` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T23.1 Contrato de subidas (tamaño, tipos, cancelar, reintentar) y perfil `file-upload`.
+  - [x] T23.2 Harness con archivos sintéticos y transporte con progreso y abort: aceptado, grande, tipo, cancelar, error y doble inicio.
+  - [x] T23.3 Evaluator con límites del contrato (`*/*`, tamaño) y clase del mensaje de rechazo.
+  - [x] T23.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R33; R7–R8, R15–R16, R27.
+
+## Fase 23 — Control `ui.pagination`
+
+- [x] **T24. Implementar `ui.pagination` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T24.1 Contrato de listas (tamaño de página, modo, fin) y perfil `paginated-lists`.
+  - [x] T24.2 Harness con dataset sintético: primera página, todas, después del fin, concurrencia, error y cursor estable.
+  - [x] T24.3 Evaluator con reglas de completitud, duplicados, orden, fin y peticiones extra.
+  - [x] T24.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R34; R7–R8, R15–R16, R27.
+
+## Fase 24 — Control `analytics.events`
+
+- [x] **T25. Implementar `analytics.events` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T25.1 Plan de tracking (eventos, propiedades, tipos, enums) y perfil `analytics`.
+  - [x] T25.2 Harness con perfil sintético y canarios de PII: esquema por evento, fuga de PII y envío caído.
+  - [x] T25.3 Evaluator con propiedades personales en el plan, duplicados y aislamiento de fallas.
+  - [x] T25.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R35; R7–R8, R15–R16, R27.
+
+## Fase 25 — Control `ui.destructive-actions`
+
+- [x] **T26. Implementar `ui.destructive-actions` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T26.1 Contrato de acciones (salvaguarda y ventana de deshacer) y perfil `destructive-actions`.
+  - [x] T26.2 Harness con transporte que cuenta ejecuciones y reversiones: confirmar, cancelar, ejecutar, doble ejecución, deshacer, ventana vencida y error.
+  - [x] T26.3 Evaluator con regla de ventana mínima y clase del mensaje.
+  - [x] T26.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R36; R7–R8, R15–R16, R27.
+
+## Fase 26 — Control `i18n.formatting`
+
+- [x] **T27. Implementar `i18n.formatting` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T27.1 Contrato de localización (idiomas, defecto, moneda, formatos) y perfil `localized`.
+  - [x] T27.2 Harness contra `Intl`: fecha, número, moneda, zona horaria, idioma de respaldo y traducción ausente.
+  - [x] T27.3 Evaluator con regla de idioma por defecto y heurística de formatos armados a mano.
+  - [x] T27.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R37; R7–R8, R15–R16, R27.
+
+## Fase 27 — Control `app.offline-mode`
+
+- [x] **T28. Implementar `app.offline-mode` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T28.1 Contrato de modo sin conexión (aviso y acciones encolables u online-only) y perfil `offline-capable`.
+  - [x] T28.2 Harness con red, transporte y almacenamiento sintéticos: aviso, envío, cola, reinicio, orden y rechazo online-only.
+  - [x] T28.3 Evaluator y heurística sin contrato.
+  - [x] T28.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R38; R7–R8, R15–R16, R27.
+
+## Fase 28 — Control `app.device-permissions`
+
+- [x] **T29. Implementar `app.device-permissions` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T29.1 Contrato de permisos (tipo y alternativa) y perfil `device-permissions`.
+  - [x] T29.2 Harness con plataforma sintética: al abrir, explicación, concedido, negado, sin insistir y bloqueado.
+  - [x] T29.3 Evaluator y heurística sin contrato.
+  - [x] T29.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R39; R7–R8, R15–R16, R27.
+
+## Fase 29 — Control `nav.broken-routes`
+
+- [x] **T30. Implementar `nav.broken-routes` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T30.1 Contrato de rutas (protegidas y enlaces profundos) y perfil `routed-app`.
+  - [x] T30.2 Harness con URLs sintéticas: ruta conocida, inexistente, mal formada y enlace protegido tras el login.
+  - [x] T30.3 Evaluator y heurística sin contrato.
+  - [x] T30.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R40; R7–R8, R15–R16, R27.
+
+## Fase 30 — Control `ui.accessible-dialogs`
+
+- [x] **T31. Implementar `ui.accessible-dialogs` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T31.1 Contrato de diálogos (tipo y descartable) y perfil `dialogs`.
+  - [x] T31.2 Harness WAI-ARIA: foco al abrir, foco atrapado, Escape, clic afuera, rol/nombre y fondo inerte.
+  - [x] T31.3 Evaluator y heurística sin contrato.
+  - [x] T31.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R41; R7–R8, R15–R16, R27.
 
 ## Matriz de trazabilidad resumida
 
@@ -292,6 +432,10 @@
 | Extensibilidad/supply chain | R22, R25 | T02, T15B |
 | Compatibilidad/documentación | R23–R24, R26 | T15C–T15D |
 | Conformidad y enforcement | R27 | T16–T17 |
+| Estados de pantalla, formularios, red y flags | R28–R31 | T18–T21 |
+| Sesión, subidas, paginación y analytics | R32–R35 | T22–T25 |
+| Acciones destructivas, idioma y sin conexión | R36–R38 | T26–T28 |
+| Permisos, rutas y diálogos | R39–R41 | T29–T31 |
 
 ## Criterio de finalización
 

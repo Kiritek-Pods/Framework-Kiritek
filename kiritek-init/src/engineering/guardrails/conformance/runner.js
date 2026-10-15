@@ -23,7 +23,23 @@ const { scopeHashFor } = require("../workspace/scope.js");
 const { evaluateRun } = require("../orchestrator.js");
 const { builtinControls } = require("../controls/index.js");
 const { draftViolations } = require("../pipeline/aggregate.js");
-const { suiteFor, suiteRef } = require("./registry.js");
+const { SUITES, suiteFor, suiteRef } = require("./registry.js");
+const { BUILTIN_ROOT } = require("../catalog/registry.js");
+
+// Candidatos de catálogo del repo (antes del gate de release no están en catalogs/).
+const CANDIDATES_ROOT = path.join(__dirname, "..", "..", "..", "..", "release", "candidates", "engineering", "guardrails");
+
+/**
+ * Sesión de catálogo para la versión de la suite. Para versiones con
+ * `enforce` se pasan TODAS las suites registradas sólo para poder cargar el
+ * catálogo: los casos corren en `warn` y la elegibilidad se simula aparte, así
+ * que esto no aprueba nada (la aprobación real es approved.json).
+ */
+function sessionFor(version) {
+  if (version === "1.0.0") return createCatalogSession({});
+  const root = [BUILTIN_ROOT, CANDIDATES_ROOT].find((r) => fs.existsSync(path.join(r, version, "catalog.json")));
+  return createCatalogSession({ roots: [root || BUILTIN_ROOT], approvedConformanceSuites: Object.values(SUITES).map(suiteRef) });
+}
 
 const HEAD = "0123456789abcdef0123456789abcdef01234567";
 const BASE = "89abcdef0123456789abcdef0123456789abcdef";
@@ -51,10 +67,10 @@ async function evaluateCase(suite, c, controls) {
   try {
     const document = {
       schemaVersion: 1,
-      pack: { id: "engineering/guardrails", catalog: "1.0.0" },
+      pack: { id: "engineering/guardrails", catalog: suite.catalog || "1.0.0" },
       workspace: { units: [{ id: UNIT, root: "apps/x", kind: "application", profiles: suite.profiles.map((id) => ({ id, version: "1.0.0" })), owns: ["apps/x/**"], controls: { [suite.control]: { level: "warn", parameters: c.parameters || {} } } }] },
     };
-    const session = createCatalogSession({});
+    const session = sessionFor(suite.catalog || "1.0.0");
     const resolvedConfig = resolveEngineeringConfig({ document, env: {}, repoRoot: repo, catalogSession: session });
     const resolvedUnits = resolveUnits(resolvedConfig, session.snapshot, { repoRoot: repo });
     const unitScope = { unitId: UNIT, coverage: "direct", reasons: ["owns:apps/x/**"], paths: c.paths || ["apps/x/src/index.ts"] };

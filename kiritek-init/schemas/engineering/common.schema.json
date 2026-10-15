@@ -21,7 +21,7 @@
     },
     "profileId": {
       "anyOf": [
-        { "type": "string", "enum": ["web", "mobile-app", "search", "module-launch"] },
+        { "type": "string", "enum": ["web", "mobile-app", "search", "module-launch", "data-views", "forms", "network-client", "feature-flags", "auth-session", "file-upload", "paginated-lists", "analytics", "destructive-actions", "localized", "offline-capable", "device-permissions", "routed-app", "dialogs"] },
         { "$ref": "#/definitions/namespacedId" }
       ]
     },

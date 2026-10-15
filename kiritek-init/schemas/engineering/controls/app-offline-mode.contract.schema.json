@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/app-offline-mode.contract.schema.json",
+  "title": "Contrato de modo sin conexión (app.offline-mode)",
+  "description": "Acciones que la app debe aceptar sin red y sincronizar al volver, y si debe avisar que está sin conexión.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "indicator", "actions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "app.offline-mode" },
+    "indicator": { "type": "string", "enum": ["required", "not-applicable"] },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "queue"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
+          "queue": { "type": "string", "enum": ["required", "online-only"] }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

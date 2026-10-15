@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/ui-pagination.trace.schema.json",
+  "title": "Traza conductual de ui.pagination",
+  "description": "Sólo conteos y booleanos. Nunca ids ni contenido de los ítems.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harnessInfo" },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "maxItems": 40, "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "steps"],
+      "properties": {
+        "id": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioId" },
+        "status": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioStatus" },
+        "limitation": { "$ref": "engineering/controls/harness.schema.json#/definitions/limitation" },
+        "steps": { "type": "array", "maxItems": 2, "items": { "$ref": "#/definitions/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requests"],
+      "properties": {
+        "requests": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "count": { "type": "integer", "minimum": 0, "maximum": 100000 },
+        "limitOk": { "type": "boolean" },
+        "complete": { "type": "boolean" },
+        "noDuplicates": { "type": "boolean" },
+        "ordered": { "type": "boolean" },
+        "endShown": { "type": "boolean" },
+        "requestsOk": { "type": "boolean" },
+        "requestsAfterEnd": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "singleFlight": { "type": "boolean" },
+        "kept": { "type": "boolean" },
+        "error": { "type": "boolean" },
+        "recovered": { "type": "boolean" },
+        "noSkipped": { "type": "boolean" }
+      }
+    }
+  }
+}

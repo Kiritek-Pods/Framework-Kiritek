@@ -146,7 +146,7 @@ test("T17.7 approve: rechaza evidencia blocked o de otra revisión; con ready pu
     assert.equal(tplPin, "2.0.0");
     const tmpConf = path.join(tmp, "src", "engineering", "guardrails", "conformance");
     const approved = approvedSuites({ file: path.join(tmpConf, "approved.json"), root: tmpConf });
-    assert.equal(approved.length, 3);
+    assert.equal(approved.length, Object.keys(SUITES).length);
     const snap = resolveCatalog({ version: "2.0.0", roots: [path.join(tmp, "catalogs", "engineering", "guardrails")], approvedConformanceSuites: approved });
     assert.equal(snap.catalog.digest, ready.candidate.digest);
 
@@ -158,10 +158,34 @@ test("T17.7 approve: rechaza evidencia blocked o de otra revisión; con ready pu
     // Tocar un adapter de referencia retira la aprobación de esa suite.
     const ref = path.join(tmpConf, "reference", "search-input-rate");
     fs.appendFileSync(path.join(ref, fs.readdirSync(ref)[0]), "\n// cambio\n");
-    assert.equal(approvedSuites({ file: path.join(tmpConf, "approved.json"), root: tmpConf }).length, 2);
+    assert.equal(approvedSuites({ file: path.join(tmpConf, "approved.json"), root: tmpConf }).length, Object.keys(SUITES).length - 1);
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
   assert.deepEqual(approvedSuites(), [], "el repo real no se toca");
   assert.ok(!fs.existsSync(path.join(ROOT, "catalogs", "engineering", "guardrails", "2.0.0")));
+});
+
+test("T17.7 update 1.0.0 → 2.0.0: los controles nuevos quedan en off y los niveles actuales se conservan", () => {
+  const { planCatalogChange } = require("../../../src/engineering/guardrails/install/lifecycle.js");
+  const { BUILTIN_ROOT } = require("../../../src/engineering/guardrails/catalog/registry.js");
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "kiritek-gate-upd-"));
+  try {
+    const doc = {
+      schemaVersion: 1,
+      pack: { id: "engineering/guardrails", catalog: "1.0.0" },
+      workspace: { units: [{ id: "acme/web", root: "apps/web", kind: "application", profiles: [{ id: "web", version: "1.0.0" }, { id: "search", version: "1.0.0" }], owns: ["apps/web/**"] }] },
+    };
+    const catalogOptions = { roots: [BUILTIN_ROOT, path.dirname(path.join(ROOT, CANDIDATE_REL))], approvedConformanceSuites: Object.values(SUITES).map(suiteRef) };
+    const plan = planCatalogChange({ repoRoot: repo, doc, to: "2.0.0", catalogOptions });
+    const { NEW_CONTROLS } = require("../../../scripts/build-catalog-candidate.js");
+    assert.deepEqual([...plan.newGates].sort(), NEW_CONTROLS.map((c) => c.id).sort());
+    assert.equal(plan.newGates.length, NEW_CONTROLS.length);
+    for (const id of plan.newGates) assert.deepEqual(plan.nextDoc.defaults.controls[id], { level: "off" });
+    assert.equal(plan.nextDoc.pack.catalog, "2.0.0");
+    assert.equal(plan.blocked, false);
+    assert.deepEqual(plan.levelChanges.filter((c) => c.from !== null), [], "ningún nivel existente cambia");
+  } finally {
+    fs.rmSync(repo, { recursive: true, force: true });
+  }
 });

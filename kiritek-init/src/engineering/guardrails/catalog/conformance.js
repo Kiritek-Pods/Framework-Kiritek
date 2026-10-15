@@ -10,7 +10,7 @@
  * así que ningún catálogo puede habilitar enforcement antes de R27.
  */
 
-const { BUILTIN_PROFILES, MOMENT } = require("../contracts/common.js");
+const { CORE_PROFILES, MOMENT } = require("../contracts/common.js");
 const { raise } = require("../errors.js");
 const semver = require("./semver.js");
 
@@ -37,7 +37,7 @@ function runCatalogConformance(loaded, opts = {}) {
 
   if (opts.requireBuiltinProfiles !== false) {
     const ids = new Set(catalog.profiles.map((p) => p.id));
-    const missing = BUILTIN_PROFILES.filter((p) => !ids.has(p));
+    const missing = CORE_PROFILES.filter((p) => !ids.has(p));
     check("profiles.builtin", missing.length === 0, missing.length ? `faltan perfiles: ${missing.join(", ")}` : "perfiles builtin presentes");
   }
 
