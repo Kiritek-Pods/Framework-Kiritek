@@ -60,7 +60,7 @@ function compareEnvelopes(a, b) {
  * Reporte engineering de una ejecución. No hay booleano global de
  * "conformidad"; `outcome` separa deny de política y error operativo.
  */
-function aggregateRun({ moment, catalog, configHash, revision, envelopes, events = [], diagnostics = [] }) {
+function aggregateRun({ moment, catalog, configHash, revision, envelopes, events = [], diagnostics = [], exceptions }) {
   const results = [...envelopes].sort(compareEnvelopes);
   const byState = {};
   const byDecision = {};
@@ -90,6 +90,7 @@ function aggregateRun({ moment, catalog, configHash, revision, envelopes, events
       blockingResults: results.filter((e) => e.blockingEligible && e.result && e.result.decision === DECISION.DENY).map((e) => ({ unitId: e.unit.id, controlId: e.control.id })),
       exitCodeHint: policyDeny ? 1 : operationalError ? 3 : 0,
     },
+    ...(exceptions ? { exceptions } : {}),
     events,
     diagnostics,
   });

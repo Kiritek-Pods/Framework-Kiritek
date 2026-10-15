@@ -16,7 +16,11 @@ module.exports = {
     evaluate: require("./pipeline/evaluate.js"),
     exceptions: require("./pipeline/exceptions.js"),
     aggregate: require("./pipeline/aggregate.js"),
-    redact: require("./pipeline/redact.js"),
   },
+  runtime: require("./runtime/index.js"),
+  privacy: require("./privacy/index.js"),
   orchestrator: require("./orchestrator.js"),
+  controls: require("./controls/index.js"),
+  install: require("./install/index.js"),
+  cli: require("./cli.js"),
 };

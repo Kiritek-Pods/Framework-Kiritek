@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/app-minimum-supported-version.trace.schema.json",
+  "title": "Traza conductual de app.minimum-supported-version",
+  "description": "Sólo decisiones observables saneadas (enums/booleanos/tiempos virtuales). Sin tokens de dispositivo, cuenta o store.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": { "name": { "type": "string", "pattern": "^[a-z0-9-]+$" }, "version": { "$ref": "engineering/common.schema.json#/definitions/semver" } }
+    },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "decisions"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "status": { "type": "string", "enum": ["ok", "error", "timeout", "skipped"] },
+        "limitation": { "type": "string", "pattern": "^[A-Z_]+$" },
+        "decisions": { "type": "array", "maxItems": 4, "items": { "$ref": "#/definitions/decision" } }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["settled", "settledAt"],
+      "properties": {
+        "settled": { "type": "boolean" },
+        "settledAt": { "type": "integer", "minimum": 0 },
+        "action": { "type": "string", "enum": ["none", "soft", "hard", "blocked-offline"] },
+        "canContinue": { "type": "boolean" },
+        "canPostpone": { "type": "boolean" },
+        "updateTarget": { "type": "string", "enum": ["store", "enterprise", "fallback", "none"] },
+        "explanationAccessible": { "type": "boolean" },
+        "exitAvailable": { "type": "boolean" },
+        "policySource": { "type": "string", "enum": ["remote", "cache", "stale-cache", "none"] },
+        "droppedFields": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

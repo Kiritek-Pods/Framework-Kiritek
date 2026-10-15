@@ -14,10 +14,13 @@
     "src",
     "templates",
     "catalogs",
-    "schemas"
+    "schemas",
+    "docs"
   ],
   "scripts": {
-    "test": "node --require ./test/setup.js --test"
+    "test": "node --require ./test/setup.js --test",
+    "test:engineering": "node scripts/test-engineering.js",
+    "release:gate": "node scripts/release-gate.js"
   },
   "license": "UNLICENSED",
   "private": true

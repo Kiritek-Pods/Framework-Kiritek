@@ -24,6 +24,11 @@ const EVIDENCE_DEFAULTS = Object.freeze({ directory: ".kiritek/evidence/engineer
 const EXCEPTIONS_DEFAULTS = Object.freeze({
   waiverFiles: [".kiritek/engineering/waivers/*.json"],
   notApplicableFiles: [".kiritek/engineering/not-applicable/*.json"],
+  // Gobierno (T13.3): expiraciones máximas y aprobación.
+  maxWaiverDays: 90,
+  maxNaReviewDays: 365,
+  requireDistinctApprover: true,
+  naApproval: "high-criticality",
 });
 const TELEMETRY_DEFAULTS = Object.freeze({
   enabled: false,

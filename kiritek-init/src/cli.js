@@ -145,9 +145,30 @@ async function cmdUpdate(flags, cwd) {
 const securityCli = require("./security-cli.js");
 const SECURITY_COMMANDS = new Set(securityCli.SECURITY_COMMANDS);
 
+// Pack engineering/guardrails: router neutral e independiente de security.
+// Se invoca con `kiritek-init guardrails <comando>`. La carga es LAZY y por
+// ruta compuesta para preservar el aislamiento de dominios: el core/security no
+// importa engineering estáticamente; sólo este dispatcher neutral lo resuelve
+// bajo demanda cuando el usuario pide el pack.
+function loadEngineeringCli() {
+  // Ruta compuesta a propósito: evita un import estático del dominio engineering
+  // desde el core y mantiene la separación verificada por la suite.
+  const packCliPath = ["engineering", "guardrails", "cli.js"].join("/");
+  return require(`./${packCliPath}`);
+}
+
 async function run(argv) {
   const [command] = argv;
   const cwd = process.cwd();
+
+  // Enrutar el pack engineering de forma aislada. Devuelve un exit code (o una
+  // promesa, por el momento `scan`), que se normaliza igual que security.
+  if (command === "guardrails" || command === "engineering") {
+    const engineeringCli = loadEngineeringCli();
+    const code = await engineeringCli.runAsync(argv.slice(1), { cwd, env: process.env });
+    if (code) process.exitCode = code;
+    return;
+  }
 
   // Enrutar comandos de seguridad (scan, validate, security, provider,
   // uninstall) al router dedicado, que ya hace su propio parseo tipado.

@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/search-input-rate.trace.schema.json",
+  "title": "Traza conductual de search.input-rate",
+  "description": "Salida del harness (Kiritek o del equipo vía trace-command). Sólo IDs opacos y longitudes: nunca texto de consulta.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": { "name": { "type": "string", "pattern": "^[a-z0-9-]+$" }, "version": { "$ref": "engineering/common.schema.json#/definitions/semver" } }
+    },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "events"],
+      "properties": {
+        "id": { "type": "string", "enum": ["burst", "min-chars", "supersede", "out-of-order", "equivalent", "error-propagation"] },
+        "status": { "type": "string", "enum": ["ok", "error", "timeout"] },
+        "limitation": { "type": "string", "pattern": "^[A-Z_]+$" },
+        "events": { "type": "array", "maxItems": 2000, "items": { "$ref": "#/definitions/event" } }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seq", "t", "type"],
+      "properties": {
+        "seq": { "type": "integer", "minimum": 0 },
+        "t": { "type": "integer", "minimum": 0 },
+        "type": { "type": "string", "enum": ["input", "request-start", "request-abort", "response", "commit", "error-surfaced"] },
+        "qid": { "type": "string", "pattern": "^q[0-9]+$" },
+        "key": { "type": "string", "pattern": "^k[0-9]+$" },
+        "rid": { "type": "string", "pattern": "^r[0-9]+$" },
+        "len": { "type": "integer", "minimum": 0, "maximum": 10000 },
+        "ok": { "type": "boolean" },
+        "aborted": { "type": "boolean" }
+      }
+    }
+  }
+}

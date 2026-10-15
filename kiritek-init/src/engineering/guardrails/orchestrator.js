@@ -29,12 +29,12 @@ const { resolveApplicability } = require("./pipeline/applicability.js");
 const { runEvaluator, EvaluatorError } = require("./pipeline/evaluate.js");
 const { findGovernedNA, applyWaivers } = require("./pipeline/exceptions.js");
 const { enforceTrustGate, aggregateRun } = require("./pipeline/aggregate.js");
-const { assertPublishable } = require("./pipeline/redact.js");
+const { prepareForPublication, REDACTION_POLICY_VERSION } = require("./privacy/publish.js");
+const { createRunBudget } = require("./runtime/budget.js");
 const { raise } = require("./errors.js");
 
 const CONFIDENCE_RANK = Object.freeze({ deterministic: 4, high: 3, medium: 2, low: 1, unknown: 0 });
 const ACTOR_BY_MOMENT = Object.freeze({ agent: "agent", "pre-commit": "human", pr: "ci", release: "release" });
-const REDACTION_POLICY_VERSION = "1.0.0";
 
 function minConfidence(list) {
   if (!list.length) return c.CONFIDENCE.UNKNOWN;
@@ -83,7 +83,8 @@ function fallbackResult(control, moment, controlId, reason) {
  * @param {object} input.resolvedUnits     Salida de T04.
  * @param {object} input.scope             Salida de T05 `resolveScope`.
  * @param {Record<string, object>} input.controls  Implementaciones por id.
- * @param {object[]} [input.exceptions]    Waivers / N/A vigentes (T13).
+ * @param {object[]|object} [input.exceptions]  Waivers / N/A normalizados, o la salida de
+ *   `exceptions/loadExceptions` ({records, rejected}) (T13).
  * @param {object[]} [input.suggestions]   Discovery (sólo informativo).
  * @param {() => string} [input.clock]     ISO-8601 inyectable.
  * @param {() => number} [input.nowMs]     Para duraciones.
@@ -91,7 +92,46 @@ function fallbackResult(control, moment, controlId, reason) {
  * @param {string} [input.repoRoot]
  * @param {(report) => any} [input.adapter]
  * @param {boolean} [input.verifyDeterminism=true]
+ * @param {object} [input.cache]           Cache de observaciones (T07).
+ * @param {string[]} [input.canaries]      Canarios sintéticos registrados (pruebas T08.5).
  */
+/**
+ * Deuda visible de excepciones (T13.4): aplicadas, reactivadas, rechazadas y
+ * próximo vencimiento. Sólo ids, códigos y fechas; nunca razón/owner/ticket.
+ */
+function summarizeExceptions(envelopes, reactivated, rejected) {
+  const applied = new Map();
+  for (const e of envelopes) {
+    for (const s of e.suppressed) {
+      const key = `${s.kind}|${s.ref}|${e.unit.id}|${e.control.id}`;
+      const entry = applied.get(key) || { kind: s.kind, ref: s.ref, unitId: e.unit.id, controlId: e.control.id, expiresAt: s.expiresAt, findings: 0 };
+      if (s.fingerprint !== undefined) entry.findings += 1;
+      applied.set(key, entry);
+    }
+  }
+  const list = [...applied.values()].sort((a, b) => (a.expiresAt < b.expiresAt ? -1 : a.expiresAt > b.expiresAt ? 1 : a.ref < b.ref ? -1 : 1));
+  const byKey = (x) => `${x.kind}|${x.ref}|${x.unitId}|${x.controlId}|${x.code}`;
+  const reactivatedUnique = [...new Map(reactivated.map((r) => [byKey(r), r])).values()].sort((a, b) => (byKey(a) < byKey(b) ? -1 : 1));
+  return {
+    applied: list,
+    reactivated: reactivatedUnique,
+    rejected: [...rejected].sort((a, b) => (a.file < b.file ? -1 : 1)),
+    debt: {
+      waivers: list.filter((x) => x.kind === "waiver").length,
+      suppressedFindings: list.reduce((n, x) => n + x.findings, 0),
+      notApplicable: list.filter((x) => x.kind === "governed-na").length,
+    },
+    nextExpiry: list.length ? list[0].expiresAt : null,
+  };
+}
+
+function exceptionEvents(summary) {
+  return [
+    ...summary.applied.map((a) => ({ type: "exception-applied", unitId: a.unitId, controlId: a.controlId, kind: a.kind, ref: a.ref, expiresAt: a.expiresAt })),
+    ...summary.reactivated.map((r) => ({ type: "exception-reactivated", unitId: r.unitId, controlId: r.controlId, kind: r.kind, ref: r.ref, code: r.code })),
+  ];
+}
+
 async function evaluateRun(input) {
   const clock = input.clock || (() => new Date().toISOString());
   const nowIso = clock();
@@ -108,8 +148,14 @@ async function evaluateRun(input) {
   const catalogRef = { ...snap.ref };
   const envelopes = [];
   const events = [];
+  const evidenceRecords = [];
   const runDiagnostics = [...(scope.diagnostics || [])];
+  const runBudget = createRunBudget({ totalMs: resolvedConfig.effective.execution.budgetsMs[moment], nowMs });
   const scopeByUnit = new Map(scope.units.map((u) => [u.unitId, u]));
+  const exceptionSet = Array.isArray(input.exceptions) ? { records: input.exceptions, rejected: [], diagnostics: [] } : input.exceptions || { records: [], rejected: [], diagnostics: [] };
+  const exceptionRecords = exceptionSet.records;
+  runDiagnostics.push(...(exceptionSet.diagnostics || []));
+  const reactivatedLog = [];
   const configUnits = new Map(resolvedConfig.effective.units.map((u) => [u.unit.id, u.unit]));
 
   for (const unit of resolvedUnits.units) {
@@ -174,16 +220,6 @@ async function evaluateRun(input) {
         abstain(EVALUATION_STATE.NOT_EVALUATED, { diagnostics: [{ code: "MOMENT_NOT_COVERED", message: `el control no se ejecuta en ${moment}` }] });
         continue;
       }
-      const impl = input.controls ? input.controls[control.id] : undefined;
-      const linkage = checkLinkage(control, impl);
-      if (linkage) {
-        abstain(EVALUATION_STATE.UNAVAILABLE, {
-          diagnostics: [{ code: linkage, message: "implementación del control ausente o no enlazada con el catálogo" }],
-          result: fallbackResult(control, moment, control.id, `${linkage}: control no ejecutable`),
-        });
-        continue;
-      }
-
       // Perfiles (antes de observar: un control sin perfil no recolecta).
       const preliminary = resolveApplicability({ unit, control, moment, scopeHash, observations: [], parameters, suggestions: input.suggestions });
       if (preliminary.status !== "applicable") {
@@ -195,8 +231,20 @@ async function evaluateRun(input) {
         continue;
       }
 
+      const impl = input.controls ? input.controls[control.id] : undefined;
+      const linkage = checkLinkage(control, impl);
+      if (linkage) {
+        abstain(EVALUATION_STATE.UNAVAILABLE, {
+          diagnostics: [{ code: linkage, message: "implementación del control ausente o no enlazada con el catálogo" }],
+          result: fallbackResult(control, moment, control.id, `${linkage}: control no ejecutable`),
+        });
+        continue;
+      }
+
       // N/A gobernado: documenta excepción funcional sin alterar el perfil.
-      const na = findGovernedNA(input.exceptions, { unitId: unit.id, controlId: control.id, scopeHash, nowMs: nowMsAt });
+      const exceptionCtx = { unitId: unit.id, controlId: control.id, controlVersion: control.version, scopeHash, scopePaths: unitScope ? unitScope.paths : [], unitOwns: unit.owns, nowMs: nowMsAt };
+      const na = findGovernedNA(exceptionRecords, exceptionCtx);
+      reactivatedLog.push(...na.reactivated.map((r) => ({ ...r, unitId: unit.id, controlId: control.id })));
       if (na.record) {
         const reason = { code: "GOVERNED_NA", message: `no aplicable por excepción gobernada ${na.record.id}` };
         abstain(EVALUATION_STATE.NOT_APPLICABLE, {
@@ -209,32 +257,82 @@ async function evaluateRun(input) {
       }
       const exceptionDiagnostics = [...na.diagnostics];
 
-      // Observación aislada.
-      const budget = Math.min(
-        control.timeoutMs,
-        control.moments.find((m) => m.moment === moment).budgetMs,
-        resolvedConfig.effective.execution.budgetsMs[moment]
-      );
-      const started = nowMs();
-      const collected = await runCollectors(
-        impl.collectors,
-        { moment, unit: { id: unit.id, root: unit.root, owns: unit.owns, excludes: unit.excludes }, controlId: control.id, parameters, scope: { paths: unitScope.paths, scopeHash, revision: scope.revision } },
-        { timeoutMs: budget, nowMs }
-      );
-      const identity = { controlId: control.id, unitId: unit.id, revision: scope.revision, scopeHash, configHash, catalogDigest: catalogRef.digest, observedAt: nowIso };
-      let normalized;
-      try {
-        normalized = normalizeObservations(collected, identity, {
-          controlNormalizer: impl.normalizer,
-          maxAgeSeconds: control.freshness.maxAgeSeconds,
-          nowMs: () => nowMsAt,
-        });
-      } catch (err) {
-        abstain(EVALUATION_STATE.UNAVAILABLE, {
-          diagnostics: [{ code: "NORMALIZATION", message: "la normalización de observaciones falló" }],
-          result: fallbackResult(control, moment, control.id, "NORMALIZATION: observaciones no normalizables"),
+      // Presupuesto: min(timeout del control, momento del control, restante
+      // de la ejecución). Agotado ⇒ timeout explícito con fallback.
+      const allotted = runBudget.allot(control.timeoutMs, control.moments.find((m) => m.moment === moment).budgetMs);
+      if (allotted <= 0) {
+        abstain(EVALUATION_STATE.TIMEOUT, {
+          applicability: preliminary,
+          diagnostics: [{ code: "BUDGET_EXHAUSTED", message: `presupuesto de ${moment} agotado antes de ejecutar el control` }],
+          result: fallbackResult(control, moment, control.id, "BUDGET_EXHAUSTED: control no ejecutado por presupuesto"),
         });
         continue;
+      }
+      const identity = { controlId: control.id, unitId: unit.id, revision: scope.revision, scopeHash, configHash, catalogDigest: catalogRef.digest, observedAt: nowIso };
+      const cacheParts =
+        input.cache && control.cachePolicy.enabled
+          ? {
+              packId: c.PACK_ID,
+              catalogDigest: catalogRef.digest,
+              controlId: control.id,
+              controlVersion: control.version,
+              collectorVersions: impl.collectors.map((x) => `${x.id}@${x.version}`).sort().join(","),
+              unitId: unit.id,
+              profileVersions: unit.profiles.map((p) => `${p.id}@${p.version}`).sort().join(","),
+              revision: scope.revision,
+              scopeHash,
+              inputManifestHash: hashJson({ paths: unitScope.paths, parameters }),
+              configHash,
+              platformKey,
+              momentContractVersion: hashJson(control.moments.find((m) => m.moment === moment)),
+            }
+          : null;
+      const cacheDiagnostics = [];
+      const started = nowMs();
+      let normalized = null;
+      if (cacheParts) {
+        const hit = input.cache.get(cacheParts);
+        if (hit.diagnostic) cacheDiagnostics.push(hit.diagnostic);
+        if (hit.status === "hit") {
+          // Un hit no eleva confianza ni evita la comprobación de frescura.
+          const maxAge = control.freshness.maxAgeSeconds * 1000;
+          normalized = {
+            observations: hit.observations,
+            staleIds: hit.observations.filter((o) => nowMsAt - Date.parse(o.observedAt) > maxAge).map((o) => o.observationId),
+          };
+        }
+      }
+      if (!normalized) {
+        const collected = await runCollectors(
+          impl.collectors,
+          {
+            moment,
+            repoRoot: input.repoRoot || null,
+            budgetMs: allotted,
+            unit: { id: unit.id, root: unit.root, owns: unit.owns, excludes: unit.excludes },
+            controlId: control.id,
+            parameters,
+            scope: { paths: unitScope.paths, scopeHash, revision: scope.revision },
+          },
+          { timeoutMs: allotted, nowMs }
+        );
+        try {
+          normalized = normalizeObservations(collected, identity, {
+            controlNormalizer: impl.normalizer,
+            maxAgeSeconds: control.freshness.maxAgeSeconds,
+            nowMs: () => nowMsAt,
+          });
+        } catch (err) {
+          abstain(EVALUATION_STATE.UNAVAILABLE, {
+            diagnostics: [{ code: "NORMALIZATION", message: "la normalización de observaciones falló" }],
+            result: fallbackResult(control, moment, control.id, "NORMALIZATION: observaciones no normalizables"),
+          });
+          continue;
+        }
+        if (cacheParts) {
+          const stored = input.cache.set(cacheParts, normalized.observations, { ttlSeconds: control.cachePolicy.ttlSeconds });
+          if (stored.diagnostic && stored.diagnostic.code !== "CACHE_SKIPPED_INCOMPLETE") cacheDiagnostics.push(stored.diagnostic);
+        }
       }
       const { observations, staleIds } = normalized;
       const durationMs = Math.max(0, nowMs() - started);
@@ -306,6 +404,8 @@ async function evaluateRun(input) {
             configHash,
             platformKey,
             createdAt: nowIso,
+            // Vigencia ligada a la frescura del control (R7.4).
+            expiresAt: new Date(nowMsAt + control.freshness.maxAgeSeconds * 1000).toISOString(),
             durationMs,
             cache: usable.some((o) => o.cache === "hit") ? "hit" : "miss",
             observationRefs: usable.map((o) => o.observationId),
@@ -323,6 +423,7 @@ async function evaluateRun(input) {
         });
         continue;
       }
+      evidenceRecords.push(evidence);
       const binding = { id: evidence.id, revision: evidence.revision, scopeHash: evidence.scopeHash, configHash: evidence.configHash, catalogDigest: evidence.catalog.digest, unitId: evidence.unitId, controlId: evidence.control.id };
       const stale = staleIds.length > 0;
       // Cualquier observación no completa (parcial, timeout, inválida,
@@ -393,9 +494,10 @@ async function evaluateRun(input) {
         continue;
       }
 
-      const waived = applyWaivers(evaluated.result.findings, input.exceptions, { unitId: unit.id, controlId: control.id, scopeHash, nowMs: nowMsAt });
+      const waived = applyWaivers(evaluated.result.findings, exceptionRecords, exceptionCtx);
+      reactivatedLog.push(...waived.reactivated.map((r) => ({ ...r, unitId: unit.id, controlId: control.id })));
       let result = { ...evaluated.result, findings: waived.findings };
-      const diagnostics = [...exceptionDiagnostics, ...waived.diagnostics];
+      const diagnostics = [...exceptionDiagnostics, ...cacheDiagnostics, ...waived.diagnostics];
       if (evaluated.reclassified.length) {
         diagnostics.push({ code: "FINDING_RECLASSIFIED", stage: "evaluate", message: `${evaluated.reclassified.length} finding(s) sin respaldo determinista reclasificados como heurísticos` });
       }
@@ -413,7 +515,11 @@ async function evaluateRun(input) {
         diagnostics,
       };
       if (incomplete) {
-        draft.diagnostics = [...draft.diagnostics, { code: "EVIDENCE_INCOMPLETE", message: `${observations.length - usable.length} observación(es) no completas: el resultado no puede bloquear` }];
+        draft.diagnostics = [
+          ...draft.diagnostics,
+          { code: "EVIDENCE_INCOMPLETE", message: `${observations.length - usable.length} observación(es) no completas: el resultado no puede bloquear` },
+          ...limits,
+        ];
       }
       const gated = enforceTrustGate(draft);
       envelopes.push(gated.envelope);
@@ -421,10 +527,15 @@ async function evaluateRun(input) {
     }
   }
 
-  const report = aggregateRun({ moment, catalog: catalogRef, configHash, revision: scope.revision, envelopes, events, diagnostics: runDiagnostics });
-  assertPublishable(report);
-  if (input.adapter) return { report, adapted: input.adapter(report) };
-  return { report };
+  const exceptions = summarizeExceptions(envelopes, reactivatedLog, exceptionSet.rejected || []);
+  events.push(...exceptionEvents(exceptions));
+  const raw = aggregateRun({ moment, catalog: catalogRef, configHash, revision: scope.revision, envelopes, events, diagnostics: runDiagnostics, exceptions });
+  // Minimización → redacción → detector → schema (T08). Si falla, no hay
+  // reporte publicable ni adapter: REDACTION_FAILED.
+  const { value: report } = prepareForPublication(raw, { schema: "engineering/report", repoRoot: input.repoRoot, canaries: input.canaries });
+  const out = { report, evidence: evidenceRecords };
+  if (input.adapter) out.adapted = input.adapter(report);
+  return out;
 }
 
 module.exports = { evaluateRun, aggregateEvidenceClass, minConfidence };

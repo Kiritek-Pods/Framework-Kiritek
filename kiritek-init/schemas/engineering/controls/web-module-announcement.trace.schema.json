@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/web-module-announcement.trace.schema.json",
+  "title": "Traza conductual de web.module-announcement",
+  "description": "Sólo hechos derivados por el harness (booleanos/enums/ratio de contraste). Nunca texto renderizado, contenido ni identidades.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": { "name": { "type": "string", "pattern": "^[a-z0-9-]+$" }, "version": { "$ref": "engineering/common.schema.json#/definitions/semver" } }
+    },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "steps"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "status": { "type": "string", "enum": ["ok", "error", "timeout", "skipped"] },
+        "limitation": { "type": "string", "pattern": "^[A-Z_]+$" },
+        "steps": { "type": "array", "maxItems": 6, "items": { "$ref": "#/definitions/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["visible", "moduleAvailable"],
+      "properties": {
+        "visible": { "type": "boolean" },
+        "moduleAvailable": { "type": "boolean" },
+        "roleValid": { "type": "boolean" },
+        "nameOk": { "type": "boolean" },
+        "controlsNamed": { "type": "boolean" },
+        "stateConsistent": { "type": "boolean" },
+        "keyboardReachable": { "type": "boolean" },
+        "tabVisitsAll": { "type": "boolean" },
+        "focusOnOpen": { "type": "boolean" },
+        "escapeCloses": { "type": "boolean" },
+        "closeControl": { "type": "boolean" },
+        "focusReturns": { "type": "boolean" },
+        "contrastRatio": { "type": "number", "minimum": 1, "maximum": 21 },
+        "contrastOk": { "type": "boolean" },
+        "reducedMotionOk": { "type": "boolean" },
+        "textState": { "type": "string", "enum": ["expected-locale", "default-locale", "fallback-text", "internal-key", "empty", "broken-markup"] },
+        "droppedFields": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

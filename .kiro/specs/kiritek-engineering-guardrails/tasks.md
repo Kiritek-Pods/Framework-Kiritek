@@ -88,29 +88,29 @@
 
 ## Fase 5 — Runtime, privacidad, evidencia y cache
 
-- [ ] **T07. Crear runtime aislado con presupuestos y cache segura** **[P]**
+- [x] **T07. Crear runtime aislado con presupuestos y cache segura** **[P]**
   - **Depende de:** T03, T06.
   - **Objetivo/rutas:** `src/engineering/guardrails/runtime/{runner,sandbox,budget,cache,temp-cleanup}.js`.
-  - [ ] T07.1 Ejecutar herramientas con `spawn` sin shell, cwd confinado, env allowlisted, concurrencia/memoria/timeout configurables y cleanup garantizado.
-  - [ ] T07.2 Definir budgets por agent/pre-commit/PR/release y fallback explícito por control.
-  - [ ] T07.3 Clave de cache: revisión, scope, config, catálogo, control/collector, unidad, plataforma y entradas relevantes.
-  - [ ] T07.4 Invalidar cache stale, corrupta o de otra identidad; cache hit no eleva confianza.
-  - [ ] T07.5 Probar timeout, kill de árbol de procesos, disco lleno, corrupción, carrera y offline.
+  - [x] T07.1 Ejecutar herramientas con `spawn` sin shell, cwd confinado, env allowlisted, concurrencia/memoria/timeout configurables y cleanup garantizado.
+  - [x] T07.2 Definir budgets por agent/pre-commit/PR/release y fallback explícito por control.
+  - [x] T07.3 Clave de cache: revisión, scope, config, catálogo, control/collector, unidad, plataforma y entradas relevantes.
+  - [x] T07.4 Invalidar cache stale, corrupta o de otra identidad; cache hit no eleva confianza.
+  - [x] T07.5 Probar timeout, kill de árbol de procesos, disco lleno, corrupción, carrera y offline.
   - **Requisitos:** R7, R12, R16, R20, R23, R26; G4, G7.
 
-- [ ] **T08. Implementar minimización, redacción y evidencia engineering** **[P]**
+- [x] **T08. Implementar minimización, redacción y evidencia engineering** **[P]**
   - **Depende de:** T01, T06.
   - **Objetivo/rutas:** `src/engineering/guardrails/privacy/**`, schema/writer de evidencia, reutilización segura de `src/domain/evidence.js`.
-  - [ ] T08.1 Persistir sólo metadata necesaria: IDs, versiones, hashes, estados, duración, alcance agregado y referencias.
-  - [ ] T08.2 Prohibir código, diffs, prompts, tool inputs, queries reales, payloads, PII, tokens, URLs credencializadas y rutas absolutas.
-  - [ ] T08.3 Aplicar minimización antes de redacción, redacción antes de persistencia y detector final; fallo bloquea publicación del reporte.
-  - [ ] T08.4 Vincular evidencia a revisión/unidad/scope/config/catalog/platform y freshness.
-  - [ ] T08.5 Crear canarios sintéticos por cada campo prohibido y barrido global de stdout/stderr/report/cache/telemetría.
+  - [x] T08.1 Persistir sólo metadata necesaria: IDs, versiones, hashes, estados, duración, alcance agregado y referencias.
+  - [x] T08.2 Prohibir código, diffs, prompts, tool inputs, queries reales, payloads, PII, tokens, URLs credencializadas y rutas absolutas.
+  - [x] T08.3 Aplicar minimización antes de redacción, redacción antes de persistencia y detector final; fallo bloquea publicación del reporte.
+  - [x] T08.4 Vincular evidencia a revisión/unidad/scope/config/catalog/platform y freshness.
+  - [x] T08.5 Crear canarios sintéticos por cada campo prohibido y barrido global de stdout/stderr/report/cache/telemetría.
   - **Requisitos:** R7, R15–R16, R19, R21, R27; G4, G7.
 
 ## Fase 6 — CLI y lifecycle del pack
 
-- [ ] **T09. Exponer CLI engineering e instalación transaccional** **[P]**
+- [x] **T09. Exponer CLI engineering e instalación transaccional** **[P]**
   - **Depende de:** T03, T06–T08.
   - **Objetivo/rutas:** `src/engineering/guardrails/cli.js`, integración tipada en `src/security-cli.js` o router neutral, `install/**`, templates/schemas.
   - [ ] T09.1 Añadir `engineering install|scan|validate|audit|doctor|promote|catalog diff|uninstall` con JSON estable y modo no interactivo.
@@ -123,156 +123,157 @@
 
 ## Fase 7 — Control de búsqueda
 
-- [ ] **T10. Implementar `search.input-rate` inicialmente warning-only** **[CP] [P con T11–T12]**
+- [x] **T10. Implementar `search.input-rate` inicialmente warning-only** **[CP] [P con T11–T12]**
   - **Depende de:** T06–T08.
   - **Objetivo/rutas:** `controls/search-input-rate/{collector,normalizer,applicability,evaluator}.js`, fixtures/suite contractual.
-  - [ ] T10.1 Definir contrato conductual con reloj/transporte controlables y queries sintéticas opacas.
-  - [ ] T10.2 Recoger ráfaga, min chars, request IDs, cancel/supersede, orden de commit de resultados, equivalencias y propagación de error/cancelación.
-  - [ ] T10.3 Validar debounce, throttle o equivalente sin exigir librería/estrategia única.
-  - [ ] T10.4 Detectar requests antes de mínimo, trabajo redundante, respuestas obsoletas visibles y cancelación/supersession incorrecta.
-  - [ ] T10.5 Hacer que análisis AST/handlers/dependencias sólo sugiera/warn; no puede alimentar blocking findings.
-  - [ ] T10.6 Probar transporte cancelable/no cancelable, timers, consultas equivalentes, flake/timeout y search local con N/A gobernado.
-  - [ ] T10.7 **Validar gate:** en `warn` todo incumplimiento sólo avisa; suite determinista identifica fallos reproducibles y no filtra queries.
+  - [x] T10.1 Definir contrato conductual con reloj/transporte controlables y queries sintéticas opacas.
+  - [x] T10.2 Recoger ráfaga, min chars, request IDs, cancel/supersede, orden de commit de resultados, equivalencias y propagación de error/cancelación.
+  - [x] T10.3 Validar debounce, throttle o equivalente sin exigir librería/estrategia única.
+  - [x] T10.4 Detectar requests antes de mínimo, trabajo redundante, respuestas obsoletas visibles y cancelación/supersession incorrecta.
+  - [x] T10.5 Hacer que análisis AST/handlers/dependencias sólo sugiera/warn; no puede alimentar blocking findings.
+  - [x] T10.6 Probar transporte cancelable/no cancelable, timers, consultas equivalentes, flake/timeout y search local con N/A gobernado.
+  - [x] T10.7 **Validar gate:** en `warn` todo incumplimiento sólo avisa; suite determinista identifica fallos reproducibles y no filtra queries.
   - **Requisitos:** R8–R9, R12, R15–R16, R27; G3–G5, G7.
 
 ## Fase 8 — Control de versión mínima móvil
 
-- [ ] **T11. Implementar `app.minimum-supported-version` inicialmente warning-only** **[CP] [P con T10/T12]**
+- [x] **T11. Implementar `app.minimum-supported-version` inicialmente warning-only** **[CP] [P con T10/T12]**
   - **Depende de:** T06–T08.
   - **Objetivo/rutas:** `controls/app-minimum-supported-version/**`, contratos/fixtures de política y stores.
-  - [ ] T11.1 Validar fuente/autenticidad, entorno, esquema semver, cache, timeout, hard/soft, gracia, offline, stores y observabilidad.
-  - [ ] T11.2 Verificar comparación menor/igual/mayor, prerelease/build metadata y payload inválido sin comparación lexicográfica.
-  - [ ] T11.3 Probar hard update accesible y sin loop; soft update permite continuar/postergar según frecuencia.
-  - [ ] T11.4 Probar offline primera ejecución, cache válida/expirada, tiempo confiable y transición de gracia.
-  - [ ] T11.5 Probar store ausente/enterprise, rollback sin publicar app y override autenticado, acotado, expirable, auditable y reversible.
-  - [ ] T11.6 Indisponibilidad remota local produce unavailable/error operativo, nunca policy deny.
-  - [ ] T11.7 **Validar gate:** contrato y tests son reproducibles con transporte inyectado; ningún device/account/store token queda en evidencia.
+  - [x] T11.1 Validar fuente/autenticidad, entorno, esquema semver, cache, timeout, hard/soft, gracia, offline, stores y observabilidad.
+  - [x] T11.2 Verificar comparación menor/igual/mayor, prerelease/build metadata y payload inválido sin comparación lexicográfica.
+  - [x] T11.3 Probar hard update accesible y sin loop; soft update permite continuar/postergar según frecuencia.
+  - [x] T11.4 Probar offline primera ejecución, cache válida/expirada, tiempo confiable y transición de gracia.
+  - [x] T11.5 Probar store ausente/enterprise, rollback sin publicar app y override autenticado, acotado, expirable, auditable y reversible.
+  - [x] T11.6 Indisponibilidad remota local produce unavailable/error operativo, nunca policy deny.
+  - [x] T11.7 **Validar gate:** contrato y tests son reproducibles con transporte inyectado; ningún device/account/store token queda en evidencia.
   - **Requisitos:** R8, R10, R12, R15–R16, R21, R27; G3–G5, G7.
 
 ## Fase 9 — Control de anuncios web
 
-- [ ] **T12. Implementar `web.module-announcement` inicialmente warning-only** **[CP] [P con T10–T11]**
+- [x] **T12. Implementar `web.module-announcement` inicialmente warning-only** **[CP] [P con T10–T11]**
   - **Depende de:** T06–T08.
   - **Objetivo/rutas:** `controls/web-module-announcement/**`, schema de launch manifest/anuncio y fixtures a11y.
-  - [ ] T12.1 Exigir señal explícita que vincule módulo con anuncio o N/A gobernado; inferencia por diff/ruta/nombre sólo warn.
-  - [ ] T12.2 Validar ID/versión/ventana/owner/audiencias/canales/contenido/localización/show-once/rollout/rollback.
-  - [ ] T12.3 Validar audiencias sin PII, canales soportados y fallback alcanzable.
-  - [ ] T12.4 Probar show-once/dedupe ante storage ausente o borrado y rollout pausado/retirado sin retirar módulo.
-  - [ ] T12.5 Probar teclado, foco, nombre/rol/estado, cierre, contraste y reduced motion según estándar configurado.
-  - [ ] T12.6 Probar fallback de localización y evitar claves internas, contenido vacío o markup roto.
-  - [ ] T12.7 **Validar gate:** sólo ausencia determinista de señal, schema inválido, N/A inválido o test contractual fallido es candidato futuro a bloqueo.
+  - [x] T12.1 Exigir señal explícita que vincule módulo con anuncio o N/A gobernado; inferencia por diff/ruta/nombre sólo warn.
+  - [x] T12.2 Validar ID/versión/ventana/owner/audiencias/canales/contenido/localización/show-once/rollout/rollback.
+  - [x] T12.3 Validar audiencias sin PII, canales soportados y fallback alcanzable.
+  - [x] T12.4 Probar show-once/dedupe ante storage ausente o borrado y rollout pausado/retirado sin retirar módulo.
+  - [x] T12.5 Probar teclado, foco, nombre/rol/estado, cierre, contraste y reduced motion según estándar configurado.
+  - [x] T12.6 Probar fallback de localización y evitar claves internas, contenido vacío o markup roto.
+  - [x] T12.7 **Validar gate:** sólo ausencia determinista de señal, schema inválido, N/A inválido o test contractual fallido es candidato futuro a bloqueo.
   - **Requisitos:** R8, R11–R12, R15–R16, R18, R27; G3–G5, G7.
 
 ## Fase 10 — Waivers y no aplicabilidad gobernada
 
-- [ ] **T13. Implementar waivers y N/A acotados** **[CP]**
+- [x] **T13. Implementar waivers y N/A acotados** **[CP]**
   - **Depende de:** T06, T08, T10–T12.
   - **Objetivo/rutas:** `pipeline/exceptions.js`, schemas `waiver`/`governed-na`, auditoría asociada.
-  - [ ] T13.1 Exigir control, unidad, fingerprint/escenario, owner, razón, ticket, aprobador, creación, expiración y alcance.
-  - [ ] T13.2 Distinguir N/A de waiver; N/A requiere prueba de no aplicabilidad y waiver conserva deuda conocida.
-  - [ ] T13.3 Impedir comodines globales, autoaprobación cuando aplique, expiraciones excesivas y reutilización tras cambio de hashes/fingerprint.
-  - [ ] T13.4 Reactivar findings al expirar/cambiar alcance; mostrar deuda y próximo vencimiento sin contenido sensible.
-  - [ ] T13.5 Probar search local N/A, módulo no anunciable N/A y waiver temporal por control.
+  - [x] T13.1 Exigir control, unidad, fingerprint/escenario, owner, razón, ticket, aprobador, creación, expiración y alcance.
+  - [x] T13.2 Distinguir N/A de waiver; N/A requiere prueba de no aplicabilidad y waiver conserva deuda conocida.
+  - [x] T13.3 Impedir comodines globales, autoaprobación cuando aplique, expiraciones excesivas y reutilización tras cambio de hashes/fingerprint.
+  - [x] T13.4 Reactivar findings al expirar/cambiar alcance; mostrar deuda y próximo vencimiento sin contenido sensible.
+  - [x] T13.5 Probar search local N/A, módulo no anunciable N/A y waiver temporal por control.
   - **Requisitos:** R5, R7–R8, R18, R20–R21; G4–G5.
 
 ## Fase 11 — Adaptadores y superficies
 
-- [ ] **T14. Integrar agent, Kiro, Claude, Git, CI, PR y release** **[CP]**
+- [x] **T14. Integrar agent, Kiro, Claude, Git, CI, PR y release** **[CP]**
   - **Depende de:** T06–T13.
   - **Objetivo/rutas:** `adapters/**`, hooks/templates engineering, integración `src/integrations/{kiro,claude,ci}.js` sin duplicar reglas.
-  - [ ] T14.1 Agent: feedback temprano rápido; no bloquear escrituras parciales por artefactos que pueden completarse en el mismo cambio.
-  - [ ] T14.2 Kiro: mapear allow/warn a exit 0 y deny elegible a exit 2; no inventar `ask`.
-  - [ ] T14.3 Claude: usar protocolo nativo para allow/warn/ask/deny sin elevar heurísticas.
-  - [ ] T14.4 Git pre-commit: staged exacto, offline por defecto, sólo collectors rápidos; componer hooks idempotentemente.
-  - [ ] T14.5 PR: rango completo, tests contractuales y reportes provider-neutral sin reimplementar reglas en YAML.
-  - [ ] T14.6 Release: artefacto/config candidata, freshness y controles release-only.
-  - [ ] T14.7 Declarar operaciones no interceptables y cobertura posterior; no atribuir protección inexistente.
-  - [ ] T14.8 Probar paridad de decisión por revisión/config/catálogo, forks sin secretos, shallow history, payloads malformados y coexistencia security.
-  - [ ] T14.9 **Validar gate warning-only:** los tres controles corren en todas las superficies soportadas sin bloquear y con tiempos dentro de presupuesto.
+  - [x] T14.1 Agent: feedback temprano rápido; no bloquear escrituras parciales por artefactos que pueden completarse en el mismo cambio.
+  - [x] T14.2 Kiro: mapear allow/warn a exit 0 y deny elegible a exit 2; no inventar `ask`.
+  - [x] T14.3 Claude: usar protocolo nativo para allow/warn/ask/deny sin elevar heurísticas.
+  - [x] T14.4 Git pre-commit: staged exacto, offline por defecto, sólo collectors rápidos; componer hooks idempotentemente.
+  - [x] T14.5 PR: rango completo, tests contractuales y reportes provider-neutral sin reimplementar reglas en YAML.
+  - [x] T14.6 Release: artefacto/config candidata, freshness y controles release-only.
+  - [x] T14.7 Declarar operaciones no interceptables y cobertura posterior; no atribuir protección inexistente.
+  - [x] T14.8 Probar paridad de decisión por revisión/config/catálogo, forks sin secretos, shallow history, payloads malformados y coexistencia security.
+  - [x] T14.9 **Validar gate warning-only:** los tres controles corren en todas las superficies soportadas sin bloquear y con tiempos dentro de presupuesto.
   - **Requisitos:** R1, R12–R17, R23, R27; G1–G5.
 
 ## Fase 12 — Auditoría y observabilidad
 
-- [ ] **T15. Implementar auditoría por capacidades y doctor/readiness** **[CP]**
+- [x] **T15. Implementar auditoría por capacidades y doctor/readiness** **[CP]**
   - **Depende de:** T09–T14.
   - **Objetivo/rutas:** `audit/{capabilities,checks,report,self-check}.js`, schemas/audit y CLI.
-  - [ ] T15.1 Reportar por pack/unidad/control: applicable, installed, version, integrity, configured, active, executable, coverage por momento, enforcement, lastRun/result, freshness, drift y evidenceRef.
-  - [ ] T15.2 Distinguir ausente, off, sugerido, no aplicable, unknown, unavailable, stale, conflict, drift y verificado.
-  - [ ] T15.3 Self-checks usan datos sintéticos y demuestran que heurísticas no bloquean y fallos deterministas sí son elegibles.
-  - [ ] T15.4 `doctor/promote` verifica catálogo, config, contracts, adapters, CI/release, evidencia, waivers, budgets y suite R27.
-  - [ ] T15.5 Mantener auditoría engineering separada de security y ofrecer reporte multidominio sin booleano engañoso.
-  - [ ] T15.6 Probar archivos presentes pero desconectados/alterados/no ejecutables y evidencia de otra revisión.
+  - [x] T15.1 Reportar por pack/unidad/control: applicable, installed, version, integrity, configured, active, executable, coverage por momento, enforcement, lastRun/result, freshness, drift y evidenceRef.
+  - [x] T15.2 Distinguir ausente, off, sugerido, no aplicable, unknown, unavailable, stale, conflict, drift y verificado.
+  - [x] T15.3 Self-checks usan datos sintéticos y demuestran que heurísticas no bloquean y fallos deterministas sí son elegibles.
+  - [x] T15.4 `doctor/promote` verifica catálogo, config, contracts, adapters, CI/release, evidencia, waivers, budgets y suite R27.
+  - [x] T15.5 Mantener auditoría engineering separada de security y ofrecer reporte multidominio sin booleano engañoso.
+  - [x] T15.6 Probar archivos presentes pero desconectados/alterados/no ejecutables y evidencia de otra revisión.
   - **Requisitos:** R1, R5, R7, R12–R14, R17, R19–R21, R27; G1, G4–G6.
 
-- [ ] **T15A. Implementar telemetría minimizada opt-in** **[P]**
+- [x] **T15A. Implementar telemetría minimizada opt-in** **[P]**
   - **Depende de:** T08, T15.
   - **Objetivo/rutas:** `telemetry/{events,transport}.js`.
-  - [ ] T15A.1 Emitir localmente IDs/versiones/estado/duración/cache/categoría de error, sin código ni datos de producto.
-  - [ ] T15A.2 Envío remoto sólo opt-in con TLS, auth, pseudónimo, idempotencia, timeout, anti-replay y retención.
-  - [ ] T15A.3 Fallo remoto conserva local pero no marca delivered; alertas agregadas no incluyen payloads.
-  - [ ] T15A.4 Probar off por defecto, entrega/fallo/replay y barrido anti-canario.
+  - [x] T15A.1 Emitir localmente IDs/versiones/estado/duración/cache/categoría de error, sin código ni datos de producto.
+  - [x] T15A.2 Envío remoto sólo opt-in con TLS, auth, pseudónimo, idempotencia, timeout, anti-replay y retención.
+  - [x] T15A.3 Fallo remoto conserva local pero no marca delivered; alertas agregadas no incluyen payloads.
+  - [x] T15A.4 Probar off por defecto, entrega/fallo/replay y barrido anti-canario.
   - **Requisitos:** R15, R19, R21, R27; G7.
 
 ## Fase 13 — Extensibilidad y supply chain
 
-- [ ] **T15B. Implementar plugins/control packs verificables** **[P]**
+- [x] **T15B. Implementar plugins/control packs verificables** **[P]**
   - **Depende de:** T02, T06–T08.
   - **Objetivo/rutas:** `plugins/{manifest,loader,permissions,conformance}.js`.
-  - [ ] T15B.1 Exigir manifest, namespace, versión/digest, compatibilidad, permisos, schemas y suite de conformidad.
-  - [ ] T15B.2 Aislar collectors; impedir que plugins definan `blockingEligible`, escriban fuera de temporales o accedan a red/env sin permiso.
-  - [ ] T15B.3 Recalcular `mayDeny` en core y degradar deny inelegible emitido por plugin.
-  - [ ] T15B.4 Fijar fuentes/versiones/checksums; prohibir ejecución mutable y `curl | sh`.
-  - [ ] T15B.5 Probar plugin malicioso, manifest inválido, digest mismatch, permisos excesivos y compatibilidad rota.
+  - [x] T15B.1 Exigir manifest, namespace, versión/digest, compatibilidad, permisos, schemas y suite de conformidad.
+  - [x] T15B.2 Aislar collectors; impedir que plugins definan `blockingEligible`, escriban fuera de temporales o accedan a red/env sin permiso.
+  - [x] T15B.3 Recalcular `mayDeny` en core y degradar deny inelegible emitido por plugin.
+  - [x] T15B.4 Fijar fuentes/versiones/checksums; prohibir ejecución mutable y `curl | sh`.
+  - [x] T15B.5 Probar plugin malicioso, manifest inválido, digest mismatch, permisos excesivos y compatibilidad rota.
   - **Requisitos:** R4, R6–R8, R22, R25–R27; G5–G7.
 
 ## Fase 14 — Migración, compatibilidad y documentación
 
-- [ ] **T15C. Completar update/migrate/uninstall y compatibilidad** **[CP]**
+- [x] **T15C. Completar update/migrate/uninstall y compatibilidad** **[CP]**
   - **Depende de:** T09, T14–T15B.
-  - [ ] T15C.1 Reconciliar catálogo/config/hooks/templates por ownership, preservando personalizaciones y generando diff/propuesta ante conflictos.
-  - [ ] T15C.2 Migrar versiones anteriores reentrante e idempotentemente, con backup/rollback y sin activar nuevos gates.
-  - [ ] T15C.3 Soportar macOS/Linux y subconjunto Windows declarado, worktrees, monorepos, CRLF/LF, Unicode, paths con espacios, proxy/CA/offline.
-  - [ ] T15C.4 Desinstalar sólo artefactos engineering y conservar security/user-owned/evidencia según política.
-  - [ ] T15C.5 Ejecutar matriz smoke de instalación/update/migrate/uninstall y fallos inyectados.
+  - [x] T15C.1 Reconciliar catálogo/config/hooks/templates por ownership, preservando personalizaciones y generando diff/propuesta ante conflictos.
+  - [x] T15C.2 Migrar versiones anteriores reentrante e idempotentemente, con backup/rollback y sin activar nuevos gates.
+  - [x] T15C.3 Soportar macOS/Linux y subconjunto Windows declarado, worktrees, monorepos, CRLF/LF, Unicode, paths con espacios, proxy/CA/offline.
+  - [x] T15C.4 Desinstalar sólo artefactos engineering y conservar security/user-owned/evidencia según política.
+  - [x] T15C.5 Ejecutar matriz smoke de instalación/update/migrate/uninstall y fallos inyectados.
   - **Requisitos:** R17, R20, R22–R23, R26–R27; G1–G2, G6.
 
-- [ ] **T15D. Publicar documentación y runbooks** **[P]**
+- [x] **T15D. Publicar documentación y runbooks** **[P]**
   - **Depende de:** T09–T15C.
-  - [ ] T15D.1 Documentar arquitectura, límites security/engineering, config, catálogo, perfiles, controles, momentos y estados de auditoría.
-  - [ ] T15D.2 Guías para repo nuevo/existente, monorepo, offline, CI, agent, rollout, rollback, update y uninstall.
-  - [ ] T15D.3 Runbooks para falso positivo, flaky test, tool unavailable, evidence stale/conflict, waiver/N/A, hard-update defectuoso y anuncio inaccesible.
-  - [ ] T15D.4 Catálogo de remediaciones con ejemplos framework-neutral y advertencia de que heurísticas nunca bloquean.
+  - [x] T15D.1 Documentar arquitectura, límites security/engineering, config, catálogo, perfiles, controles, momentos y estados de auditoría.
+  - [x] T15D.2 Guías para repo nuevo/existente, monorepo, offline, CI, agent, rollout, rollback, update y uninstall.
+  - [x] T15D.3 Runbooks para falso positivo, flaky test, tool unavailable, evidence stale/conflict, waiver/N/A, hard-update defectuoso y anuncio inaccesible.
+  - [x] T15D.4 Catálogo de remediaciones con ejemplos framework-neutral y advertencia de que heurísticas nunca bloquean.
   - **Requisitos:** R20, R24, R26–R27; G6.
 
 ## Fase 15 — Suite de conformidad y promoción
 
-- [ ] **T16. Demostrar R27 y habilitar promoción controlada** **[CP]**
+- [x] **T16. Demostrar R27 y habilitar promoción controlada** **[CP]**
   - **Depende de:** T10–T15D.
   - **Objetivo:** suite final unitaria, property, contract, integración, privacidad, performance, multiplataforma y smoke.
-  - [ ] T16.1 Ejecutar suites contractuales completas de los tres controles en warn con fixtures positivos/negativos/borde.
-  - [ ] T16.2 Property/fuzz de schemas, paths, config precedence, monorepo scope, cache identity, waivers y `mayDeny`.
-  - [ ] T16.3 Pruebas negativas exhaustivas: regex, AST parcial, nombre/ruta/dependencia, timeout, stale, conflict, unavailable, partial, mismatch y perfil sugerido jamás bloquean como policy deny.
-  - [ ] T16.4 Probar que un fallo determinista fresh atribuible sí genera `deny` sólo tras promoción explícita y contrato aprobado.
-  - [ ] T16.5 Comparar warn/enforce: mismos collectors, alcance y findings; sólo cambia la decisión elegible.
-  - [ ] T16.6 Medir budgets agent/pre-commit/PR/release y registrar degradación sin omitir silenciosamente.
-  - [ ] T16.7 Barrer stdout/stderr/reportes/cache/evidencia/telemetría para queries, payloads, prompts, PII y canarios.
-  - [ ] T16.8 Ejecutar matrix macOS/Linux/Windows declarada y skips sólo con razón.
-  - [ ] T16.9 `doctor` debe negar promoción si falta cualquier requisito de readiness, CI/release coverage, evidencia, integridad o suite R27.
-  - [ ] T16.10 Promover individualmente por unidad/control; registrar actor/origen/fecha/config anterior/nueva/evidencia y permitir rollback inmediato.
+  - [x] T16.1 Ejecutar suites contractuales completas de los tres controles en warn con fixtures positivos/negativos/borde.
+  - [x] T16.2 Property/fuzz de schemas, paths, config precedence, monorepo scope, cache identity, waivers y `mayDeny`.
+  - [x] T16.3 Pruebas negativas exhaustivas: regex, AST parcial, nombre/ruta/dependencia, timeout, stale, conflict, unavailable, partial, mismatch y perfil sugerido jamás bloquean como policy deny.
+  - [x] T16.4 Probar que un fallo determinista fresh atribuible sí genera `deny` sólo tras promoción explícita y contrato aprobado.
+  - [x] T16.5 Comparar warn/enforce: mismos collectors, alcance y findings; sólo cambia la decisión elegible.
+  - [x] T16.6 Medir budgets agent/pre-commit/PR/release y registrar degradación sin omitir silenciosamente.
+  - [x] T16.7 Barrer stdout/stderr/reportes/cache/evidencia/telemetría para queries, payloads, prompts, PII y canarios.
+  - [x] T16.8 Ejecutar matrix macOS/Linux/Windows declarada y skips sólo con razón.
+  - [x] T16.9 `doctor` debe negar promoción si falta cualquier requisito de readiness, CI/release coverage, evidencia, integridad o suite R27.
+  - [x] T16.10 Promover individualmente por unidad/control; registrar actor/origen/fecha/config anterior/nueva/evidencia y permitir rollback inmediato.
   - **Requisitos:** R7–R13, R16, R19–R23, R26–R27; G1–G7.
 
 ## Fase 16 — Gate de release de la iniciativa
 
 - [ ] **T17. Cerrar aceptación global y publicar el pack** **[CP]**
   - **Depende de:** T16.
-  - [ ] T17.1 Confirmar instalación idempotente y aislamiento total respecto de security.
-  - [ ] T17.2 Confirmar resolución reproducible de perfiles/unidades/catálogo/config y cobertura monorepo.
-  - [ ] T17.3 Confirmar que los tres controles detectan sus fallos conductuales sin imponer librerías o frameworks.
-  - [ ] T17.4 Confirmar que no existe ninguna ruta heurística hacia policy deny.
-  - [ ] T17.5 Confirmar auditoría honesta, evidence freshness, waivers/N/A gobernados y rollback.
+  - [x] T17.1 Confirmar instalación idempotente y aislamiento total respecto de security.
+  - [x] T17.2 Confirmar resolución reproducible de perfiles/unidades/catálogo/config y cobertura monorepo.
+  - [x] T17.3 Confirmar que los tres controles detectan sus fallos conductuales sin imponer librerías o frameworks.
+  - [x] T17.4 Confirmar que no existe ninguna ruta heurística hacia policy deny.
+  - [x] T17.5 Confirmar auditoría honesta, evidence freshness, waivers/N/A gobernados y rollback.
   - [ ] T17.6 Confirmar privacidad, supply chain, compatibilidad y documentación operativa.
   - [ ] T17.7 Publicar catálogo/versionado/changelog/migración/procedencia y evidencia de la suite completa.
   - **Gate final:** todos los criterios globales G1–G7 y R27 deben estar demostrados antes de declarar disponibilidad general.
+  - **Estado (2026-10-13):** gate implementado (`kiritek-init/scripts/release-gate.js`, `kiritek-init/release/gate/`), resultado `blocked`. T17.1–T17.5 en verde. T17.6 espera la matriz CI (Linux 18/20/22, Windows 22). T17.7 espera la suite completa del repo en verde (37.3 de security, fuera de engineering), un árbol commiteado y `--approve`. Por R27.7 el pack sigue warning-only: el catálogo 2.0.0 queda como candidato y `approved.json` vacío.
   - **Requisitos:** R1–R27; G1–G7.
 
 ## Matriz de trazabilidad resumida

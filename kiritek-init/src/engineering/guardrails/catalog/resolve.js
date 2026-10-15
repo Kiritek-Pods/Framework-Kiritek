@@ -65,6 +65,8 @@ function assertCompatible(catalog, runtime) {
  * @param {Record<string,string>} [options.trustedKeys]
  * @param {boolean} [options.requireSignature]
  * @param {string[]} [options.approvedConformanceSuites]
+ * @param {{id, version, digest}[]} [options.plugins]  Plugins fijados (T15B).
+ * @param {string} [options.repoRoot]                  Donde están vendorizados.
  */
 function resolveCatalog(options = {}) {
   assertExactVersion(options.version);
@@ -114,14 +116,29 @@ function resolveCatalog(options = {}) {
   assertCompatible(catalog, runtime);
   const conformance = assertCatalogConformance(chosen.loaded, { approvedConformanceSuites: options.approvedConformanceSuites });
 
+  // Plugins fijados: se verifican y fusionan con digest compuesto (T15B).
+  let effective = catalog;
+  let parameterSchemas = JSON.parse(JSON.stringify(chosen.loaded.parameterSchemas));
+  let plugins = [];
+  if (options.plugins && options.plugins.length) {
+    const { loadPluginPacks, compositeDigest } = require("../plugins/loader.js");
+    const loadedPlugins = loadPluginPacks({ repoRoot: options.repoRoot, pins: options.plugins, catalog, approvedConformanceSuites: options.approvedConformanceSuites, kiritekInitVersion: runtime.kiritekInitVersion });
+    plugins = loadedPlugins.plugins;
+    effective = { ...catalog, profiles: [...catalog.profiles, ...loadedPlugins.profiles], controls: [...catalog.controls, ...loadedPlugins.controls], digest: compositeDigest(catalog.digest, plugins) };
+    parameterSchemas = { ...parameterSchemas, ...JSON.parse(JSON.stringify(loadedPlugins.parameterSchemas)) };
+    diagnostics.push(...loadedPlugins.diagnostics);
+  }
+
   return deepFreeze({
-    ref: catalogRefOf(catalog),
-    catalog,
+    ref: catalogRefOf(effective),
+    catalog: effective,
     files: { ...chosen.loaded.files },
-    parameterSchemas: JSON.parse(JSON.stringify(chosen.loaded.parameterSchemas)),
+    parameterSchemas,
     source: chosen.kind,
     signature: chosen.loaded.signature,
     conformance,
+    plugins,
+    ...(plugins.length ? { baseDigest: catalog.digest } : {}),
     diagnostics,
   });
 }
@@ -136,7 +153,9 @@ function createCatalogSession(baseOptions = {}) {
   return {
     resolve(version, extra = {}) {
       if (snapshot) {
-        if (version !== snapshot.ref.version || (extra.expectedDigest && extra.expectedDigest !== snapshot.ref.digest)) {
+        const pinsOf = (list) => JSON.stringify((list || []).map((p) => `${p.id}@${p.version}#${p.digest}`).sort());
+        const base = snapshot.baseDigest || snapshot.ref.digest;
+        if (version !== snapshot.ref.version || (extra.expectedDigest && extra.expectedDigest !== base) || (extra.plugins !== undefined && pinsOf(extra.plugins) !== pinsOf(snapshot.plugins))) {
           raise("CATALOG_MIXED_VERSIONS", `la ejecución ya fijó ${snapshot.ref.version}; no se puede mezclar con ${version}`);
         }
         return snapshot;

@@ -1,0 +1,91 @@
+# kiritek-init — matriz de compatibilidad declarada (T16.8,
+# src/engineering/guardrails/compatibility.js). Sin secretos; Actions por SHA.
+name: kiritek-init-ci
+
+on:
+  pull_request:
+    paths: ["kiritek-init/**", ".github/workflows/kiritek-init-ci.yml"]
+  push:
+    branches: [main]
+    paths: ["kiritek-init/**", ".github/workflows/kiritek-init-ci.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · node ${{ matrix.node }} · ${{ matrix.suite }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Soporte completo: suite entera (security + engineering), sin skips.
+          - { os: ubuntu-latest, node: "22", suite: full }
+          - { os: macos-latest, node: "22", suite: full }
+          # Node mínimo y LTS previo: engineering; los tests que ejecutan
+          # plugins se omiten CON RAZÓN (sandbox requiere Node ≥ 22).
+          - { os: ubuntu-latest, node: "18", suite: engineering }
+          - { os: ubuntu-latest, node: "20", suite: engineering }
+          # Windows (subconjunto declarado): engineering; shims/hooks POSIX se
+          # omiten CON RAZÓN y la auditoría los reporta unavailable.
+          - { os: windows-latest, node: "22", suite: engineering }
+    defaults:
+      run:
+        working-directory: kiritek-init
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Identidad Git para repos de prueba
+        run: |
+          git config --global user.name "kiritek-ci"
+          git config --global user.email "ci@example.invalid"
+      # Cada job corre su suite archivo por archivo y deja el resultado para
+      # el gate de release (release/gate, T17). Exit ≠ 0 si algo falla.
+      - name: Suite ${{ matrix.suite }}
+        run: node scripts/release-gate.js --job ${{ matrix.suite }} --out job-result/kiritek-test-job-${{ matrix.os }}-node${{ matrix.node }}-${{ matrix.suite }}.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: kiritek-test-job-${{ matrix.os }}-node${{ matrix.node }}-${{ matrix.suite }}
+          path: kiritek-init/job-result/
+          if-no-files-found: error
+          retention-days: 30
+
+  release-gate:
+    # Evalúa el gate con los resultados de toda la matriz. "blocked" no falla
+    # el CI (el pack sigue warning-only); la evidencia queda como artefacto.
+    name: release gate (T17)
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: kiritek-init
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: kiritek-test-job-*
+          path: kiritek-init/jobs
+      - name: Evaluar gate
+        run: |
+          set +e
+          node scripts/release-gate.js --jobs jobs --no-local --out gate/release-gate.json
+          code=$?
+          if [ "$code" -ne 0 ] && [ "$code" -ne 3 ]; then exit "$code"; fi
+          exit 0
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: kiritek-release-gate
+          path: kiritek-init/gate/
+          retention-days: 90

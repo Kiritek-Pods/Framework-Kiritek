@@ -10,6 +10,16 @@ Spec: `.kiro/specs/kiritek-engineering-guardrails/`.
 | `config/` | T03 | `kiritek-engineering.config.json`: validación, precedencia con procedencia por hoja, locks organizacionales. |
 | `workspace/` | T04–T05 | Unidades y perfiles efectivos (cierre `extends`), discovery sólo sugerente, identidad/aliases, ownership por globs, grafo de impacto (SCC) y alcance por momento (staged, rango PR, agent, release). |
 | `pipeline/` + `orchestrator.js` | T06 | Flujo único collector → normalizer → applicability → evaluator → waiver/N-A → compuerta → privacidad → adapter. |
+| `runtime/` | T07 | `runTool` sin shell (cwd confinado, env allowlist, temporal propio, kill de árbol por timeout/memoria), presupuestos por momento, pool y cache de observaciones verificada. |
+| `privacy/` | T08 | Publicación: minimización por schema → campos prohibidos → saneo → detector final → schema → escritura atómica; almacén de evidencia v2. |
+| `controls/` | T10–T12 | Implementaciones de controles (`builtinControls()`): `search-input-rate/`, `app-minimum-supported-version/` y `web-module-announcement/`, cada uno con harness conductual. |
+| `exceptions/` | T13 | Gobierno de waivers y N/A: schema, alcance no global, aprobación, expiraciones máximas, prueba de N/A y carga desde `exceptions.waiverFiles`/`notApplicableFiles`. |
+| `adapters/` | T14 | Superficies agent (Kiro, Claude), Git pre-commit, CI/PR y release sobre el mismo core; cobertura declarada y enlace `install --surfaces`. |
+| `audit/` | T15 | Auditoría por capacidades (unidad × control × momento), observación de superficies, registro de ejecuciones, self-checks sintéticos, readiness `doctor`/`promote` y reporte multidominio. |
+| `telemetry/` | T15A | Telemetría minimizada opt-in: eventos locales, feedback de calidad, alertas agregadas y entrega remota con ack/idempotencia. |
+| `plugins/` | T15B | Plugins/control packs vendorizados y fijados por digest: verificación (schema, checksums, namespace, motor, permisos, supply chain, consentimiento), fusión con digest compuesto y ejecución aislada (modelo de permisos de Node + guard de red). |
+| `conformance/` | T16 | Suites R27 empaquetadas por control (casos positivos/negativos/borde con adapters de referencia, pipeline real, dos corridas), registro de suites y `approved.json` (cada aprobación fija el digest de la suite y sólo la escribe el gate de release, ver `docs/engineering/release.md`); `doctor` exige que la suite del contrato sea la registrada, esté aprobada y pase. |
+| `install/` + `compatibility.js` | T09, T15C | Lifecycle transaccional (install/update/migrate con plan, backup, verificación y restauración verificada; uninstall con retención), wiring de superficies y matriz de compatibilidad. Documentación de usuario en `docs/engineering/`. |
 | `canonical.js` | — | JSON canónico y `sha256:<hex>`. |
 | `errors.js` | — | `GuardrailsError` con `code`, `pointer` y `remediation`. |
 
@@ -74,3 +84,24 @@ rutas de cache/evidencia ni telemetría), así que es estable entre hosts.
   separados.
 - Antes de publicar, `assertPublishable` falla cerrado ante campos
   prohibidos, rutas absolutas o credenciales (`REDACTION_FAILED`).
+
+## Runtime, cache y privacidad (T07–T08)
+
+- Presupuesto total por momento (`execution.budgetsMs`): agotado ⇒ estado
+  `timeout` con `BUDGET_EXHAUSTED` y el fallback del control; nunca deny.
+- Cache de observaciones: clave con identidad completa (catálogo, control,
+  collectors, unidad, perfiles, revisión, scope, entradas, config,
+  plataforma, momento). Sólo conjuntos completos; cada lectura revalida
+  checksum/identidad/expiración; hit no eleva confianza ni salta frescura;
+  toda entrada pasa el detector de privacidad antes de escribirse.
+- Publicación: si el detector encuentra credenciales, emails, tarjetas
+  (Luhn), rutas absolutas residuales, campos prohibidos o canarios
+  registrados ⇒ `REDACTION_FAILED` y no se escribe nada. URLs y rutas se
+  sanean (sin credenciales/query; rutas relativas al repo).
+- Evidencia: `writeEvidence`/`readEvidence` en
+  `<evidence.directory>/<unidad>/<control>/<id>.json`; `expiresAt` =
+  creación + `freshness.maxAgeSeconds`; frescura recalculada al leer.
+- Límite conocido: un dato real dentro de `facts` con una clave neutra no es
+  detectable por patrón; por eso `facts` no se publica nunca (sólo cache, que
+  exige canarios/detector) y los contratos de control (T10–T12) exigen
+  valores sintéticos/opacos.

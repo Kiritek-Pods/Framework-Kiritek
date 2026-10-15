@@ -104,7 +104,6 @@ test("T03.1 soporta niveles, unidades, perfiles, parámetros, budgets, evidencia
   doc.evidence = { directory: ".kiritek/ev", retentionDays: 7 };
   doc.exceptions = { waiverFiles: ["governance/waivers/*.json"] };
   doc.telemetry = { enabled: true, endpoint: "https://telemetry.example.invalid/v1", retentionDays: 7, categories: ["duration"] };
-  doc.plugins = [{ id: "acme/extra", version: "1.0.0", digest: `sha256:${"e".repeat(64)}` }];
   const r = resolve(doc);
   const web = r.effective.units.find((u) => u.unit.id === "acme/search-web");
   assert.equal(web.controls["search.input-rate"].level, "off");
@@ -115,8 +114,11 @@ test("T03.1 soporta niveles, unidades, perfiles, parámetros, budgets, evidencia
   assert.equal(r.effective.execution.offline, true);
   assert.deepEqual(r.effective.exceptions.waiverFiles, ["governance/waivers/*.json"]);
   assert.deepEqual(r.effective.exceptions.notApplicableFiles, [".kiritek/engineering/not-applicable/*.json"]);
-  assert.equal(r.effective.plugins.length, 1);
+  assert.deepEqual(r.effective.plugins, []);
   assert.equal(r.effective.telemetry.categories[0], "duration");
+  // Un pin de plugin se VERIFICA (T15B): sin plugin vendorizado no resuelve.
+  doc.plugins = [{ id: "acme/extra", version: "1.0.0", digest: `sha256:${"e".repeat(64)}` }];
+  assert.throws(() => resolve(doc), (err) => /^PLUGIN_/.test(err.code));
 });
 
 test("T03.1 enforce sólo si el catálogo lo soporta; nunca degradación silenciosa", () => {

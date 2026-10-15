@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/waiver.schema.json",
+  "title": "Waiver engineering",
+  "description": "Aceptación temporal y acotada de un incumplimiento conocido (R18.1). Nunca global ni indefinido; conserva deuda visible.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "id", "controlId", "controlVersion", "unitId", "target", "scope", "owner", "reason", "ticket", "approver", "createdAt", "expiresAt"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "kind": { "type": "string", "const": "waiver" },
+    "id": { "$ref": "#/definitions/exceptionId" },
+    "controlId": { "$ref": "engineering/common.schema.json#/definitions/controlId" },
+    "controlVersion": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+    "unitId": { "$ref": "engineering/common.schema.json#/definitions/namespacedId" },
+    "target": {
+      "description": "Finding exacto (fingerprint) o condición/escenario exacto (ruleId del control). Sin comodines.",
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fingerprint"],
+          "properties": { "fingerprint": { "type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^*?\\s]+$" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ruleId"],
+          "properties": { "ruleId": { "type": "string", "minLength": 3, "maxLength": 128, "pattern": "^[a-z0-9.-]+/[a-z0-9-]+$" } }
+        }
+      ]
+    },
+    "scope": { "$ref": "#/definitions/scope" },
+    "owner": { "$ref": "#/definitions/principal" },
+    "reason": { "type": "string", "minLength": 10, "maxLength": 1000 },
+    "ticket": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "^[A-Za-z0-9._#/:-]+$" },
+    "approver": { "$ref": "#/definitions/principal" },
+    "createdAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+    "expiresAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+    "history": { "$ref": "#/definitions/history" }
+  },
+  "definitions": {
+    "exceptionId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+    "principal": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}(?:/[a-z0-9][a-z0-9._-]{0,63})?$" },
+    "scope": {
+      "description": "Alcance verificable: globs dentro de la unidad o scopeHash exacto.",
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["paths"],
+          "properties": { "paths": { "type": "array", "minItems": 1, "maxItems": 50, "uniqueItems": true, "items": { "$ref": "engineering/common.schema.json#/definitions/repoGlob" } } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["scopeHash"],
+          "properties": { "scopeHash": { "$ref": "engineering/common.schema.json#/definitions/sha256" } }
+        }
+      ]
+    },
+    "history": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["at", "by", "action"],
+        "properties": {
+          "at": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+          "by": { "$ref": "#/definitions/principal" },
+          "action": { "type": "string", "enum": ["created", "renewed", "narrowed", "revoked", "approved"] }
+        }
+      }
+    }
+  }
+}

@@ -40,12 +40,17 @@ test("T06.1 cada par unidad×control tiene envelope explícito; nada se omite", 
   assert.equal(report.results.length, 2 * 3);
   const docs = report.results.filter((e) => e.unit.id === "acme/docs");
   assert.ok(docs.every((e) => e.state === "not_evaluated" && e.diagnostics.some((d) => d.code === "NOT_IN_SCOPE")));
-  const notImpl = envelopeOf(report, "acme/web", "web.module-announcement");
+  // Perfil no declarado ⇒ not_applicable aunque el control no esté implementado (R5.3).
+  const noProfile = envelopeOf(report, "acme/web", "web.module-announcement");
+  assert.equal(noProfile.state, "not_applicable");
+  assert.ok(noProfile.diagnostics.some((d) => d.code === "PROFILE_NOT_DECLARED"));
+  assert.equal(envelopeOf(report, "acme/web", "app.minimum-supported-version").state, "not_applicable");
+  // Perfil declarado pero sin implementación ⇒ unavailable con fallback operativo.
+  const withProfile = await run({ webProfiles: ["web", "search", "module-launch"] });
+  const notImpl = envelopeOf(withProfile.report, "acme/web", "web.module-announcement");
   assert.equal(notImpl.state, "unavailable");
   assert.ok(notImpl.diagnostics.some((d) => d.code === "CONTROL_NOT_IMPLEMENTED"));
   assert.equal(notImpl.result.decision, "error", "fallback de pr: error operativo");
-  const mobile = envelopeOf(report, "acme/web", "app.minimum-supported-version");
-  assert.ok(["not_applicable", "unavailable"].includes(mobile.state));
 });
 
 test("T06.1 nivel off se registra como off y no ejecuta collectors", async () => {
@@ -72,7 +77,7 @@ test("T06.2 collectors reciben contexto congelado sin nivel ni decisiones", asyn
   await run({ control: { collect: (ctx) => { seen = ctx; return [burstObservation()]; } } });
   assert.ok(Object.isFrozen(seen) && Object.isFrozen(seen.scope));
   assert.equal("level" in seen, false);
-  assert.deepEqual(Object.keys(seen).sort(), ["controlId", "moment", "parameters", "scope", "unit"]);
+  assert.deepEqual(Object.keys(seen).sort(), ["budgetMs", "controlId", "moment", "parameters", "repoRoot", "scope", "unit"]);
 });
 
 test("T06.2 collector que emite decisión produce observación inválida, no decisión", async () => {
@@ -282,9 +287,16 @@ test("T06.8 N/A gobernado vigente: not_applicable con referencia, sin evaluar", 
   assert.equal(called, 0);
 });
 
-test("T06.8 privacidad: un control que filtra datos impide publicar el reporte", async () => {
-  const leaky = { version: "1.0.0", evaluate: () => ({ decision: "warn", reason: "query falló en /Users/alguien/repo" }) };
-  await assert.rejects(run({ control: { evaluator: leaky } }), { code: "REDACTION_FAILED" });
+test("T06.8 privacidad: rutas y URLs se sanean; PII o credenciales bloquean la publicación", async () => {
+  const leaky = (reason) => ({ version: "1.0.0", evaluate: () => ({ decision: "warn", reason }) });
+  const { report } = await run({ control: { evaluator: leaky("falló en /Users/alguien/repo con https://u:p@api.example.invalid/x?token=1") } });
+  const text = JSON.stringify(report);
+  assert.equal(text.includes("/Users/alguien"), false);
+  assert.equal(text.includes("u:p@"), false);
+  assert.equal(text.includes("token=1"), false);
+  for (const reason of ["contacto ana@example.com", "clave ghp_" + "A".repeat(36), "tarjeta 4111 1111 1111 1111"]) {
+    await assert.rejects(run({ control: { evaluator: leaky(reason) } }), (err) => err.code === "REDACTION_FAILED" && !err.message.includes(reason.split(" ")[1]));
+  }
 });
 
 // --- T06.9 validación negativa obligatoria -------------------------------

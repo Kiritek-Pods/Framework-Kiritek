@@ -162,7 +162,8 @@ function resolveEngineeringConfig(input = {}) {
   // El digest fijado en la config sólo aplica a la versión que fija la config.
   const expectedDigest = catalogVersion === document.pack.catalog ? document.pack.catalogDigest : undefined;
   const session = input.catalogSession || createCatalogSession(input.catalogOptions || {});
-  const snapshot = session.resolve(catalogVersion, expectedDigest ? { expectedDigest } : {});
+  const pins = document.plugins || [];
+  const snapshot = session.resolve(catalogVersion, { ...(expectedDigest ? { expectedDigest } : {}), ...(pins.length ? { plugins: pins, repoRoot: input.repoRoot } : {}) });
   const { catalog, parameterSchemas } = snapshot;
 
   const warnings = validateConfigSemantics(document, snapshot, { repoRoot: input.repoRoot, sourceRef });

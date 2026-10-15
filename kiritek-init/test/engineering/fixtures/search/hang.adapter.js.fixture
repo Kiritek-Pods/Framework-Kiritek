@@ -1,0 +1,8 @@
+"use strict";
+exports.createSearchUnderTest = () => ({
+  type() {
+    for (;;) {
+      /* colgado */
+    }
+  },
+});

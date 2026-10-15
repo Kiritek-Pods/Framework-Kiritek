@@ -1,0 +1,15 @@
+"use strict";
+// Harness de un equipo no-JS (modo trace-command): ejecuta sus propios
+// escenarios y escribe la traza estándar. Aquí se reutiliza el harness
+// Kiritek con el adapter correcto para producirla.
+const fs = require("fs");
+const path = require("path");
+const { runSuite } = require(process.env.KIRITEK_HARNESS_MODULE || path.join(__dirname, "harness.js"));
+const adapter = require("./good-debounce.adapter.js");
+(async () => {
+  const params = JSON.parse(process.env.KIRITEK_SEARCH_PARAMS);
+  const trace = await runSuite(adapter.createSearchUnderTest, params);
+  if (process.argv[2] === "--leak") trace.scenarios[0].events[0].query = "consulta real";
+  fs.mkdirSync("out", { recursive: true });
+  fs.writeFileSync(path.join("out", "search-trace.json"), JSON.stringify(trace));
+})();
