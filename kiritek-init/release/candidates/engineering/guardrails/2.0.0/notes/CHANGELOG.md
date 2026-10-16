@@ -17,9 +17,9 @@ completa (G1–G7, R27 y matriz de plataformas).
   `app.offline-mode`, `app.device-permissions`, `nav.broken-routes`,
   `ui.accessible-dialogs` y, de backend, `api.idempotency`,
   `api.error-responses`, `api.rate-limit`, `api.pagination`,
-  `svc.dependency-failure`, `svc.health-shutdown`. Cada
+  `svc.dependency-failure`, `svc.health-shutdown`, `svc.log-hygiene`. Cada
   uno exige su perfil declarado y su contrato; sin contrato sólo avisa.
-- Los veintitrés controles declaran `enforce` en `supportedLevels` y un
+- Los veinticuatro controles declaran `enforce` en `supportedLevels` y un
   `enforcementContract` ligado a su suite R27 (`kiritek/engineering/<control>@1.0.0`).
 - Momentos de enforcement: sólo `pr` y `release`. Agent y pre-commit siguen
   siendo warning (no hay ruta de bloqueo local).

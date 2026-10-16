@@ -3,7 +3,7 @@
 ## 1. Convenciones del plan
 
 - **Pack:** `engineering/guardrails`, independiente de `core/security`.
-- **Ruta crítica (CP):** T01 → T02 → T03 → T04 → T05 → T06 → T10–T12 → T13 → T14 → T15 → T16. T18–T37 (catálogo 2.0.0) son paralelizables y entran al gate T17.
+- **Ruta crítica (CP):** T01 → T02 → T03 → T04 → T05 → T06 → T10–T12 → T13 → T14 → T15 → T16. T18–T38 (catálogo 2.0.0) son paralelizables y entran al gate T17.
 - **[P]:** tarea paralelizable cuando sus dependencias estén completas.
 - **[CP]:** checkpoint obligatorio; no se inicia la fase siguiente indicada hasta superarlo.
 - Ninguna tarea habilita `enforce` antes de demostrar R27 y los predicados anti-falso-positivo.
@@ -274,7 +274,7 @@
   - [ ] T17.7 Publicar catálogo/versionado/changelog/migración/procedencia y evidencia de la suite completa.
   - **Gate final:** todos los criterios globales G1–G7 y R27 deben estar demostrados antes de declarar disponibilidad general.
   - **Estado (2026-10-13):** gate implementado (`kiritek-init/scripts/release-gate.js`, `kiritek-init/release/gate/`), resultado `blocked`. T17.1–T17.5 en verde. T17.6 espera la matriz CI (Linux 18/20/22, Windows 22). T17.7 espera la suite completa del repo en verde (37.3 de security, fuera de engineering), un árbol commiteado y `--approve`. Por R27.7 el pack sigue warning-only: el catálogo 2.0.0 queda como candidato y `approved.json` vacío.
-  - **Requisitos:** R1–R47; G1–G7.
+  - **Requisitos:** R1–R48; G1–G7.
 
 ## Fase 17 — Control `ui.data-states`
 
@@ -476,6 +476,16 @@
   - [x] T37.4 Suite R27, adapters de referencia y documentación.
   - **Requisitos:** R47; R7–R8, R15–R16, R27.
 
+## Fase 37 — Control `svc.log-hygiene`
+
+- [x] **T38. Implementar `svc.log-hygiene` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común), T32 (harness HTTP).
+  - [x] T38.1 Contrato de logs (campos, header de correlación, endpoints).
+  - [x] T38.2 Harness que captura el logger real con datos personales y secretos canario: estructura, correlación, fugas y log de error.
+  - [x] T38.3 Evaluator y heurística sin contrato.
+  - [x] T38.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R48; R7–R8, R15–R16, R27.
+
 ## Matriz de trazabilidad resumida
 
 | Área | Requisitos | Tareas principales |
@@ -496,7 +506,7 @@
 | Sesión, subidas, paginación y analytics | R32–R35 | T22–T25 |
 | Acciones destructivas, idioma y sin conexión | R36–R38 | T26–T28 |
 | Permisos, rutas y diálogos | R39–R41 | T29–T31 |
-| Backend: APIs y servicios | R42–R47 | T32–T37 |
+| Backend: APIs y servicios | R42–R48 | T32–T38 |
 
 ## Criterio de finalización
 

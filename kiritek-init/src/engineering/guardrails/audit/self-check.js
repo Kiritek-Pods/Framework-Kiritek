@@ -42,6 +42,7 @@ const PROFILES = {
   "api.pagination": ["http-api"],
   "svc.dependency-failure": ["backend-service"],
   "svc.health-shutdown": ["backend-service"],
+  "svc.log-hygiene": ["backend-service"],
 };
 
 function obs(kind, facts, evidenceClass = "deterministic") {
@@ -175,6 +176,11 @@ const CASES = {
     params: { healthContract: "apps/x/contract.json" },
     deterministic: [obs("health-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
     heuristic: [obs("health-contract", { declared: false, valid: false, errorCodes: [] }), obs("health-signals", { signals: [{ signal: "SERVICE_ENTRYPOINT", path: "apps/x/server.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.log-hygiene": {
+    params: { logsContract: "apps/x/contract.json" },
+    deterministic: [obs("logs-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("logs-contract", { declared: false, valid: false, errorCodes: [] }), obs("logs-signals", { signals: [{ signal: "LOGGING", path: "apps/x/server.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
   },
 };
 

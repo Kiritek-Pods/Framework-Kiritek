@@ -8,7 +8,8 @@
 > `actions-confirmation`, `i18n-confirmation`, `offline-confirmation`,
 > `permissions-confirmation`, `routes-confirmation`, `dialogs-confirmation`,
 > `idempotency-confirmation`, `errors-confirmation`, `ratelimit-confirmation`,
-> `pagination-confirmation`, `dependency-confirmation`, `health-confirmation`) sólo producen `warn` pidiendo evidencia verificable,
+> `pagination-confirmation`, `dependency-confirmation`, `health-confirmation`,
+> `logs-confirmation`) sólo producen `warn` pidiendo evidencia verificable,
 > en cualquier nivel. Sólo findings deterministas de contratos, manifests o
 > tests conductuales pueden llegar a bloquear, y sólo en `enforce`.
 
@@ -399,3 +400,16 @@ no una librería.
 | `shutdown-completes` | El apagado debe terminar (cerrar conexiones y resolver) dentro del tiempo de gracia. |
 | `grace-period` | Si hay trabajo que no termina, el apagado debe forzarse al vencer el tiempo de gracia, no quedar colgado. |
 | `health-confirmation` (heurística) | Declarar el contrato (`healthContract`). |
+
+## `svc.log-hygiene` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de logs (ruta, JSON, ids únicos y schema svc-log-hygiene.contract). |
+| `structured-logs` | Emita logs estructurados (una línea JSON por evento) con los campos de nivel y mensaje declarados. |
+| `correlation-propagated` | Use el id de correlación que llega en el header declarado en todas las líneas de esa request. |
+| `correlation-generated` | Si la request no trae id de correlación, genere uno y úselo en todas sus líneas. |
+| `pii-in-logs` | No registre datos personales (email, teléfono, tarjeta): redáctelos o registre sólo identificadores seudónimos. |
+| `secret-in-logs` | No registre secretos (tokens, cookies, contraseñas), ni en los mensajes de error: configure la redacción del logger. |
+| `error-logged` | Cuando una dependencia falla, registre un evento de nivel error. |
+| `logs-confirmation` (heurística) | Declarar el contrato (`logsContract`). |

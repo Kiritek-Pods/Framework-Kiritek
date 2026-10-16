@@ -1,30 +1,30 @@
 # Engineering Guardrails: qué se hizo
 
-Resumen del trabajo sobre la spec `kiritek-engineering-guardrails`, en `kiritek-init`. Al 15 de octubre de 2026 están terminadas las fases 1 a 15 y 17 a 36. La fase 16 (la revisión final antes de publicar) está construida, pero todavía no aprueba el pack.
+Resumen del trabajo sobre la spec `kiritek-engineering-guardrails`, en `kiritek-init`. Al 15 de octubre de 2026 están terminadas las fases 1 a 15 y 17 a 37. La fase 16 (la revisión final antes de publicar) está construida, pero todavía no aprueba el pack.
 
 ---
 
 ## En una frase
 
-Construimos un sistema que revisa automáticamente, en cada cambio de código, veintitrés buenas prácticas de producto, de interfaz y de backend. Por ahora sólo avisa. Más adelante podrá bloquear, pero únicamente cuando la prueba sea objetiva y alguien lo active a propósito.
+Construimos un sistema que revisa automáticamente, en cada cambio de código, veinticuatro buenas prácticas de producto, de interfaz y de backend. Por ahora sólo avisa. Más adelante podrá bloquear, pero únicamente cuando la prueba sea objetiva y alguien lo active a propósito.
 
 ## El trabajo en números
 
 | | Cantidad |
 |---|---|
-| Buenas prácticas revisadas | 23 (17 de interfaz y 6 de backend) |
-| Fases | 36 (más de 180 subtareas de la spec) |
-| Código del pack | ~29.600 líneas |
-| Tests del pack | 72 archivos, ~10.000 líneas |
-| Tests del repo completo | 1351 |
-| Casos de las suites de conformidad | 315 (entre 11 y 18 por práctica) |
+| Buenas prácticas revisadas | 24 (17 de interfaz y 7 de backend) |
+| Fases | 37 (más de 185 subtareas de la spec) |
+| Código del pack | ~30.300 líneas |
+| Tests del pack | 74 archivos, ~10.000 líneas |
+| Tests del repo completo | 1363 |
+| Casos de las suites de conformidad | 330 (entre 11 y 18 por práctica) |
 | Casos de prueba con datos al azar | más de 10.000 por corrida |
 | Documentación para usuarios | 12 documentos |
 | Formatos de datos validados | 24 |
 | Lugares donde corre | 5: agente Kiro, agente Claude, antes del commit, PR y release |
 | Plataformas | macOS, Linux y Windows; Node 18, 20 y 22 |
 
-## Las veintitrés buenas prácticas que revisa
+## Las veinticuatro buenas prácticas que revisa
 
 ### De interfaz (web y móvil)
 
@@ -58,8 +58,9 @@ Construimos un sistema que revisa automáticamente, en cada cambio de código, v
 | **Paginación de la API** | que los listados estén acotados y no repitan ni salten datos | devuelve un millón de filas, repite ítems entre páginas o un cursor inválido da 500 |
 | **Dependencias caídas** | que la caída de una base o servicio externo no cuelgue todo el sistema | requests colgadas para siempre, 500 genérico o seguir golpeando a un servicio que está caído |
 | **Health checks y apagado** | que el orquestador sepa cuándo mandar tráfico y que un despliegue no corte requests | "ready" con la base caída, reinicios en cadena o requests cortadas a mitad en cada deploy |
+| **Logs sin datos personales** | que los logs sean estructurados, lleven un id por request y nunca guarden datos personales ni secretos | el email, el token o la contraseña del usuario en los logs, o logs en texto suelto imposibles de buscar |
 
-Las tres primeras vienen desde el catálogo 1.0.0. Las otras veinte llegan con el catálogo 2.0.0 y sólo se revisan en las partes del repo que declaren el perfil correspondiente.
+Las tres primeras vienen desde el catálogo 1.0.0. Las otras veintiuna llegan con el catálogo 2.0.0 y sólo se revisan en las partes del repo que declaren el perfil correspondiente.
 
 No exige usar ninguna librería ni framework en particular. Revisa **cómo se comporta** el producto, no cómo está escrito.
 
@@ -72,11 +73,11 @@ No exige usar ninguna librería ni framework en particular. Revisa **cómo se co
 - **Privacidad.** Nunca guarda código, búsquedas de usuarios, prompts ni datos personales.
 - **Todo es reversible.** Instalar, actualizar, activar el bloqueo, volver atrás y desinstalar tienen respaldo y marcha atrás.
 
-## Veintitrés prácticas, una plataforma para todas
+## Veinticuatro prácticas, una plataforma para todas
 
 Es como un sistema de alarmas de un edificio: la central, el cableado, los avisos y el registro de quién la activa son lo grande; los sensores se enchufan.
 
-- **Los sensores** son las veintitrés prácticas.
+- **Los sensores** son las veinticuatro prácticas.
 - **La central** es todo lo demás:
   - correr la revisión en el editor, en el commit, en el PR y en el release;
   - decidir si avisa o bloquea;
@@ -84,7 +85,7 @@ Es como un sistema de alarmas de un edificio: la central, el cableado, los aviso
   - la privacidad;
   - instalar, actualizar y volver atrás.
 
-Por eso las últimas veinte prácticas salieron mucho más rápido que las tres primeras: usan un esqueleto común y sólo hubo que escribir lo propio de cada una (qué se declara, qué escenarios se prueban y qué reglas se aplican). Otros equipos pueden sumar las suyas como plugin, sin tocar nuestro código.
+Por eso las últimas veintiún prácticas salieron mucho más rápido que las tres primeras: usan un esqueleto común y sólo hubo que escribir lo propio de cada una (qué se declara, qué escenarios se prueban y qué reglas se aplican). Otros equipos pueden sumar las suyas como plugin, sin tocar nuestro código.
 
 ---
 
@@ -196,7 +197,7 @@ Por eso las últimas veinte prácticas salieron mucho más rápido que las tres 
 ### Fase 16: revisión final antes de publicar
 **Qué:**
 - La **revisión final automática**: junta los resultados de todas las plataformas y decide "listo" o "bloqueado".
-- La **versión 2.0.0 del catálogo**, la primera que permite bloquear (sólo en PR y release, y sólo con prueba objetiva) y la que trae las veinte prácticas nuevas. Queda en espera hasta que la revisión apruebe.
+- La **versión 2.0.0 del catálogo**, la primera que permite bloquear (sólo en PR y release, y sólo con prueba objetiva) y la que trae las veintiún prácticas nuevas. Queda en espera hasta que la revisión apruebe.
 - **La aprobación se invalida si alguien toca las pruebas** después de aprobar.
 - Changelog y guía de migración de 1.0.0 a 2.0.0.
 
@@ -280,23 +281,28 @@ Por eso las últimas veinte prácticas salieron mucho más rápido que las tres 
 - La de errores usa un error interno "canario" (con stack trace, IP interna y una consulta SQL inventados): si cualquiera de esos datos llega al cliente, la fuga está comprobada.
 - Por diseño, la evidencia de estos controles sólo puede guardar números y verdadero/falso: nunca cuerpos, headers ni datos.
 
+### Fase 37: logs sin datos personales
+**Qué:** el simulador captura la salida del logger real del servicio mientras le manda requests con email, teléfono, tarjeta, token, cookie y contraseña "canario" en el cuerpo, los headers y la query. Revisa 4 cosas por endpoint: que cada línea sea JSON con nivel y mensaje, que todas lleven el id de la request (recibido o generado), que ningún canario aparezca y que una falla quede registrada como error sin filtrar datos. Detecta 9 ejemplos malos (texto plano, sin correlación, cuerpo o headers sin redactar, mensaje de error crudo con datos…).
+
+**Por qué importa:** los logs se copian a muchos sistemas y los lee mucha gente; un email o un token en un log es una filtración aunque nadie "lo haya publicado".
+
 ---
 
 ## Dónde estamos hoy
 
 | | |
 |---|---|
-| Fases terminadas | 1 a 15 y 17 a 36 |
+| Fases terminadas | 1 a 15 y 17 a 37 |
 | Fase 16 | construida; su revisión final da **bloqueado** |
-| Prácticas | 23 (17 de interfaz y 6 de backend), todas con su suite de conformidad en verde |
+| Prácticas | 24 (17 de interfaz y 7 de backend), todas con su suite de conformidad en verde |
 | Modo actual | **sólo avisa**; ningún control puede bloquear |
-| Tests del repo | 1351 en total; 1349 pasan |
+| Tests del repo | 1363 en total; 1361 pasan |
 
 ### Por qué la revisión final todavía no aprueba
 
 1. **Falta correr CI en Linux y Windows.** Hasta ahora sólo se probó en una Mac. Se resuelve con un push de la rama.
 2. **Un test del pack de seguridad falla por la fecha** (el test 37.3). Usa una fecha fija que ya venció. No es de este pack, pero la revisión exige que *toda* la suite esté en verde, y hay otro test que falla por arrastre.
-3. **Hay que hacer commit.** Las fases 31 a 36 (backend) están sin commitear; lo anterior ya está en git (el último commit es el de las fases 1 a 4).
+3. **Hay que hacer commit.** La fase 37 (logs) está sin commitear; lo anterior ya está en git (el último commit es el de las fases 1 a 4).
 
 La revisión hace lo que tiene que hacer: no aprueba algo que no está demostrado.
 
@@ -305,7 +311,7 @@ La revisión hace lo que tiene que hacer: no aprueba algo que no está demostrad
 1. Commit de todo el trabajo.
 2. Decidir quién arregla el test de seguridad: su dueño, o nosotros con su visto bueno (el arreglo es chico).
 3. Push, para que CI corra en todas las plataformas.
-4. Con todo en verde, aprobar con `node scripts/release-gate.js --approve`. A partir de ahí el catálogo 2.0.0 (con las veintitrés prácticas) queda publicado y los equipos pueden activar el bloqueo control por control.
+4. Con todo en verde, aprobar con `node scripts/release-gate.js --approve`. A partir de ahí el catálogo 2.0.0 (con las veinticuatro prácticas) queda publicado y los equipos pueden activar el bloqueo control por control.
 
 ### Cosas menores pendientes
 
@@ -322,7 +328,7 @@ La revisión hace lo que tiene que hacer: no aprueba algo que no está demostrad
 | Código del pack | `kiritek-init/src/engineering/guardrails/` |
 | Documentación para usuarios | `kiritek-init/docs/engineering/` |
 | Catálogo publicado (1.0.0) | `kiritek-init/catalogs/engineering/guardrails/` |
-| Catálogo en espera (2.0.0, veintitrés prácticas) | `kiritek-init/release/candidates/` |
+| Catálogo en espera (2.0.0, veinticuatro prácticas) | `kiritek-init/release/candidates/` |
 | Documentación de cada práctica | `kiritek-init/docs/engineering/controls/` |
 | Revisión final | `kiritek-init/scripts/release-gate.js` y `kiritek-init/release/gate/` |
 | CI | `.github/workflows/kiritek-init-ci.yml` |

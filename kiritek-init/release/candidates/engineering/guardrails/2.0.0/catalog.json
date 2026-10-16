@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "engineering/guardrails",
   "version": "2.0.0",
-  "digest": "sha256:412165b87e7d3729a659fd8804758a49b6d97c33d30e394610428c7a14da804c",
+  "digest": "sha256:ad99c8cdb9cf567a447bd8d4cc3891fe21889c21e7d3b2984a8462a485f30a2b",
   "compatibility": {
     "node": ">=18",
     "kiritekInit": ">=0.1.0",
@@ -2148,6 +2148,92 @@
           "deterministic"
         ],
         "conformanceSuite": "kiritek/engineering/svc-health-shutdown",
+        "approvedVersion": "1.0.0",
+        "moments": [
+          "pr",
+          "release"
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "svc.log-hygiene",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "backend-service"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "agent",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 1500,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/svc.log-hygiene.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn",
+        "enforce"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "maxEvidenceAgeHours": 24
+        }
+      },
+      "collectors": [
+        "svc-log-hygiene/collector"
+      ],
+      "normalizer": "svc-log-hygiene/normalizer",
+      "applicability": "svc-log-hygiene/applicability",
+      "evaluator": "svc-log-hygiene/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 86400
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/svc-log-hygiene.md",
+      "enforcementContract": {
+        "evidenceTypes": [
+          "deterministic"
+        ],
+        "conformanceSuite": "kiritek/engineering/svc-log-hygiene",
         "approvedVersion": "1.0.0",
         "moments": [
           "pr",

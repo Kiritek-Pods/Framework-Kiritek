@@ -639,7 +639,7 @@ Retirar/pausar el anuncio modifica rollout sin retirar módulo y conserva histor
 
 ### 10.4 Controles del catálogo 2.0.0 (patrón común)
 
-Los veinte controles nuevos comparten un esqueleto (`controls/shared/`) para no reimplementar recolección ni decisión:
+Los veintiún controles nuevos comparten un esqueleto (`controls/shared/`) para no reimplementar recolección ni decisión:
 
 - **Contrato del equipo** (`contract-file.js`): JSON en una ruta contenida en el repo, validado contra su schema; ids duplicados lo invalidan. Del contrato sólo se extraen hechos mínimos (ids, enums, números, booleanos, fechas).
 - **Harness** (`harness-runner.js` + `harness.js` del control): el adapter del equipo corre en un proceso hijo con reloj virtual y transporte sintético; `trace-command` permite stacks no-JS con la misma traza estándar. La traza sólo lleva hechos derivados.
@@ -707,6 +707,7 @@ El adapter conecta el handler HTTP o el servidor real **en proceso** (`handle(re
 - `api.pagination`: `default-size`, `max-size` (con un dataset mayor al máximo), `walk`, `bad-limit` y, en cursor, `stable-cursor` e `invalid-cursor`.
 - `svc.dependency-failure`: `healthy`, `hang`, `error` y `breaker` (20 fallas, recuperación tras 120 s virtuales).
 - `svc.health-shutdown`: `live`, `ready`, `not-ready@` por dependencia, `drain` (SIGTERM a los 100 ms con trabajo en curso) y `grace-bound` (trabajo que nunca termina).
+- `svc.log-hygiene`: el adapter dirige su logger a `logger.write(line)`; las requests llevan email, teléfono, tarjeta, token, cookie y contraseña canario. Por endpoint: `structured`, `correlation` (con y sin header), `no-pii` y `error` (dependencia que falla con datos en el mensaje).
 
 ## 11. Waivers y N/A gobernado
 

@@ -12,7 +12,7 @@ Los guardrails iniciales cubren:
 - políticas de versión mínima soportada para aplicaciones móviles;
 - anuncios explícitos y accesibles de módulos web nuevos.
 
-El catálogo 2.0.0 amplía la cobertura con veinte guardrails (requisitos 28–47), de interfaz y de backend:
+El catálogo 2.0.0 amplía la cobertura con veintiún guardrails (requisitos 28–48), de interfaz y de backend:
 
 - estados de carga, vacío y error en pantallas que cargan datos;
 - formularios con validación y errores accesibles;
@@ -29,7 +29,8 @@ El catálogo 2.0.0 amplía la cobertura con veinte guardrails (requisitos 28–4
 - rutas inexistentes, URLs mal formadas y enlaces que sobreviven al login;
 - diálogos accesibles con teclado y lector de pantalla;
 - APIs idempotentes, con errores consistentes, límites de uso y paginación acotada;
-- servicios que toleran dependencias caídas y se apagan sin cortar requests.
+- servicios que toleran dependencias caídas y se apagan sin cortar requests;
+- logs estructurados, correlacionados y sin datos personales ni secretos.
 
 La definición integral de seguridad sigue siendo la autoridad para sus propios controles en `.kiro/specs/kiritek-init-integral-security/requirements.md` y `.kiro/specs/kiritek-init-integral-security/design.md`. Esta spec no la reemplaza ni modifica.
 
@@ -1003,6 +1004,24 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 
 47.4. **EL TIEMPO DE GRACIA NO DEBERÁ** superar el máximo configurado.
 
+### Requisito 48 — Control `svc.log-hygiene`
+
+**Historia de usuario:** Como owner de un servicio, quiero logs útiles para diagnosticar que nunca expongan datos de los usuarios ni secretos.
+
+#### Criterios de aceptación
+
+48.1. **CUANDO** una unidad con perfil `backend-service` declare el formato de sus logs, el header de correlación y endpoints a ejercitar, **EL CONTROL DEBERÁ** capturar la salida del logger real mientras atiende requests sintéticas.
+
+48.2. **CADA LÍNEA DE LOG DEBERÁ** ser un objeto JSON con los campos declarados de nivel y mensaje.
+
+48.3. **TODAS LAS LÍNEAS DE UNA REQUEST DEBERÁN** llevar el id de correlación recibido en el header declarado o, si no llegó, un id generado y estable para esa request.
+
+48.4. **LOS LOGS NO DEBERÁN** contener datos personales (email, teléfono, tarjeta) ni secretos (tokens, cookies, contraseñas) presentes en cuerpo, headers, query o mensajes de error.
+
+48.5. **CUANDO** una dependencia falle, **DEBERÁ** registrarse un evento de nivel error.
+
+48.6. **SI** sólo se detectan llamadas a loggers sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
 ## 7. Matriz mínima de aplicabilidad
 
 | Control | Perfil requerido | Momentos mínimos | Evidencia apta para `deny` | Heurística permitida |
@@ -1030,6 +1049,7 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 | `api.pagination` | `http-api` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de tamaños, recorrido, cursor o parámetros inválidos | Detección de consultas de listado |
 | `svc.dependency-failure` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de timeout, respuesta ante fallas o circuit breaker | Detección de clientes de bases o servicios |
 | `svc.health-shutdown` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de liveness, readiness o apagado ordenado | Detección del arranque del servidor |
+| `svc.log-hygiene` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de formato, correlación, datos personales, secretos o log de error | Detección de llamadas a loggers |
 
 La tabla define mínimos; el catálogo podrá ampliar momentos o evidencia sin contradecir la regla de que las heurísticas nunca bloquean.
 
