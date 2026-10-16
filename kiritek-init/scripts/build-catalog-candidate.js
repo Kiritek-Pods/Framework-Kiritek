@@ -3,7 +3,7 @@
 
 /**
  * Construye el candidato de catálogo 2.0.0 (T17.7) a partir del 1.0.0
- * publicado: los tres controles iniciales, los veintiún nuevos (T18–T38) con
+ * publicado: los tres controles iniciales, los veinticinco nuevos (T18–T42) con
  * sus perfiles y schemas de parámetros, `enforce` soportado y
  * `enforcementContract` ligado a la suite R27 de cada control.
  * Reproducible: mismo input, mismo digest. Las notas (`notes/`) se
@@ -134,7 +134,7 @@ const NEW_CONTROLS = [
     ["nav.broken-routes", "nav-broken-routes", "routed-app", "routesContract"],
     ["ui.accessible-dialogs", "ui-accessible-dialogs", "dialogs", "dialogsContract"],
   ].map(([id, slug, profile, param]) => ({ id, slug, profile, properties: { [param]: { type: "string", minLength: 1, pattern: REPO_PATH }, maxEvidenceAgeHours: EVIDENCE_AGE }, defaults: { maxEvidenceAgeHours: 24 } })),
-  // Backend (T32–T38).
+  // Backend (T32–T42).
   ...[
     ["api.idempotency", "api-idempotency", "http-api", "idempotencyContract", {}, {}],
     ["api.error-responses", "api-error-responses", "http-api", "errorsContract", {}, {}],
@@ -143,6 +143,10 @@ const NEW_CONTROLS = [
     ["svc.dependency-failure", "svc-dependency-failure", "backend-service", "dependencyContract", { maxTimeoutMs: { type: "integer", minimum: 10, maximum: 120000 } }, { maxTimeoutMs: 10000 }],
     ["svc.health-shutdown", "svc-health-shutdown", "backend-service", "healthContract", { maxGraceMs: { type: "integer", minimum: 100, maximum: 600000 } }, { maxGraceMs: 30000 }],
     ["svc.log-hygiene", "svc-log-hygiene", "backend-service", "logsContract", {}, {}],
+    ["api.concurrency", "api-concurrency", "http-api", "concurrencyContract", {}, {}],
+    ["api.versioning", "api-versioning", "http-api", "versioningContract", {}, {}],
+    ["api.request-limits", "api-request-limits", "http-api", "limitsContract", { maxBodyBytesLimit: { type: "integer", minimum: 256, maximum: 10485760 }, maxTimeoutMsLimit: { type: "integer", minimum: 10, maximum: 120000 } }, { maxBodyBytesLimit: 10485760, maxTimeoutMsLimit: 30000 }],
+    ["api.http-cache", "api-http-cache", "http-api", "cacheContract", { maxAgeLimitSeconds: { type: "integer", minimum: 0, maximum: 31536000 } }, { maxAgeLimitSeconds: 31536000 }],
   ].map(([id, slug, profile, param, props, defs]) => ({ id, slug, profile, properties: { [param]: { type: "string", minLength: 1, pattern: REPO_PATH }, ...props, maxEvidenceAgeHours: EVIDENCE_AGE }, defaults: { ...defs, maxEvidenceAgeHours: 24 } })),
 ];
 

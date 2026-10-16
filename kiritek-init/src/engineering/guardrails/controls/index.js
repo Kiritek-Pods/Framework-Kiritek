@@ -30,6 +30,10 @@ function builtinControls() {
     "svc.dependency-failure": require("./svc-dependency-failure/index.js"),
     "svc.health-shutdown": require("./svc-health-shutdown/index.js"),
     "svc.log-hygiene": require("./svc-log-hygiene/index.js"),
+    "api.concurrency": require("./api-concurrency/index.js"),
+    "api.versioning": require("./api-versioning/index.js"),
+    "api.request-limits": require("./api-request-limits/index.js"),
+    "api.http-cache": require("./api-http-cache/index.js"),
   };
 }
 

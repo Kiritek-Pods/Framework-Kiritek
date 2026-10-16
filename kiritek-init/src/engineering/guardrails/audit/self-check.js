@@ -43,6 +43,10 @@ const PROFILES = {
   "svc.dependency-failure": ["backend-service"],
   "svc.health-shutdown": ["backend-service"],
   "svc.log-hygiene": ["backend-service"],
+  "api.concurrency": ["http-api"],
+  "api.versioning": ["http-api"],
+  "api.request-limits": ["http-api"],
+  "api.http-cache": ["http-api"],
 };
 
 function obs(kind, facts, evidenceClass = "deterministic") {
@@ -181,6 +185,26 @@ const CASES = {
     params: { logsContract: "apps/x/contract.json" },
     deterministic: [obs("logs-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
     heuristic: [obs("logs-contract", { declared: false, valid: false, errorCodes: [] }), obs("logs-signals", { signals: [{ signal: "LOGGING", path: "apps/x/server.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.concurrency": {
+    params: { concurrencyContract: "apps/x/contract.json" },
+    deterministic: [obs("concurrency-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("concurrency-contract", { declared: false, valid: false, errorCodes: [] }), obs("concurrency-signals", { signals: [{ signal: "UPDATE_ENDPOINT", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.versioning": {
+    params: { versioningContract: "apps/x/contract.json" },
+    deterministic: [obs("versioning-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("versioning-contract", { declared: false, valid: false, errorCodes: [] }), obs("versioning-signals", { signals: [{ signal: "VERSIONED_ROUTE", path: "apps/x/routes.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.request-limits": {
+    params: { limitsContract: "apps/x/contract.json" },
+    deterministic: [obs("limits-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("limits-contract", { declared: false, valid: false, errorCodes: [] }), obs("limits-signals", { signals: [{ signal: "REQUEST_LIMITS", path: "apps/x/server.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.http-cache": {
+    params: { cacheContract: "apps/x/contract.json" },
+    deterministic: [obs("cache-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("cache-contract", { declared: false, valid: false, errorCodes: [] }), obs("cache-signals", { signals: [{ signal: "HTTP_CACHE", path: "apps/x/products.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
   },
 };
 

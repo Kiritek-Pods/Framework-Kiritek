@@ -86,6 +86,10 @@ unidades dependientes (nunca las omite en silencio).
 | [`svc.dependency-failure`](controls/svc-dependency-failure.md) (2.0.0) | `backend-service` | agent, pre-commit, pr, release | `dependencyContract` |
 | [`svc.health-shutdown`](controls/svc-health-shutdown.md) (2.0.0) | `backend-service` | agent, pre-commit, pr, release | `healthContract` |
 | [`svc.log-hygiene`](controls/svc-log-hygiene.md) (2.0.0) | `backend-service` | agent, pre-commit, pr, release | `logsContract` |
+| [`api.concurrency`](controls/api-concurrency.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `concurrencyContract` |
+| [`api.versioning`](controls/api-versioning.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `versioningContract` |
+| [`api.request-limits`](controls/api-request-limits.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `limitsContract` |
+| [`api.http-cache`](controls/api-http-cache.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `cacheContract` |
 
 Niveles: `off` (no evalúa; no es "conforme"), `warn` (avisa), `enforce` (puede
 bloquear sólo lo determinista elegible). `enforce` exige que el catálogo lo

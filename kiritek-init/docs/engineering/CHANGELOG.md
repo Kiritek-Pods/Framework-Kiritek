@@ -10,7 +10,7 @@ Estado: **candidato**, en `release/candidates/engineering/guardrails/2.0.0`.
 Se publica en `catalogs/` sólo cuando el gate de release queda `ready`
 (ver [release.md](release.md)). Mientras tanto el pack es warning-only.
 
-- Veintiún controles nuevos, cada uno con su perfil explícito, contrato,
+- Veinticinco controles nuevos, cada uno con su perfil explícito, contrato,
   harness conductual y suite R27:
   - `ui.data-states` (`data-views`): carga, contenido, vacío, error con
     reintento, timeout y sin pedidos duplicados.
@@ -40,12 +40,14 @@ Se publica en `catalogs/` sólo cuando el gate de release queda `ready`
     mal formadas y destino conservado tras el login.
   - `ui.accessible-dialogs` (`dialogs`): foco, teclado, Escape, rol,
     nombre y fondo inerte.
-  - Backend: `api.idempotency`, `api.error-responses`, `api.rate-limit` y
-    `api.pagination` (`http-api`); `svc.dependency-failure` y
-    `svc.health-shutdown` y `svc.log-hygiene` (`backend-service`). El adapter conecta el handler
+  - Backend: `api.idempotency`, `api.error-responses`, `api.rate-limit`,
+    `api.pagination`, `api.concurrency`, `api.versioning`,
+    `api.request-limits` y `api.http-cache` (`http-api`);
+    `svc.dependency-failure`, `svc.health-shutdown` y `svc.log-hygiene`
+    (`backend-service`). El adapter conecta el handler
     HTTP o el servidor real en proceso con dependencias sintéticas; la traza
     sólo admite booleanos y números (schema `facts.trace`).
-- Los veinticuatro controles declaran `enforce` con `enforcementContract` ligado a
+- Los veintiocho controles declaran `enforce` con `enforcementContract` ligado a
   su suite R27 (`kiritek/engineering/<control>@1.0.0`): evidencia sólo
   `deterministic`, momentos sólo `pr` y `release`.
 - Los tres controles iniciales no cambian de comportamiento ni de nivel por

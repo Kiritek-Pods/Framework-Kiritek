@@ -41,6 +41,10 @@ const SUITES = Object.freeze({
   "svc.dependency-failure": { id: "kiritek/engineering/svc-dependency-failure", version: "1.0.0", slug: "svc-dependency-failure", catalog: "2.0.0" },
   "svc.health-shutdown": { id: "kiritek/engineering/svc-health-shutdown", version: "1.0.0", slug: "svc-health-shutdown", catalog: "2.0.0" },
   "svc.log-hygiene": { id: "kiritek/engineering/svc-log-hygiene", version: "1.0.0", slug: "svc-log-hygiene", catalog: "2.0.0" },
+  "api.concurrency": { id: "kiritek/engineering/api-concurrency", version: "1.0.0", slug: "api-concurrency", catalog: "2.0.0" },
+  "api.versioning": { id: "kiritek/engineering/api-versioning", version: "1.0.0", slug: "api-versioning", catalog: "2.0.0" },
+  "api.request-limits": { id: "kiritek/engineering/api-request-limits", version: "1.0.0", slug: "api-request-limits", catalog: "2.0.0" },
+  "api.http-cache": { id: "kiritek/engineering/api-http-cache", version: "1.0.0", slug: "api-http-cache", catalog: "2.0.0" },
 });
 
 const APPROVED_FILE = path.join(__dirname, "approved.json");

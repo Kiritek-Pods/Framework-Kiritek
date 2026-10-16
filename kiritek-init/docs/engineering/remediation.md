@@ -9,7 +9,8 @@
 > `permissions-confirmation`, `routes-confirmation`, `dialogs-confirmation`,
 > `idempotency-confirmation`, `errors-confirmation`, `ratelimit-confirmation`,
 > `pagination-confirmation`, `dependency-confirmation`, `health-confirmation`,
-> `logs-confirmation`) sólo producen `warn` pidiendo evidencia verificable,
+> `logs-confirmation`, `concurrency-confirmation`, `versioning-confirmation`,
+> `limits-confirmation`, `cache-confirmation`) sólo producen `warn` pidiendo evidencia verificable,
 > en cualquier nivel. Sólo findings deterministas de contratos, manifests o
 > tests conductuales pueden llegar a bloquear, y sólo en `enforce`.
 
@@ -413,3 +414,66 @@ no una librería.
 | `secret-in-logs` | No registre secretos (tokens, cookies, contraseñas), ni en los mensajes de error: configure la redacción del logger. |
 | `error-logged` | Cuando una dependencia falla, registre un evento de nivel error. |
 | `logs-confirmation` (heurística) | Declarar el contrato (`logsContract`). |
+
+## `api.concurrency` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de edición concurrente (ruta, JSON, ids únicos y schema api-concurrency.contract). |
+| `version-exposed` | Exponga la versión del recurso al leerlo (header ETag o el campo de versión declarado). |
+| `conditional-update` | Una actualización con la versión vigente debe aplicarse (2xx). |
+| `version-advances` | Cada actualización debe cambiar la versión (ETag o campo de versión). |
+| `stale-rejected` | Una actualización con una versión vieja debe responder 409 o 412. |
+| `lost-update` | No sobrescriba cambios ajenos: compare la versión antes de guardar. |
+| `precondition-required` | Exija la versión en cada actualización (428 o 4xx si falta), o declare requirePrecondition: false. |
+| `atomic-check` | Compare y guarde en una sola operación atómica (UPDATE … WHERE version = ?, saveIfVersion): leer y luego guardar deja ganar a las dos escrituras. |
+| `concurrency-confirmation` (heurística) | Declarar el contrato (`concurrencyContract`). |
+
+## `api.versioning` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de versionado (ruta, JSON, ids únicos y schema api-versioning.contract). |
+| `contract-versions` | Declare al menos una versión vigente (status supported). |
+| `sunset-passed` | La fecha de retiro (sunset) ya pasó: retire la versión (status retired) o corrija la fecha. |
+| `version-served` | Cada versión vigente o deprecada debe seguir respondiendo 2xx hasta su retiro. |
+| `deprecation-header` | Las versiones deprecadas deben responder con el header Deprecation. |
+| `sunset-header` | Las versiones deprecadas con fecha de retiro deben responder con el header Sunset (HTTP-date) de esa fecha. |
+| `false-deprecation` | No marque como deprecada una versión vigente. |
+| `unknown-version` | Una versión inexistente debe responder 4xx, no 5xx ni la versión más nueva en silencio. |
+| `retired-version` | Una versión retirada debe responder 410 (o 404). |
+| `breaking-change` | No quite campos de una versión publicada: los clientes que la usan se rompen. Agréguelos en una versión nueva. |
+| `versioning-confirmation` (heurística) | Declarar el contrato (`versioningContract`). |
+
+## `api.request-limits` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de límites (ruta, JSON, ids únicos y schema api-request-limits.contract). |
+| `contract-limits` | maxBodyBytes o timeoutMs superan los máximos configurados (parameters.maxBodyBytesLimit / maxTimeoutMsLimit). |
+| `false-rejection` | Un cuerpo dentro del límite debe aceptarse. |
+| `body-limit` | Rechace los cuerpos que superan maxBodyBytes (configure el límite del parser). |
+| `body-limit-status` | Un cuerpo excedido debe responder 413 Payload Too Large. |
+| `body-limit-unverified` | Mida el cuerpo recibido: sin Content-Length (chunked) el límite también debe aplicarse. |
+| `processed-oversized` | Rechace el cuerpo excedido antes de procesarlo (sin llamar a la base ni a otros servicios). |
+| `request-timeout` | Corte la request al vencer timeoutMs: una dependencia lenta no puede dejarla colgada. |
+| `timeout-status` | Al vencer el timeout responda 503, 504 o 408, no 2xx ni 500. |
+| `cancel-on-timeout` | Al vencer el timeout cancele el trabajo en curso (AbortSignal), para no seguir consumiendo recursos. |
+| `premature-timeout` | Una dependencia que responde dentro de timeoutMs no debe cortarse antes. |
+| `limits-confirmation` (heurística) | Declarar el contrato (`limitsContract`). |
+
+## `api.http-cache` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de caché (ruta, JSON, ids únicos y schema api-http-cache.contract). |
+| `contract-max-age` | Los recursos públicos deben declarar maxAgeSeconds, sin superar parameters.maxAgeLimitSeconds. |
+| `cache-control-missing` | Responda con Cache-Control explícito: sin él, cada proxy y navegador decide por su cuenta. |
+| `max-age` | Los recursos públicos deben declarar el max-age (o s-maxage) del contrato. |
+| `private-cacheable` | Los recursos privados deben responder Cache-Control: private o no-store, nunca public ni s-maxage: un proxy compartido podría servirlos a otra persona. |
+| `validator-missing` | Responda con el validador declarado (ETag o Last-Modified). |
+| `conditional-get` | Con If-None-Match / If-Modified-Since vigente responda 304 Not Modified. |
+| `not-modified-body` | Una respuesta 304 no lleva cuerpo. |
+| `stale-validator` | El validador debe cambiar cuando cambia el recurso: si no, el cliente se queda con datos viejos. |
+| `cross-user-validator` | El ETag de un recurso privado debe depender de su contenido para ese usuario: otro usuario no puede recibir 304 con el validador ajeno. |
+| `cache-confirmation` (heurística) | Declarar el contrato (`cacheContract`). |

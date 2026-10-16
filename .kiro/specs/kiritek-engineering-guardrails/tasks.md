@@ -3,7 +3,7 @@
 ## 1. Convenciones del plan
 
 - **Pack:** `engineering/guardrails`, independiente de `core/security`.
-- **Ruta crítica (CP):** T01 → T02 → T03 → T04 → T05 → T06 → T10–T12 → T13 → T14 → T15 → T16. T18–T38 (catálogo 2.0.0) son paralelizables y entran al gate T17.
+- **Ruta crítica (CP):** T01 → T02 → T03 → T04 → T05 → T06 → T10–T12 → T13 → T14 → T15 → T16. T18–T42 (catálogo 2.0.0) son paralelizables y entran al gate T17.
 - **[P]:** tarea paralelizable cuando sus dependencias estén completas.
 - **[CP]:** checkpoint obligatorio; no se inicia la fase siguiente indicada hasta superarlo.
 - Ninguna tarea habilita `enforce` antes de demostrar R27 y los predicados anti-falso-positivo.
@@ -274,7 +274,7 @@
   - [ ] T17.7 Publicar catálogo/versionado/changelog/migración/procedencia y evidencia de la suite completa.
   - **Gate final:** todos los criterios globales G1–G7 y R27 deben estar demostrados antes de declarar disponibilidad general.
   - **Estado (2026-10-13):** gate implementado (`kiritek-init/scripts/release-gate.js`, `kiritek-init/release/gate/`), resultado `blocked`. T17.1–T17.5 en verde. T17.6 espera la matriz CI (Linux 18/20/22, Windows 22). T17.7 espera la suite completa del repo en verde (37.3 de security, fuera de engineering), un árbol commiteado y `--approve`. Por R27.7 el pack sigue warning-only: el catálogo 2.0.0 queda como candidato y `approved.json` vacío.
-  - **Requisitos:** R1–R48; G1–G7.
+  - **Requisitos:** R1–R52; G1–G7.
 
 ## Fase 17 — Control `ui.data-states`
 
@@ -486,6 +486,46 @@
   - [x] T38.4 Suite R27, adapters de referencia y documentación.
   - **Requisitos:** R48; R7–R8, R15–R16, R27.
 
+## Fase 38 — Control `api.concurrency`
+
+- [x] **T39. Implementar `api.concurrency` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común), T32 (harness HTTP).
+  - [x] T39.1 Contrato de edición concurrente (recursos, método, ETag o campo de versión, precondición).
+  - [x] T39.2 Harness con almacén asíncrono: versión expuesta, actualización condicional, escritura vieja, precondición y carrera de dos escrituras.
+  - [x] T39.3 Evaluator y heurística sin contrato.
+  - [x] T39.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R49; R7–R8, R15–R16, R27.
+
+## Fase 39 — Control `api.versioning`
+
+- [x] **T40. Implementar `api.versioning` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común), T32 (harness HTTP).
+  - [x] T40.1 Contrato de versionado (esquema, versiones con estado, fecha de retiro y campos garantizados, endpoints).
+  - [x] T40.2 Harness sobre todas las versiones: servidas, Deprecation/Sunset, desconocidas, retiradas y campos conservados.
+  - [x] T40.3 Evaluator y heurística sin contrato.
+  - [x] T40.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R50; R7–R8, R15–R16, R27.
+
+## Fase 40 — Control `api.request-limits`
+
+- [x] **T41. Implementar `api.request-limits` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común), T32 (harness HTTP).
+  - [x] T41.1 Contrato de límites (tamaño de cuerpo, timeout, endpoints).
+  - [x] T41.2 Harness con cuerpos sintéticos y dependencia controlada: dentro del límite, excedido con y sin Content-Length, timeout con cancelación y sin corte prematuro.
+  - [x] T41.3 Evaluator y heurística sin contrato.
+  - [x] T41.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R51; R7–R8, R15–R16, R27.
+
+## Fase 41 — Control `api.http-cache`
+
+- [x] **T42. Implementar `api.http-cache` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común), T32 (harness HTTP).
+  - [x] T42.1 Contrato de caché (recursos con visibilidad, max-age y validador).
+  - [x] T42.2 Harness con dos usuarios: Cache-Control por visibilidad, validador, 304 sin cuerpo, validador que cambia y aislamiento entre usuarios.
+  - [x] T42.3 Evaluator y heurística sin contrato.
+  - [x] T42.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R52; R7–R8, R15–R16, R27.
+
 ## Matriz de trazabilidad resumida
 
 | Área | Requisitos | Tareas principales |
@@ -506,7 +546,7 @@
 | Sesión, subidas, paginación y analytics | R32–R35 | T22–T25 |
 | Acciones destructivas, idioma y sin conexión | R36–R38 | T26–T28 |
 | Permisos, rutas y diálogos | R39–R41 | T29–T31 |
-| Backend: APIs y servicios | R42–R48 | T32–T38 |
+| Backend: APIs y servicios | R42–R52 | T32–T42 |
 
 ## Criterio de finalización
 

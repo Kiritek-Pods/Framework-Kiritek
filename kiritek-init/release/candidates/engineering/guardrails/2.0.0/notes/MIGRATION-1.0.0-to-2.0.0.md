@@ -6,7 +6,7 @@ El salto es major porque cambian `supportedLevels` y `enforcementContract`
 1. `kiritek-init guardrails update --to 2.0.0 --dry-run` muestra el plan.
 2. `kiritek-init guardrails update --to 2.0.0` aplica con backup y
    verificación; los niveles actuales se conservan (`warn` sigue siendo `warn`)
-   y los veintiún controles nuevos quedan en `off`.
+   y los veinticinco controles nuevos quedan en `off`.
 3. Para adoptar un control nuevo: declarar su perfil en la unidad
    (`data-views`, `forms`, `network-client`, `feature-flags`, `auth-session`,
    `file-upload`, `paginated-lists`, `analytics`, `destructive-actions`,

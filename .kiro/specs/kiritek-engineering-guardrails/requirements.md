@@ -12,7 +12,7 @@ Los guardrails iniciales cubren:
 - políticas de versión mínima soportada para aplicaciones móviles;
 - anuncios explícitos y accesibles de módulos web nuevos.
 
-El catálogo 2.0.0 amplía la cobertura con veintiún guardrails (requisitos 28–48), de interfaz y de backend:
+El catálogo 2.0.0 amplía la cobertura con veinticinco guardrails (requisitos 28–52), de interfaz y de backend:
 
 - estados de carga, vacío y error en pantallas que cargan datos;
 - formularios con validación y errores accesibles;
@@ -30,7 +30,8 @@ El catálogo 2.0.0 amplía la cobertura con veintiún guardrails (requisitos 28�
 - diálogos accesibles con teclado y lector de pantalla;
 - APIs idempotentes, con errores consistentes, límites de uso y paginación acotada;
 - servicios que toleran dependencias caídas y se apagan sin cortar requests;
-- logs estructurados, correlacionados y sin datos personales ni secretos.
+- logs estructurados, correlacionados y sin datos personales ni secretos;
+- ediciones concurrentes que no se pisan, versiones de API que no rompen clientes, límites de tamaño y tiempo por request y caché HTTP explícita.
 
 La definición integral de seguridad sigue siendo la autoridad para sus propios controles en `.kiro/specs/kiritek-init-integral-security/requirements.md` y `.kiro/specs/kiritek-init-integral-security/design.md`. Esta spec no la reemplaza ni modifica.
 
@@ -1022,6 +1023,76 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 
 48.6. **SI** sólo se detectan llamadas a loggers sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
 
+### Requisito 49 — Control `api.concurrency`
+
+**Historia de usuario:** Como owner de una API, quiero que dos ediciones simultáneas del mismo recurso nunca se pisen en silencio.
+
+#### Criterios de aceptación
+
+49.1. **CUANDO** una unidad con perfil `http-api` declare sus recursos editables y cómo viaja la versión (ETag/If-Match o campo), **EL CONTROL DEBERÁ** ejercitar el handler real con un almacén sintético asíncrono.
+
+49.2. **LA LECTURA DEBERÁ** exponer la versión, y una actualización con la versión vigente **DEBERÁ** aplicarse y cambiarla.
+
+49.3. **UNA ACTUALIZACIÓN CON VERSIÓN VIEJA DEBERÁ** responder 409 o 412 sin sobrescribir el cambio ajeno.
+
+49.4. **SALVO QUE** el contrato lo declare opcional, **UNA ACTUALIZACIÓN SIN VERSIÓN DEBERÁ** rechazarse con 4xx.
+
+49.5. **DOS ACTUALIZACIONES SIMULTÁNEAS CON LA MISMA VERSIÓN DEBERÁN** resultar en exactamente una aplicada y la otra rechazada (compare-and-set atómico).
+
+49.6. **SI** sólo se detectan endpoints de actualización sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 50 — Control `api.versioning`
+
+**Historia de usuario:** Como consumidor de una API, quiero que las versiones que uso sigan funcionando y me avisen antes de retirarse.
+
+#### Criterios de aceptación
+
+50.1. **CUANDO** una unidad con perfil `http-api` declare sus versiones (vigente, deprecada o retirada), su esquema (ruta o header) y endpoints, **EL CONTROL DEBERÁ** ejercitar cada versión en el router real.
+
+50.2. **CADA VERSIÓN NO RETIRADA DEBERÁ** responder 2xx y conservar los campos que declara.
+
+50.3. **LAS VERSIONES DEPRECADAS DEBERÁN** responder con el header `Deprecation` y, si tienen fecha de retiro, con `Sunset` de esa fecha; las vigentes no **DEBERÁN** marcarse deprecadas.
+
+50.4. **UNA VERSIÓN INEXISTENTE DEBERÁ** responder 4xx y una retirada 410 (o 404).
+
+50.5. **EL CONTRATO DEBERÁ** declarar al menos una versión vigente y ninguna deprecada con fecha de retiro vencida.
+
+50.6. **SI** sólo se detectan rutas versionadas sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 51 — Control `api.request-limits`
+
+**Historia de usuario:** Como owner de un servicio, quiero que un cuerpo enorme o una dependencia lenta no puedan tumbarlo.
+
+#### Criterios de aceptación
+
+51.1. **CUANDO** una unidad con perfil `http-api` declare el tamaño máximo de cuerpo, el timeout por request y endpoints, **EL CONTROL DEBERÁ** ejercitar el handler real con cuerpos sintéticos y una dependencia controlada.
+
+51.2. **UN CUERPO DENTRO DEL LÍMITE DEBERÁ** aceptarse; **UNO EXCEDIDO DEBERÁ** rechazarse con 413 antes de procesarse, también sin `Content-Length`.
+
+51.3. **CUANDO** la dependencia no responda, **LA REQUEST DEBERÁ** cortarse al vencer el timeout con 503, 504 o 408 y cancelar el trabajo en curso.
+
+51.4. **UNA DEPENDENCIA QUE RESPONDE DENTRO DEL TIMEOUT NO DEBERÁ** cortarse antes.
+
+51.5. **LOS LÍMITES DECLARADOS NO DEBERÁN** superar los máximos configurados.
+
+51.6. **SI** sólo se detecta configuración de parsers o timeouts sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 52 — Control `api.http-cache`
+
+**Historia de usuario:** Como owner de una API, quiero que quede explícito qué se cachea y que nada privado termine en una caché compartida.
+
+#### Criterios de aceptación
+
+52.1. **CUANDO** una unidad con perfil `http-api` declare sus recursos de lectura con visibilidad, `max-age` y validador, **EL CONTROL DEBERÁ** ejercitar el handler real con usuarios sintéticos.
+
+52.2. **CADA RESPUESTA DEBERÁ** llevar `Cache-Control`: los recursos públicos con el `max-age` declarado y los privados con `private` o `no-store`, nunca `public` ni `s-maxage`.
+
+52.3. **UNA PETICIÓN CONDICIONAL VIGENTE DEBERÁ** recibir 304 sin cuerpo, y el validador **DEBERÁ** cambiar cuando cambia el recurso.
+
+52.4. **EL VALIDADOR DE UN RECURSO PRIVADO NO DEBERÁ** producir 304 para otro usuario.
+
+52.5. **SI** sólo se detectan headers de caché sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
 ## 7. Matriz mínima de aplicabilidad
 
 | Control | Perfil requerido | Momentos mínimos | Evidencia apta para `deny` | Heurística permitida |
@@ -1050,6 +1121,10 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 | `svc.dependency-failure` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de timeout, respuesta ante fallas o circuit breaker | Detección de clientes de bases o servicios |
 | `svc.health-shutdown` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de liveness, readiness o apagado ordenado | Detección del arranque del servidor |
 | `svc.log-hygiene` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de formato, correlación, datos personales, secretos o log de error | Detección de llamadas a loggers |
+| `api.concurrency` | `http-api` | PR, release | Contrato inválido o escenarios fallidos de versión expuesta, actualización condicional, escritura vieja, precondición o chequeo atómico | Detección de endpoints de actualización |
+| `api.versioning` | `http-api` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de versiones servidas, avisos de deprecación, versiones desconocidas o retiradas o campos quitados | Detección de rutas versionadas |
+| `api.request-limits` | `http-api` | PR, release | Contrato inválido o con límites excesivos, o escenarios fallidos de cuerpo excedido, timeout o cancelación | Detección de parsers y timeouts |
+| `api.http-cache` | `http-api` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de Cache-Control, validadores, 304 o aislamiento entre usuarios | Detección de headers de caché |
 
 La tabla define mínimos; el catálogo podrá ampliar momentos o evidencia sin contradecir la regla de que las heurísticas nunca bloquean.
 

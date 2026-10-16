@@ -639,7 +639,7 @@ Retirar/pausar el anuncio modifica rollout sin retirar módulo y conserva histor
 
 ### 10.4 Controles del catálogo 2.0.0 (patrón común)
 
-Los veintiún controles nuevos comparten un esqueleto (`controls/shared/`) para no reimplementar recolección ni decisión:
+Los veinticinco controles nuevos comparten un esqueleto (`controls/shared/`) para no reimplementar recolección ni decisión:
 
 - **Contrato del equipo** (`contract-file.js`): JSON en una ruta contenida en el repo, validado contra su schema; ids duplicados lo invalidan. Del contrato sólo se extraen hechos mínimos (ids, enums, números, booleanos, fechas).
 - **Harness** (`harness-runner.js` + `harness.js` del control): el adapter del equipo corre en un proceso hijo con reloj virtual y transporte sintético; `trace-command` permite stacks no-JS con la misma traza estándar. La traza sólo lleva hechos derivados.
@@ -708,6 +708,10 @@ El adapter conecta el handler HTTP o el servidor real **en proceso** (`handle(re
 - `svc.dependency-failure`: `healthy`, `hang`, `error` y `breaker` (20 fallas, recuperación tras 120 s virtuales).
 - `svc.health-shutdown`: `live`, `ready`, `not-ready@` por dependencia, `drain` (SIGTERM a los 100 ms con trabajo en curso) y `grace-bound` (trabajo que nunca termina).
 - `svc.log-hygiene`: el adapter dirige su logger a `logger.write(line)`; las requests llevan email, teléfono, tarjeta, token, cookie y contraseña canario. Por endpoint: `structured`, `correlation` (con y sin header), `no-pii` y `error` (dependencia que falla con datos en el mensaje).
+- `api.concurrency`: almacén asíncrono con latencia virtual (`get`, `save`, `saveIfVersion`). Por recurso: `exposed`, `conditional`, `stale` (otro guardó antes), `precondition` (si se exige) y `race` (dos actualizaciones simultáneas con la misma versión).
+- `api.versioning`: por endpoint, sobre todas las versiones declaradas: `served`, `deprecation` (`Deprecation` y `Sunset` comparado por día), `unknown` (`v999`), `retired` y `compatible` (campos declarados, en el cuerpo o en el primer ítem).
+- `api.request-limits`: por endpoint con cuerpo, `within` (mitad del límite), `oversized` (doble, con `Content-Length`) y `chunked` (doble, sin él); siempre `slow` (`work` que sólo termina si se aborta su `signal`) y `fast` (termina a la mitad del timeout).
+- `api.http-cache`: dos usuarios sintéticos con registros propios en los recursos privados. Por recurso: `headers`, `validator`, `not-modified`, `changed` (el recurso cambia y se reenvía el validador viejo) y, en privados con ETag, `per-user`.
 
 ## 11. Waivers y N/A gobernado
 
