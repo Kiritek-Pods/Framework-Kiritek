@@ -12,7 +12,7 @@ Los guardrails iniciales cubren:
 - políticas de versión mínima soportada para aplicaciones móviles;
 - anuncios explícitos y accesibles de módulos web nuevos.
 
-El catálogo 2.0.0 amplía la cobertura con catorce guardrails (requisitos 28–41):
+El catálogo 2.0.0 amplía la cobertura con veinte guardrails (requisitos 28–47), de interfaz y de backend:
 
 - estados de carga, vacío y error en pantallas que cargan datos;
 - formularios con validación y errores accesibles;
@@ -27,7 +27,9 @@ El catálogo 2.0.0 amplía la cobertura con catorce guardrails (requisitos 28–
 - modo sin conexión con cola y sincronización;
 - permisos del dispositivo pedidos en contexto y tolerantes al rechazo;
 - rutas inexistentes, URLs mal formadas y enlaces que sobreviven al login;
-- diálogos accesibles con teclado y lector de pantalla.
+- diálogos accesibles con teclado y lector de pantalla;
+- APIs idempotentes, con errores consistentes, límites de uso y paginación acotada;
+- servicios que toleran dependencias caídas y se apagan sin cortar requests.
 
 La definición integral de seguridad sigue siendo la autoridad para sus propios controles en `.kiro/specs/kiritek-init-integral-security/requirements.md` y `.kiro/specs/kiritek-init-integral-security/design.md`. Esta spec no la reemplaza ni modifica.
 
@@ -917,6 +919,90 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 
 41.5. **SI** sólo se detectan modales sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
 
+### Requisito 42 — Control `api.idempotency`
+
+**Historia de usuario:** Como owner de una API que modifica datos, quiero que un pedido repetido nunca duplique su efecto.
+
+#### Criterios de aceptación
+
+42.1. **CUANDO** una unidad con perfil `http-api` declare endpoints con clave de idempotencia, **EL CONTROL DEBERÁ** verificarlos llamando al handler real con dependencias sintéticas que cuentan los efectos.
+
+42.2. **CUANDO** llegue dos veces el mismo pedido con la misma clave, en secuencia o a la vez, **LA API DEBERÁ** ejecutar el efecto una sola vez, devolver la misma respuesta y no responder 5xx.
+
+42.3. **CUANDO** se reutilice una clave con otro cuerpo, **LA API DEBERÁ** rechazarlo (409/422) sin ejecutar nada; **CUANDO** la clave sea obligatoria y falte, **DEBERÁ** rechazarlo (400/428).
+
+42.4. **SI** sólo se detectan endpoints que modifican datos sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 43 — Control `api.error-responses`
+
+**Historia de usuario:** Como consumidor de una API, quiero errores predecibles que no expongan el interior del sistema.
+
+#### Criterios de aceptación
+
+43.1. **CUANDO** una unidad con perfil `http-api` declare su formato de error y endpoints con cuerpos inválidos sintéticos, **EL CONTROL DEBERÁ** verificar las respuestas de error.
+
+43.2. **UNA ENTRADA INVÁLIDA DEBERÁ** responder 400/422; **UN JSON MAL FORMADO**, 400; **UNA RUTA INEXISTENTE**, 404; **UNA FALLA INTERNA**, un 5xx controlado.
+
+43.3. **TODO ERROR DEBERÁ** seguir el formato declarado (`application/problem+json` o los campos declarados) y **NO DEBERÁ** exponer stack traces, rutas del servidor, SQL, IPs internas ni mensajes de dependencias, ni en el cuerpo ni en los headers.
+
+43.4. **SI** el formato es `custom`, **EL CONTRATO DEBERÁ** declarar los campos obligatorios.
+
+### Requisito 44 — Control `api.rate-limit`
+
+**Historia de usuario:** Como owner de una API pública, quiero que un cliente abusivo no afecte a los demás.
+
+#### Criterios de aceptación
+
+44.1. **CUANDO** una unidad con perfil `http-api` declare límites por endpoint (cantidad, ventana e identidad), **EL CONTROL DEBERÁ** verificarlos con reloj virtual e identidades sintéticas.
+
+44.2. **DENTRO DEL LÍMITE NO DEBERÁ** responderse 429; **AL SUPERARLO DEBERÁ** responderse 429 con `Retry-After` entre 1 segundo y la ventana.
+
+44.3. **EL LÍMITE DEBERÁ** contarse por cliente y reiniciarse al pasar la ventana.
+
+44.4. **LÍMITES MAYORES A MIL PEDIDOS POR VENTANA** quedan sin evidencia conductual y **SÓLO DEBERÁN** avisar.
+
+### Requisito 45 — Control `api.pagination`
+
+**Historia de usuario:** Como owner de una API con listados, quiero respuestas acotadas y paginación que no repita ni salte datos.
+
+#### Criterios de aceptación
+
+45.1. **CUANDO** una unidad con perfil `http-api` declare sus listados (modo, tamaños y nombres de campos), **EL CONTROL DEBERÁ** verificarlos con un almacén sintético.
+
+45.2. **SIN PARÁMETROS DEBERÁ** devolverse el tamaño por defecto; **UN LÍMITE MAYOR AL MÁXIMO DEBERÁ** recortarse o rechazarse con 4xx; **UN LÍMITE O CURSOR INVÁLIDO NO DEBERÁ** producir 5xx.
+
+45.3. **RECORRER TODAS LAS PÁGINAS DEBERÁ** traer todos los ítems, sin duplicados, en orden estable y con final detectable; en modo cursor, la llegada de ítems nuevos **NO DEBERÁ** repetir ni saltar ítems.
+
+45.4. **EL MÁXIMO DECLARADO NO DEBERÁ** superar el límite configurado ni ser menor que el tamaño por defecto.
+
+### Requisito 46 — Control `svc.dependency-failure`
+
+**Historia de usuario:** Como owner de un servicio, quiero que la caída de una base o de un servicio externo no arrastre a todo el sistema.
+
+#### Criterios de aceptación
+
+46.1. **CUANDO** una unidad con perfil `backend-service` declare sus dependencias con timeout, circuit breaker y modo degradado, **EL CONTROL DEBERÁ** verificarlas reemplazándolas por dependencias sintéticas que responden, se cuelgan o fallan.
+
+46.2. **SI** una dependencia se cuelga o falla, **EL SERVICIO DEBERÁ** responder dentro de su timeout con 503/504 controlado, o con una respuesta degradada 2xx cuando así se declare, y nunca con 500 ni una excepción.
+
+46.3. **CUANDO** se exija circuit breaker, **EL SERVICIO DEBERÁ** dejar de llamar a la dependencia tras fallas repetidas y volver a 2xx cuando la dependencia se recupere.
+
+46.4. **EL TIMEOUT DECLARADO NO DEBERÁ** superar el máximo configurado.
+
+### Requisito 47 — Control `svc.health-shutdown`
+
+**Historia de usuario:** Como owner de un servicio desplegado en un orquestador, quiero que los despliegues y reinicios no corten requests ni manden tráfico a instancias que no pueden atenderlo.
+
+#### Criterios de aceptación
+
+47.1. **CUANDO** una unidad con perfil `backend-service` declare liveness, readiness, dependencias, un endpoint de trabajo y el tiempo de gracia, **EL CONTROL DEBERÁ** verificarlos con dependencias sintéticas.
+
+47.2. **LIVENESS DEBERÁ** responder 2xx mientras el proceso funciona, sin depender de las dependencias; **READINESS DEBERÁ** responder 2xx con todo sano y 503 si una dependencia declarada no responde.
+
+47.3. **AL** recibir la señal de apagado, **EL SERVICIO DEBERÁ** terminar las requests en curso, dejar de estar "ready", rechazar las nuevas con 503 y terminar dentro del tiempo de gracia, aunque haya trabajo que no termina.
+
+47.4. **EL TIEMPO DE GRACIA NO DEBERÁ** superar el máximo configurado.
+
 ## 7. Matriz mínima de aplicabilidad
 
 | Control | Perfil requerido | Momentos mínimos | Evidencia apta para `deny` | Heurística permitida |
@@ -938,6 +1024,12 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 | `app.device-permissions` | `device-permissions` | agent, PR, release | Contrato inválido o escenarios fallidos de momento del pedido, explicación, rechazo, insistencia o bloqueo | Detección de APIs de permisos |
 | `nav.broken-routes` | `routed-app` | agent, PR, release | Contrato inválido o escenarios fallidos de ruta, "no encontrado", URL mal formada o destino tras el login | Detección de routers |
 | `ui.accessible-dialogs` | `dialogs` | agent, PR, release | Contrato inválido o escenarios fallidos de foco, teclado, cierre, rol, nombre o fondo inerte | Detección de modales por patrón |
+| `api.idempotency` | `http-api` | PR, release | Contrato inválido o escenarios fallidos de repetición, concurrencia, clave reutilizada o clave faltante | Detección de endpoints que modifican datos |
+| `api.error-responses` | `http-api` | PR, release | Contrato inválido o escenarios fallidos de código, formato o fuga de detalles internos | Detección de handlers HTTP |
+| `api.rate-limit` | `http-api` | PR, release | Contrato inválido o escenarios fallidos de límite, 429, Retry-After, conteo por cliente o ventana | Detección de endpoints públicos |
+| `api.pagination` | `http-api` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de tamaños, recorrido, cursor o parámetros inválidos | Detección de consultas de listado |
+| `svc.dependency-failure` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de timeout, respuesta ante fallas o circuit breaker | Detección de clientes de bases o servicios |
+| `svc.health-shutdown` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de liveness, readiness o apagado ordenado | Detección del arranque del servidor |
 
 La tabla define mínimos; el catálogo podrá ampliar momentos o evidencia sin contradecir la regla de que las heurísticas nunca bloquean.
 

@@ -3,7 +3,7 @@
 ## 1. Convenciones del plan
 
 - **Pack:** `engineering/guardrails`, independiente de `core/security`.
-- **Ruta crítica (CP):** T01 → T02 → T03 → T04 → T05 → T06 → T10–T12 → T13 → T14 → T15 → T16. T18–T31 (catálogo 2.0.0) son paralelizables y entran al gate T17.
+- **Ruta crítica (CP):** T01 → T02 → T03 → T04 → T05 → T06 → T10–T12 → T13 → T14 → T15 → T16. T18–T37 (catálogo 2.0.0) son paralelizables y entran al gate T17.
 - **[P]:** tarea paralelizable cuando sus dependencias estén completas.
 - **[CP]:** checkpoint obligatorio; no se inicia la fase siguiente indicada hasta superarlo.
 - Ninguna tarea habilita `enforce` antes de demostrar R27 y los predicados anti-falso-positivo.
@@ -274,7 +274,7 @@
   - [ ] T17.7 Publicar catálogo/versionado/changelog/migración/procedencia y evidencia de la suite completa.
   - **Gate final:** todos los criterios globales G1–G7 y R27 deben estar demostrados antes de declarar disponibilidad general.
   - **Estado (2026-10-13):** gate implementado (`kiritek-init/scripts/release-gate.js`, `kiritek-init/release/gate/`), resultado `blocked`. T17.1–T17.5 en verde. T17.6 espera la matriz CI (Linux 18/20/22, Windows 22). T17.7 espera la suite completa del repo en verde (37.3 de security, fuera de engineering), un árbol commiteado y `--approve`. Por R27.7 el pack sigue warning-only: el catálogo 2.0.0 queda como candidato y `approved.json` vacío.
-  - **Requisitos:** R1–R41; G1–G7.
+  - **Requisitos:** R1–R47; G1–G7.
 
 ## Fase 17 — Control `ui.data-states`
 
@@ -416,6 +416,66 @@
   - [x] T31.4 Suite R27, adapters de referencia y documentación.
   - **Requisitos:** R41; R7–R8, R15–R16, R27.
 
+## Fase 31 — Control `api.idempotency`
+
+- [x] **T32. Implementar `api.idempotency` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T32.1 Contrato de endpoints con clave de idempotencia y perfil `http-api`.
+  - [x] T32.2 Harness HTTP en proceso con contador de efectos: repetición, simultáneos, claves distintas, clave con otro cuerpo y clave faltante.
+  - [x] T32.3 Evaluator y heurística sin contrato.
+  - [x] T32.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R42; R7–R8, R15–R16, R27.
+
+## Fase 32 — Control `api.error-responses`
+
+- [x] **T33. Implementar `api.error-responses` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T33.1 Contrato de formato de error y cuerpos inválidos/válido sintéticos.
+  - [x] T33.2 Harness con dependencia que falla con detalles internos canario y detector de fugas.
+  - [x] T33.3 Evaluator con regla de campos obligatorios en formato custom.
+  - [x] T33.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R43; R7–R8, R15–R16, R27.
+
+## Fase 33 — Control `api.rate-limit`
+
+- [x] **T34. Implementar `api.rate-limit` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T34.1 Contrato de límites (cantidad, ventana, identidad).
+  - [x] T34.2 Harness con reloj virtual e identidades sintéticas: dentro del límite, 429, Retry-After, otro cliente y ventana vencida.
+  - [x] T34.3 Evaluator y heurística sin contrato.
+  - [x] T34.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R44; R7–R8, R15–R16, R27.
+
+## Fase 34 — Control `api.pagination`
+
+- [x] **T35. Implementar `api.pagination` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T35.1 Contrato de listados (modo, tamaños, nombres de campos y parámetros).
+  - [x] T35.2 Harness con almacén sintético: tamaño por defecto y máximo, recorrido, límite inválido, cursor estable e inválido.
+  - [x] T35.3 Evaluator con regla de tamaños coherentes.
+  - [x] T35.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R45; R7–R8, R15–R16, R27.
+
+## Fase 35 — Control `svc.dependency-failure`
+
+- [x] **T36. Implementar `svc.dependency-failure` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T36.1 Contrato de dependencias (timeout, breaker, degradado) y perfil `backend-service`.
+  - [x] T36.2 Harness con dependencias sintéticas que responden, se cuelgan o fallan; breaker y recuperación.
+  - [x] T36.3 Evaluator con regla de timeout máximo.
+  - [x] T36.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R46; R7–R8, R15–R16, R27.
+
+## Fase 36 — Control `svc.health-shutdown`
+
+- [x] **T37. Implementar `svc.health-shutdown` inicialmente warning-only** **[P]**
+  - **Depende de:** T06–T08, T16, T18 (esqueleto común).
+  - [x] T37.1 Contrato de liveness, readiness, dependencias, trabajo y gracia.
+  - [x] T37.2 Harness de readiness con dependencia caída y apagado con trabajo en curso o que nunca termina.
+  - [x] T37.3 Evaluator con regla de gracia máxima.
+  - [x] T37.4 Suite R27, adapters de referencia y documentación.
+  - **Requisitos:** R47; R7–R8, R15–R16, R27.
+
 ## Matriz de trazabilidad resumida
 
 | Área | Requisitos | Tareas principales |
@@ -436,6 +496,7 @@
 | Sesión, subidas, paginación y analytics | R32–R35 | T22–T25 |
 | Acciones destructivas, idioma y sin conexión | R36–R38 | T26–T28 |
 | Permisos, rutas y diálogos | R39–R41 | T29–T31 |
+| Backend: APIs y servicios | R42–R47 | T32–T37 |
 
 ## Criterio de finalización
 

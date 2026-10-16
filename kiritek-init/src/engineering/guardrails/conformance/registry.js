@@ -34,6 +34,12 @@ const SUITES = Object.freeze({
   "app.device-permissions": { id: "kiritek/engineering/app-device-permissions", version: "1.0.0", slug: "app-device-permissions", catalog: "2.0.0" },
   "nav.broken-routes": { id: "kiritek/engineering/nav-broken-routes", version: "1.0.0", slug: "nav-broken-routes", catalog: "2.0.0" },
   "ui.accessible-dialogs": { id: "kiritek/engineering/ui-accessible-dialogs", version: "1.0.0", slug: "ui-accessible-dialogs", catalog: "2.0.0" },
+  "api.idempotency": { id: "kiritek/engineering/api-idempotency", version: "1.0.0", slug: "api-idempotency", catalog: "2.0.0" },
+  "api.error-responses": { id: "kiritek/engineering/api-error-responses", version: "1.0.0", slug: "api-error-responses", catalog: "2.0.0" },
+  "api.rate-limit": { id: "kiritek/engineering/api-rate-limit", version: "1.0.0", slug: "api-rate-limit", catalog: "2.0.0" },
+  "api.pagination": { id: "kiritek/engineering/api-pagination", version: "1.0.0", slug: "api-pagination", catalog: "2.0.0" },
+  "svc.dependency-failure": { id: "kiritek/engineering/svc-dependency-failure", version: "1.0.0", slug: "svc-dependency-failure", catalog: "2.0.0" },
+  "svc.health-shutdown": { id: "kiritek/engineering/svc-health-shutdown", version: "1.0.0", slug: "svc-health-shutdown", catalog: "2.0.0" },
 });
 
 const APPROVED_FILE = path.join(__dirname, "approved.json");

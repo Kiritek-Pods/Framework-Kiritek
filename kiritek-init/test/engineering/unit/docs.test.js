@@ -45,10 +45,10 @@ test("T15D.1/T15D.4 arquitectura documenta límites y estados; remediaciones cub
   assert.match(arch, /kiritek-security\.config\.json/);
   const rem = read("remediation.md");
   assert.match(rem, /heurísticas nunca bloquean/i);
-  for (const dir of ["search-input-rate", "app-minimum-supported-version", "web-module-announcement", "ui-data-states", "ui-form-validation", "net-resilient-requests", "flags-lifecycle", "auth-session-expiry", "ui-file-upload", "ui-pagination", "analytics-events", "ui-destructive-actions", "i18n-formatting", "app-offline-mode", "app-device-permissions", "nav-broken-routes", "ui-accessible-dialogs"]) {
+  for (const dir of ["search-input-rate", "app-minimum-supported-version", "web-module-announcement", "ui-data-states", "ui-form-validation", "net-resilient-requests", "flags-lifecycle", "auth-session-expiry", "ui-file-upload", "ui-pagination", "analytics-events", "ui-destructive-actions", "i18n-formatting", "app-offline-mode", "app-device-permissions", "nav-broken-routes", "ui-accessible-dialogs", "api-idempotency", "api-error-responses", "api-rate-limit", "api-pagination", "svc-dependency-failure", "svc-health-shutdown"]) {
     for (const rule of ruleIdsOf(dir)) assert.ok(rem.includes(`\`${rule}\``), `${dir}: falta ${rule}`);
   }
-  for (const h of ["behavior-evidence-missing", "policy-evidence-missing", "launch-confirmation", "states-confirmation", "forms-confirmation", "requests-confirmation", "registry-confirmation", "session-confirmation", "uploads-confirmation", "lists-confirmation", "plan-confirmation", "actions-confirmation", "i18n-confirmation", "offline-confirmation", "permissions-confirmation", "routes-confirmation", "dialogs-confirmation"]) assert.ok(rem.includes(h), h);
+  for (const h of ["behavior-evidence-missing", "policy-evidence-missing", "launch-confirmation", "states-confirmation", "forms-confirmation", "requests-confirmation", "registry-confirmation", "session-confirmation", "uploads-confirmation", "lists-confirmation", "plan-confirmation", "actions-confirmation", "i18n-confirmation", "offline-confirmation", "permissions-confirmation", "routes-confirmation", "dialogs-confirmation", "idempotency-confirmation", "errors-confirmation", "ratelimit-confirmation", "pagination-confirmation", "dependency-confirmation", "health-confirmation"]) assert.ok(rem.includes(h), h);
 });
 
 test("T15D.2/T15D.3 guías y runbooks cubren lo pedido y sólo citan comandos reales", () => {

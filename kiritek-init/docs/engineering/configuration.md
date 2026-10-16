@@ -51,7 +51,8 @@ Perfiles builtin: `web`, `mobile-app`, `search`, `module-launch`; desde el
 catálogo 2.0.0 también `data-views`, `forms`, `network-client`,
 `feature-flags`, `auth-session`, `file-upload`, `paginated-lists`,
 `analytics`, `destructive-actions`, `localized`, `offline-capable`,
-`device-permissions`, `routed-app` y `dialogs` (y personalizados namespaceados `<ns>/<nombre>` vía plugins). Un control sólo
+`device-permissions`, `routed-app`, `dialogs`, `http-api` y `backend-service`
+(y personalizados namespaceados `<ns>/<nombre>` vía plugins). Un control sólo
 aplica si la unidad **declara** los perfiles que exige; discovery sólo sugiere.
 En monorepos cada unidad declara `owns`/`excludes`, `dependsOn` y, si hace
 falta, `workspace.sharedPaths`: un cambio compartido amplía el alcance a las
@@ -78,6 +79,12 @@ unidades dependientes (nunca las omite en silencio).
 | [`app.device-permissions`](controls/app-device-permissions.md) (2.0.0) | `device-permissions` | agent, pre-commit, pr, release | `permissionsContract` |
 | [`nav.broken-routes`](controls/nav-broken-routes.md) (2.0.0) | `routed-app` | agent, pre-commit, pr, release | `routesContract` |
 | [`ui.accessible-dialogs`](controls/ui-accessible-dialogs.md) (2.0.0) | `dialogs` | agent, pre-commit, pr, release | `dialogsContract` |
+| [`api.idempotency`](controls/api-idempotency.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `idempotencyContract` |
+| [`api.error-responses`](controls/api-error-responses.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `errorsContract` |
+| [`api.rate-limit`](controls/api-rate-limit.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `rateLimitContract` |
+| [`api.pagination`](controls/api-pagination.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `paginationContract` |
+| [`svc.dependency-failure`](controls/svc-dependency-failure.md) (2.0.0) | `backend-service` | agent, pre-commit, pr, release | `dependencyContract` |
+| [`svc.health-shutdown`](controls/svc-health-shutdown.md) (2.0.0) | `backend-service` | agent, pre-commit, pr, release | `healthContract` |
 
 Niveles: `off` (no evalúa; no es "conforme"), `warn` (avisa), `enforce` (puede
 bloquear sólo lo determinista elegible). `enforce` exige que el catálogo lo

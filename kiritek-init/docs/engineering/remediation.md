@@ -6,7 +6,9 @@
 > `requests-confirmation`, `registry-confirmation`, `session-confirmation`,
 > `uploads-confirmation`, `lists-confirmation`, `plan-confirmation`,
 > `actions-confirmation`, `i18n-confirmation`, `offline-confirmation`,
-> `permissions-confirmation`, `routes-confirmation`, `dialogs-confirmation`) sólo producen `warn` pidiendo evidencia verificable,
+> `permissions-confirmation`, `routes-confirmation`, `dialogs-confirmation`,
+> `idempotency-confirmation`, `errors-confirmation`, `ratelimit-confirmation`,
+> `pagination-confirmation`, `dependency-confirmation`, `health-confirmation`) sólo producen `warn` pidiendo evidencia verificable,
 > en cualquier nivel. Sólo findings deterministas de contratos, manifests o
 > tests conductuales pueden llegar a bloquear, y sólo en `enforce`.
 
@@ -311,3 +313,89 @@ no una librería.
 | `accessible-name` | Dé al diálogo un nombre accesible (aria-labelledby o aria-label). |
 | `background-inert` | Con un modal o panel abierto, el fondo no debe poder usarse (inert o aria-hidden). |
 | `dialogs-confirmation` (heurística) | Declarar los diálogos en el contrato (`dialogsContract`). |
+
+## `api.idempotency` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de idempotencia (ruta, JSON, ids únicos y schema api-idempotency.contract). |
+| `single-execution` | Repetir un pedido con la misma clave de idempotencia no debe ejecutar el efecto otra vez. |
+| `replay-same-response` | Un pedido repetido con la misma clave debe devolver la misma respuesta (estado y cuerpo) que el original. |
+| `concurrent-single-execution` | Dos pedidos simultáneos con la misma clave deben ejecutar el efecto una sola vez (bloqueo o restricción única), sin error 5xx. |
+| `distinct-keys` | Claves distintas son pedidos distintos: cada uno debe ejecutarse. |
+| `key-mismatch` | Reutilizar una clave con otro cuerpo debe rechazarse (409/422), sin ejecutar nada. |
+| `key-required` | Si la clave es obligatoria, rechace (400/428) los pedidos sin ella, sin ejecutar nada. |
+| `idempotency-confirmation` (heurística) | Declarar el contrato (`idempotencyContract`). |
+
+## `api.error-responses` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de errores (ruta, JSON, ids únicos y schema api-error-responses.contract). |
+| `contract-error-fields` | Con errorFormat custom, declare errorFields (los campos que todo error debe traer). |
+| `validation-status` | Una entrada inválida debe responder 400 o 422, nunca 2xx ni 5xx. |
+| `malformed-body` | Un cuerpo JSON mal formado debe responder 400, no 500. |
+| `not-found-status` | Una ruta inexistente debe responder 404. |
+| `internal-status` | Una falla interna debe responder 5xx controlado (no colgarse ni devolver 2xx). |
+| `error-format` | Todos los errores deben seguir el formato declarado (application/problem+json o los campos de errorFields). |
+| `no-internal-details` | Nunca exponga stack traces, rutas del servidor, SQL, IPs internas ni mensajes de dependencias en la respuesta. |
+| `errors-confirmation` (heurística) | Declarar el contrato (`errorsContract`). |
+
+## `api.rate-limit` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de límites (ruta, JSON, ids únicos y schema api-rate-limit.contract). |
+| `under-limit` | Dentro del límite declarado, los pedidos no deben recibir 429. |
+| `limit-enforced` | Superado el límite dentro de la ventana, responda 429. |
+| `retry-after` | Junto con el 429, envíe Retry-After (segundos, entre 1 y la ventana). |
+| `per-client` | Cuente el límite por cliente (clave, IP o usuario declarado): que un cliente lo agote no debe bloquear a otro. |
+| `window-reset` | Pasada la ventana, el cliente debe poder volver a usar la API. |
+| `ratelimit-confirmation` (heurística) | Declarar el contrato (`rateLimitContract`). |
+
+## `api.pagination` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de paginación (ruta, JSON, ids únicos y schema api-pagination.contract). |
+| `contract-page-size` | maxPageSize supera parameters.maxPageSizeLimit, o defaultPageSize es mayor que maxPageSize. |
+| `default-page-size` | Sin parámetros, el listado debe devolver defaultPageSize ítems. |
+| `max-page-size` | Un limit mayor al máximo debe recortarse a maxPageSize o rechazarse con 4xx. |
+| `complete` | Recorriendo todas las páginas deben aparecer todos los ítems. |
+| `duplicates` | No repita ítems entre páginas. |
+| `order` | Conserve un orden estable entre páginas. |
+| `end-detection` | Indique el final (cursor nulo o página incompleta) para no obligar a pedir de más. |
+| `invalid-limit` | Un limit negativo o no numérico debe responder 4xx o usar el valor por defecto, nunca 5xx. |
+| `stable-cursor` | Pagine por cursor: si llegan ítems nuevos, no repita ni salte ítems. |
+| `invalid-cursor` | Un cursor inválido debe responder 400, no 500 ni una página arbitraria. |
+| `pagination-confirmation` (heurística) | Declarar el contrato (`paginationContract`). |
+
+## `svc.dependency-failure` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de dependencias (ruta, JSON, ids únicos y schema svc-dependency-failure.contract). |
+| `contract-timeout` | El timeoutMs de la dependencia supera parameters.maxTimeoutMs: las requests quedarían esperando demasiado. |
+| `healthy-path` | Con todas las dependencias sanas, el endpoint debe responder 2xx. |
+| `dependency-timeout` | Si una dependencia se cuelga, corte la espera en su timeoutMs y responda; nunca deje la request colgada. |
+| `failure-response` | Si una dependencia falla, responda 503/504 controlado (o degradado 2xx si así se declaró), no 500 ni una excepción. |
+| `circuit-breaker` | Tras fallas repetidas, deje de llamar a la dependencia caída por un tiempo (circuit breaker). |
+| `breaker-recovery` | Cuando la dependencia se recupera, el corte debe cerrarse y el endpoint volver a responder 2xx. |
+| `dependency-confirmation` (heurística) | Declarar el contrato (`dependencyContract`). |
+
+## `svc.health-shutdown` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de salud y apagado (ruta, JSON y schema svc-health-shutdown.contract). |
+| `contract-grace` | shutdownGraceMs supera parameters.maxGraceMs: el orquestador mataría el proceso antes de terminar. |
+| `liveness` | La ruta de liveness debe responder 2xx mientras el proceso funciona. |
+| `readiness` | La ruta de readiness debe responder 2xx cuando las dependencias están sanas. |
+| `readiness-checks-deps` | Si una dependencia declarada no responde, readiness debe responder 503 para que no le manden tráfico. |
+| `liveness-independent` | Liveness no debe depender de las dependencias: si la base cae, reiniciar el proceso no lo arregla. |
+| `drain-in-flight` | Al apagar, termine las requests en curso antes de cerrar. |
+| `not-ready-on-shutdown` | Al empezar el apagado, readiness debe dejar de responder 2xx. |
+| `reject-new-work` | Durante el apagado, rechace las requests nuevas (503) en vez de aceptarlas a medias. |
+| `shutdown-completes` | El apagado debe terminar (cerrar conexiones y resolver) dentro del tiempo de gracia. |
+| `grace-period` | Si hay trabajo que no termina, el apagado debe forzarse al vencer el tiempo de gracia, no quedar colgado. |
+| `health-confirmation` (heurística) | Declarar el contrato (`healthContract`). |

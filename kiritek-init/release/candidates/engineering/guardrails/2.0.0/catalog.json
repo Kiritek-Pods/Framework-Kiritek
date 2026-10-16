@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "engineering/guardrails",
   "version": "2.0.0",
-  "digest": "sha256:64a0008b5c83b6018a4978bbc2be969c5d1655d656baa9a2e939778c20ccd398",
+  "digest": "sha256:412165b87e7d3729a659fd8804758a49b6d97c33d30e394610428c7a14da804c",
   "compatibility": {
     "node": ">=18",
     "kiritekInit": ">=0.1.0",
@@ -119,6 +119,18 @@
       "id": "dialogs",
       "version": "1.0.0",
       "description": "Usa modales, menús o paneles laterales.",
+      "extends": []
+    },
+    {
+      "id": "http-api",
+      "version": "1.0.0",
+      "description": "Expone una API HTTP.",
+      "extends": []
+    },
+    {
+      "id": "backend-service",
+      "version": "1.0.0",
+      "description": "Servicio de backend con dependencias y ciclo de vida propio.",
       "extends": []
     }
   ],
@@ -1617,6 +1629,525 @@
           "deterministic"
         ],
         "conformanceSuite": "kiritek/engineering/ui-accessible-dialogs",
+        "approvedVersion": "1.0.0",
+        "moments": [
+          "pr",
+          "release"
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "api.idempotency",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "http-api"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "agent",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 1500,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/api.idempotency.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn",
+        "enforce"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "maxEvidenceAgeHours": 24
+        }
+      },
+      "collectors": [
+        "api-idempotency/collector"
+      ],
+      "normalizer": "api-idempotency/normalizer",
+      "applicability": "api-idempotency/applicability",
+      "evaluator": "api-idempotency/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 86400
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/api-idempotency.md",
+      "enforcementContract": {
+        "evidenceTypes": [
+          "deterministic"
+        ],
+        "conformanceSuite": "kiritek/engineering/api-idempotency",
+        "approvedVersion": "1.0.0",
+        "moments": [
+          "pr",
+          "release"
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "api.error-responses",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "http-api"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "agent",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 1500,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/api.error-responses.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn",
+        "enforce"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "maxEvidenceAgeHours": 24
+        }
+      },
+      "collectors": [
+        "api-error-responses/collector"
+      ],
+      "normalizer": "api-error-responses/normalizer",
+      "applicability": "api-error-responses/applicability",
+      "evaluator": "api-error-responses/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 86400
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/api-error-responses.md",
+      "enforcementContract": {
+        "evidenceTypes": [
+          "deterministic"
+        ],
+        "conformanceSuite": "kiritek/engineering/api-error-responses",
+        "approvedVersion": "1.0.0",
+        "moments": [
+          "pr",
+          "release"
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "api.rate-limit",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "http-api"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "agent",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 1500,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/api.rate-limit.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn",
+        "enforce"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "maxEvidenceAgeHours": 24
+        }
+      },
+      "collectors": [
+        "api-rate-limit/collector"
+      ],
+      "normalizer": "api-rate-limit/normalizer",
+      "applicability": "api-rate-limit/applicability",
+      "evaluator": "api-rate-limit/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 86400
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/api-rate-limit.md",
+      "enforcementContract": {
+        "evidenceTypes": [
+          "deterministic"
+        ],
+        "conformanceSuite": "kiritek/engineering/api-rate-limit",
+        "approvedVersion": "1.0.0",
+        "moments": [
+          "pr",
+          "release"
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "api.pagination",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "http-api"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "agent",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 1500,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/api.pagination.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn",
+        "enforce"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "maxPageSizeLimit": 500,
+          "maxEvidenceAgeHours": 24
+        }
+      },
+      "collectors": [
+        "api-pagination/collector"
+      ],
+      "normalizer": "api-pagination/normalizer",
+      "applicability": "api-pagination/applicability",
+      "evaluator": "api-pagination/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 86400
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/api-pagination.md",
+      "enforcementContract": {
+        "evidenceTypes": [
+          "deterministic"
+        ],
+        "conformanceSuite": "kiritek/engineering/api-pagination",
+        "approvedVersion": "1.0.0",
+        "moments": [
+          "pr",
+          "release"
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "svc.dependency-failure",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "backend-service"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "agent",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 1500,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/svc.dependency-failure.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn",
+        "enforce"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "maxTimeoutMs": 10000,
+          "maxEvidenceAgeHours": 24
+        }
+      },
+      "collectors": [
+        "svc-dependency-failure/collector"
+      ],
+      "normalizer": "svc-dependency-failure/normalizer",
+      "applicability": "svc-dependency-failure/applicability",
+      "evaluator": "svc-dependency-failure/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 86400
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/svc-dependency-failure.md",
+      "enforcementContract": {
+        "evidenceTypes": [
+          "deterministic"
+        ],
+        "conformanceSuite": "kiritek/engineering/svc-dependency-failure",
+        "approvedVersion": "1.0.0",
+        "moments": [
+          "pr",
+          "release"
+        ]
+      }
+    },
+    {
+      "schemaVersion": 1,
+      "id": "svc.health-shutdown",
+      "version": "1.0.0",
+      "contractVersion": "1.0.0",
+      "profiles": {
+        "allOf": [
+          "backend-service"
+        ]
+      },
+      "moments": [
+        {
+          "moment": "agent",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 1500,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pre-commit",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 5000,
+          "fallback": "defer-to-later-surface"
+        },
+        {
+          "moment": "pr",
+          "scope": "change",
+          "network": false,
+          "budgetMs": 600000,
+          "fallback": "error-operational"
+        },
+        {
+          "moment": "release",
+          "scope": "artifact",
+          "network": false,
+          "budgetMs": 900000,
+          "fallback": "error-operational"
+        }
+      ],
+      "parametersSchemaRef": "parameters/svc.health-shutdown.schema.json",
+      "supportedLevels": [
+        "off",
+        "warn",
+        "enforce"
+      ],
+      "defaults": {
+        "level": "warn",
+        "parameters": {
+          "maxGraceMs": 30000,
+          "maxEvidenceAgeHours": 24
+        }
+      },
+      "collectors": [
+        "svc-health-shutdown/collector"
+      ],
+      "normalizer": "svc-health-shutdown/normalizer",
+      "applicability": "svc-health-shutdown/applicability",
+      "evaluator": "svc-health-shutdown/evaluator",
+      "costClass": "medium",
+      "timeoutMs": 120000,
+      "cachePolicy": {
+        "enabled": true,
+        "ttlSeconds": 86400
+      },
+      "freshness": {
+        "maxAgeSeconds": 86400
+      },
+      "permissions": {
+        "filesystemRead": [],
+        "networkHosts": [],
+        "envNames": [],
+        "processes": []
+      },
+      "documentationRef": "docs/engineering/controls/svc-health-shutdown.md",
+      "enforcementContract": {
+        "evidenceTypes": [
+          "deterministic"
+        ],
+        "conformanceSuite": "kiritek/engineering/svc-health-shutdown",
         "approvedVersion": "1.0.0",
         "moments": [
           "pr",

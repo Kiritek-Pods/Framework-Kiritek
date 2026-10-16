@@ -23,6 +23,12 @@ function builtinControls() {
     "app.device-permissions": require("./app-device-permissions/index.js"),
     "nav.broken-routes": require("./nav-broken-routes/index.js"),
     "ui.accessible-dialogs": require("./ui-accessible-dialogs/index.js"),
+    "api.idempotency": require("./api-idempotency/index.js"),
+    "api.error-responses": require("./api-error-responses/index.js"),
+    "api.rate-limit": require("./api-rate-limit/index.js"),
+    "api.pagination": require("./api-pagination/index.js"),
+    "svc.dependency-failure": require("./svc-dependency-failure/index.js"),
+    "svc.health-shutdown": require("./svc-health-shutdown/index.js"),
   };
 }
 

@@ -36,6 +36,12 @@ const PROFILES = {
   "app.device-permissions": ["device-permissions"],
   "nav.broken-routes": ["routed-app"],
   "ui.accessible-dialogs": ["dialogs"],
+  "api.idempotency": ["http-api"],
+  "api.error-responses": ["http-api"],
+  "api.rate-limit": ["http-api"],
+  "api.pagination": ["http-api"],
+  "svc.dependency-failure": ["backend-service"],
+  "svc.health-shutdown": ["backend-service"],
 };
 
 function obs(kind, facts, evidenceClass = "deterministic") {
@@ -139,6 +145,36 @@ const CASES = {
     params: { dialogsContract: "apps/x/dialogs.json" },
     deterministic: [obs("dialogs-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
     heuristic: [obs("dialogs-contract", { declared: false, valid: false, errorCodes: [] }), obs("dialogs-signals", { signals: [{ signal: "DIALOG", path: "apps/x/modal.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.idempotency": {
+    params: { idempotencyContract: "apps/x/contract.json" },
+    deterministic: [obs("idempotency-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("idempotency-contract", { declared: false, valid: false, errorCodes: [] }), obs("idempotency-signals", { signals: [{ signal: "MUTATING_ENDPOINT", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.error-responses": {
+    params: { errorsContract: "apps/x/contract.json" },
+    deterministic: [obs("errors-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("errors-contract", { declared: false, valid: false, errorCodes: [] }), obs("errors-signals", { signals: [{ signal: "API_HANDLER", path: "apps/x/app.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.rate-limit": {
+    params: { rateLimitContract: "apps/x/contract.json" },
+    deterministic: [obs("ratelimit-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("ratelimit-contract", { declared: false, valid: false, errorCodes: [] }), obs("ratelimit-signals", { signals: [{ signal: "PUBLIC_ENDPOINT", path: "apps/x/app.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.pagination": {
+    params: { paginationContract: "apps/x/contract.json" },
+    deterministic: [obs("apipage-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("apipage-contract", { declared: false, valid: false, errorCodes: [] }), obs("apipage-signals", { signals: [{ signal: "LIST_ENDPOINT", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.dependency-failure": {
+    params: { dependencyContract: "apps/x/contract.json" },
+    deterministic: [obs("deps-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("deps-contract", { declared: false, valid: false, errorCodes: [] }), obs("deps-signals", { signals: [{ signal: "EXTERNAL_DEPENDENCY", path: "apps/x/db.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.health-shutdown": {
+    params: { healthContract: "apps/x/contract.json" },
+    deterministic: [obs("health-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("health-contract", { declared: false, valid: false, errorCodes: [] }), obs("health-signals", { signals: [{ signal: "SERVICE_ENTRYPOINT", path: "apps/x/server.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
   },
 };
 

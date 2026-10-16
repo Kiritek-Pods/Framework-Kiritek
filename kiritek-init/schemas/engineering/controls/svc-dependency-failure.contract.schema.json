@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/svc-dependency-failure.contract.schema.json",
+  "title": "Contrato de dependencias (svc.dependency-failure)",
+  "description": "Endpoint que usa dependencias externas y cómo debe comportarse cuando alguna se cuelga o falla.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "endpoint", "dependencies"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "svc.dependency-failure" },
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "path"],
+      "properties": {
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+        "path": { "type": "string", "pattern": "^/[A-Za-z0-9/_.:-]*$", "maxLength": 200 },
+        "sampleBody": { "type": "object", "maxProperties": 30 }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "timeoutMs", "circuitBreaker", "degraded"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9-]*$", "maxLength": 64 },
+          "kind": { "type": "string", "enum": ["database", "http", "cache", "queue", "other"] },
+          "timeoutMs": { "type": "integer", "minimum": 10, "maximum": 120000 },
+          "circuitBreaker": { "type": "string", "enum": ["required", "not-applicable"] },
+          "degraded": { "type": "string", "enum": ["required", "not-applicable"] }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

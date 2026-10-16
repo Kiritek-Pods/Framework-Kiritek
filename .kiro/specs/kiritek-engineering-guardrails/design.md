@@ -639,7 +639,7 @@ Retirar/pausar el anuncio modifica rollout sin retirar módulo y conserva histor
 
 ### 10.4 Controles del catálogo 2.0.0 (patrón común)
 
-Los catorce controles nuevos comparten un esqueleto (`controls/shared/`) para no reimplementar recolección ni decisión:
+Los veinte controles nuevos comparten un esqueleto (`controls/shared/`) para no reimplementar recolección ni decisión:
 
 - **Contrato del equipo** (`contract-file.js`): JSON en una ruta contenida en el repo, validado contra su schema; ids duplicados lo invalidan. Del contrato sólo se extraen hechos mínimos (ids, enums, números, booleanos, fechas).
 - **Harness** (`harness-runner.js` + `harness.js` del control): el adapter del equipo corre en un proceso hijo con reloj virtual y transporte sintético; `trace-command` permite stacks no-JS con la misma traza estándar. La traza sólo lleva hechos derivados.
@@ -696,6 +696,17 @@ Reglas del registro: `remove-by-missing`, `flag-expired`, `flag-lifetime`, `unsa
 `nav.broken-routes`: URLs armadas desde el contrato (cada `:param` por un valor opaco). Escenarios: `known` (primera ruta pública), `unknown`, `malformed` (codificación inválida) y, con enlaces profundos y una ruta protegida, `deep-auth` (login y retorno con parámetros).
 
 `ui.accessible-dialogs`: síncrono, sin reloj. Por diálogo: `focus-in`, `escape`, `outside-click`, `semantics` y, en modales y paneles, `focus-trap` e `inert-background`. Un diálogo no descartable debe seguir abierto ante Escape y clic afuera.
+
+### 10.12 Controles de backend (`api.*`, `svc.*`)
+
+El adapter conecta el handler HTTP o el servidor real **en proceso** (`handle(req) → { status, headers, body }`, `shutdown()`) y recibe dependencias sintéticas en `deps`: contador de efectos (`effect`), dependencia que falla con detalles internos canario (`dependency`), almacén de ítems (`store.all`), dependencias que responden/se cuelgan/fallan (`<id>.call`, `<id>.ping`) y trabajo lento (`work`). `shared/http.js` normaliza respuestas y detecta fugas (stack traces, rutas del servidor, SQL, IPs internas, canario). La traza usa el schema común `facts.trace`, que sólo admite booleanos y enteros: por construcción no puede llevar cuerpos, headers ni identificadores.
+
+- `api.idempotency`: `replay`, `concurrent`, `distinct-keys`, `key-mismatch` y `missing-key` (si es obligatoria).
+- `api.error-responses`: `invalid@`, `malformed@`, `internal@` por endpoint y `not-found`; cada uno mide código, formato y fuga.
+- `api.rate-limit`: un escenario por límite con `limit` pedidos dentro de la ventana, el siguiente, otro cliente y la ventana vencida.
+- `api.pagination`: `default-size`, `max-size` (con un dataset mayor al máximo), `walk`, `bad-limit` y, en cursor, `stable-cursor` e `invalid-cursor`.
+- `svc.dependency-failure`: `healthy`, `hang`, `error` y `breaker` (20 fallas, recuperación tras 120 s virtuales).
+- `svc.health-shutdown`: `live`, `ready`, `not-ready@` por dependencia, `drain` (SIGTERM a los 100 ms con trabajo en curso) y `grace-bound` (trabajo que nunca termina).
 
 ## 11. Waivers y N/A gobernado
 

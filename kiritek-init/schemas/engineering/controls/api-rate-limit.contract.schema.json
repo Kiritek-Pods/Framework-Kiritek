@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/api-rate-limit.contract.schema.json",
+  "title": "Contrato de límites de uso (api.rate-limit)",
+  "description": "Límites por endpoint: cantidad de pedidos por ventana y por qué identidad se cuentan.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "limits"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "api.rate-limit" },
+    "limits": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "method", "path", "limit", "windowSeconds", "by"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
+          "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+          "path": { "type": "string", "pattern": "^/[A-Za-z0-9/_.:-]*$", "maxLength": 200 },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 100000 },
+          "windowSeconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
+          "by": { "type": "string", "enum": ["api-key", "ip", "user"] }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

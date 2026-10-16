@@ -42,6 +42,8 @@ const DEPENDENCY_SIGNALS = Object.freeze([
   { match: ["expo-camera", "expo-location", "expo-notifications", "react-native-permissions", "@capacitor/camera", "@capacitor/geolocation"], profile: "device-permissions", confidence: CONFIDENCE.LOW },
   { match: ["react-router", "react-router-dom", "vue-router", "@angular/router", "@react-navigation/native", "expo-router", "@tanstack/react-router"], profile: "routed-app", confidence: CONFIDENCE.LOW },
   { match: ["@radix-ui/react-dialog", "@headlessui/react", "react-modal", "@reach/dialog", "@mui/material", "focus-trap"], profile: "dialogs", confidence: CONFIDENCE.LOW },
+  { match: ["express", "fastify", "koa", "hono", "@nestjs/core", "@hapi/hapi", "restify"], profile: "http-api", confidence: CONFIDENCE.MEDIUM },
+  { match: ["pg", "mysql2", "mongoose", "mongodb", "@prisma/client", "ioredis", "redis", "kafkajs", "amqplib", "typeorm", "sequelize"], profile: "backend-service", confidence: CONFIDENCE.LOW },
 ]);
 const PATH_SIGNALS = Object.freeze([
   { re: /(^|\/)search(\/|$)/i, profile: "search", confidence: CONFIDENCE.LOW },

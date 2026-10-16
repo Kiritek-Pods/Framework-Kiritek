@@ -9,15 +9,17 @@ completa (G1–G7, R27 y matriz de plataformas).
 - Perfiles nuevos: `data-views`, `forms`, `network-client`, `feature-flags`,
   `auth-session`, `file-upload`, `paginated-lists`, `analytics`,
   `destructive-actions`, `localized`, `offline-capable`, `device-permissions`,
-  `routed-app`, `dialogs`.
+  `routed-app`, `dialogs`, `http-api`, `backend-service`.
 - Controles nuevos (versión 1.0.0, `warn` por defecto): `ui.data-states`,
   `ui.form-validation`, `net.resilient-requests`, `flags.lifecycle`,
   `auth.session-expiry`, `ui.file-upload`, `ui.pagination`,
   `analytics.events`, `ui.destructive-actions`, `i18n.formatting`,
   `app.offline-mode`, `app.device-permissions`, `nav.broken-routes`,
-  `ui.accessible-dialogs`. Cada
+  `ui.accessible-dialogs` y, de backend, `api.idempotency`,
+  `api.error-responses`, `api.rate-limit`, `api.pagination`,
+  `svc.dependency-failure`, `svc.health-shutdown`. Cada
   uno exige su perfil declarado y su contrato; sin contrato sólo avisa.
-- Los diecisiete controles declaran `enforce` en `supportedLevels` y un
+- Los veintitrés controles declaran `enforce` en `supportedLevels` y un
   `enforcementContract` ligado a su suite R27 (`kiritek/engineering/<control>@1.0.0`).
 - Momentos de enforcement: sólo `pr` y `release`. Agent y pre-commit siguen
   siendo warning (no hay ruta de bloqueo local).

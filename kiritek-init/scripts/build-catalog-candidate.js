@@ -3,7 +3,7 @@
 
 /**
  * Construye el candidato de catálogo 2.0.0 (T17.7) a partir del 1.0.0
- * publicado: los tres controles iniciales, los catorce nuevos (T18–T31) con
+ * publicado: los tres controles iniciales, los veinte nuevos (T18–T37) con
  * sus perfiles y schemas de parámetros, `enforce` soportado y
  * `enforcementContract` ligado a la suite R27 de cada control.
  * Reproducible: mismo input, mismo digest. Las notas (`notes/`) se
@@ -46,6 +46,8 @@ const NEW_PROFILES = [
   { id: "device-permissions", version: "1.0.0", description: "Pide permisos del dispositivo (cámara, ubicación, notificaciones…).", extends: [] },
   { id: "routed-app", version: "1.0.0", description: "Tiene rutas o enlaces profundos.", extends: [] },
   { id: "dialogs", version: "1.0.0", description: "Usa modales, menús o paneles laterales.", extends: [] },
+  { id: "http-api", version: "1.0.0", description: "Expone una API HTTP.", extends: [] },
+  { id: "backend-service", version: "1.0.0", description: "Servicio de backend con dependencias y ciclo de vida propio.", extends: [] },
 ];
 
 /** Controles nuevos (T18–T21): id, carpeta, perfil, parámetros y defaults. */
@@ -132,6 +134,15 @@ const NEW_CONTROLS = [
     ["nav.broken-routes", "nav-broken-routes", "routed-app", "routesContract"],
     ["ui.accessible-dialogs", "ui-accessible-dialogs", "dialogs", "dialogsContract"],
   ].map(([id, slug, profile, param]) => ({ id, slug, profile, properties: { [param]: { type: "string", minLength: 1, pattern: REPO_PATH }, maxEvidenceAgeHours: EVIDENCE_AGE }, defaults: { maxEvidenceAgeHours: 24 } })),
+  // Backend (T32–T37).
+  ...[
+    ["api.idempotency", "api-idempotency", "http-api", "idempotencyContract", {}, {}],
+    ["api.error-responses", "api-error-responses", "http-api", "errorsContract", {}, {}],
+    ["api.rate-limit", "api-rate-limit", "http-api", "rateLimitContract", {}, {}],
+    ["api.pagination", "api-pagination", "http-api", "paginationContract", { maxPageSizeLimit: { type: "integer", minimum: 1, maximum: 1000 } }, { maxPageSizeLimit: 500 }],
+    ["svc.dependency-failure", "svc-dependency-failure", "backend-service", "dependencyContract", { maxTimeoutMs: { type: "integer", minimum: 10, maximum: 120000 } }, { maxTimeoutMs: 10000 }],
+    ["svc.health-shutdown", "svc-health-shutdown", "backend-service", "healthContract", { maxGraceMs: { type: "integer", minimum: 100, maximum: 600000 } }, { maxGraceMs: 30000 }],
+  ].map(([id, slug, profile, param, props, defs]) => ({ id, slug, profile, properties: { [param]: { type: "string", minLength: 1, pattern: REPO_PATH }, ...props, maxEvidenceAgeHours: EVIDENCE_AGE }, defaults: { ...defs, maxEvidenceAgeHours: 24 } })),
 ];
 
 function newControl(template, c) {
