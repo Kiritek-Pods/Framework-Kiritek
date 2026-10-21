@@ -47,6 +47,24 @@ function jobEnv() {
   return { ...process.env, [key]: [path.dirname(process.execPath), process.env[key] || ""].join(path.delimiter) };
 }
 
+/**
+ * Diagnóstico de los tests que fallan (bloques YAML de TAP tras cada
+ * `not ok`). Sólo para el log del job: nunca se persiste en el resultado.
+ */
+function failureDiagnostics(text, maxLines = 60) {
+  const lines = text.split("\n");
+  const out = [];
+  for (let i = 0; i < lines.length && out.length < maxLines; i += 1) {
+    if (!/^\s*not ok \d+ - /.test(lines[i])) continue;
+    out.push(lines[i].trim());
+    for (let j = i + 1; j < lines.length && out.length < maxLines && !/^\s*(not )?ok \d+ - /.test(lines[j]); j += 1) {
+      if (/^\s*(---|\.\.\.|duration_ms:|type:)/.test(lines[j]) || /^\s*#/.test(lines[j])) continue;
+      out.push(lines[j].replace(/\s+$/, ""));
+    }
+  }
+  return out;
+}
+
 function runFile(file, root) {
   return new Promise((resolve) => {
     const child = spawn(process.execPath, ["--require", "./test/setup.js", "--test", "--test-reporter=tap", file], { cwd: root, env: jobEnv(), stdio: ["ignore", "pipe", "pipe"] });
@@ -60,7 +78,10 @@ function runFile(file, root) {
         r.fail = 1;
         r.failures.push("(el archivo terminó con error sin reportar tests)");
       }
-      resolve({ file, exit: code === null ? 1 : code, ...r });
+      const result = { file, exit: code === null ? 1 : code, ...r };
+      // No enumerable: el log del job lo muestra, el JSON del resultado no lo guarda.
+      if (r.fail) Object.defineProperty(result, "diagnostics", { value: failureDiagnostics(out), enumerable: false });
+      resolve(result);
     });
   });
 }
@@ -115,4 +136,4 @@ async function runJob({ suite, root = ROOT, now = () => new Date().toISOString()
   };
 }
 
-module.exports = { ROOT, SUITES, listTestFiles, parseTap, runFiles, runJob, gitRevision, gitDirty, totals };
+module.exports = { ROOT, SUITES, listTestFiles, parseTap, failureDiagnostics, runFiles, runJob, gitRevision, gitDirty, totals };
