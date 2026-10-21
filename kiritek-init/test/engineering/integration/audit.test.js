@@ -10,8 +10,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 
-process.env.GIT_CONFIG_NOSYSTEM = "1";
-process.env.GIT_CONFIG_GLOBAL = os.devNull;
+require("../helpers/git-isolation.js").isolateGit();
 
 const { CONFIG, git, write, makeRepo, runCli, config } = require("../helpers/surfaces-repo.js");
 const H = require("../helpers/catalogs.js");

@@ -8,8 +8,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 
-process.env.GIT_CONFIG_NOSYSTEM = "1";
-process.env.GIT_CONFIG_GLOBAL = os.devNull;
+require("../helpers/git-isolation.js").isolateGit();
 
 const T = require("../../../src/engineering/guardrails/telemetry/index.js");
 const { sweepArtifacts } = require("../../../src/engineering/guardrails/privacy/validate-output.js");
