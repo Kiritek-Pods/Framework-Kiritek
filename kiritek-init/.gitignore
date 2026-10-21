@@ -16,7 +16,7 @@ test/.acceptance-evidence/
 
 # Gate de release (T17): resultados por corrida. Se versiona sólo la
 # evidencia aprobada (release/evidence/<pack>-<versión>.gate.json).
-job-result/
-jobs/
-gate/
-release/evidence/latest.gate.json
+/job-result/
+/jobs/
+/gate/
+/release/evidence/latest.gate.json
