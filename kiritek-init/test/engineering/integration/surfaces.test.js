@@ -243,7 +243,7 @@ test("T14.6 release: artefacto candidato y unidad explícita; evidencia fresca d
 
 // --- T14.7 / T14.9 ----------------------------------------------------------------------------
 
-test("T14.7 audit declara cobertura por superficie y verificación real del hook Git", async () => {
+test("T14.7 audit declara cobertura por superficie y verificación real del hook Git", { skip: POSIX_ONLY }, async () => {
   const { repo } = makeRepo();
   try {
     const r = await runCli(["audit"], repo);
