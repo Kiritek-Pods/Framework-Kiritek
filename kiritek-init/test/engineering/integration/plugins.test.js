@@ -21,7 +21,8 @@ const P = require("../helpers/pipeline.js");
 
 const APPROVED = [`${SUITE}@1.0.0`];
 const tmpRepo = () => fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "kiritek-eng-plug-")));
-const clean = (d) => fs.rmSync(d, { recursive: true, force: true });
+// Reintentos: en Windows el proceso de un plugin colgado puede tardar en soltar su cwd (EBUSY).
+const clean = (d) => fs.rmSync(d, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 });
 
 function document(pins, { level = "warn", extraUnits = [] } = {}) {
   return {

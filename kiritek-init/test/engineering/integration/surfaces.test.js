@@ -12,8 +12,7 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 
 // Aislar de la config Git global/sistema del desarrollador (hooksPath, firma).
-process.env.GIT_CONFIG_NOSYSTEM = "1";
-process.env.GIT_CONFIG_GLOBAL = os.devNull;
+require("../helpers/git-isolation.js").isolateGit();
 
 const cli = require("../../../src/engineering/guardrails/cli.js");
 const gitAdapter = require("../../../src/engineering/guardrails/adapters/git.js");
