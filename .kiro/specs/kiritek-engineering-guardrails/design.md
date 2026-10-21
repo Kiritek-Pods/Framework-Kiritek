@@ -639,7 +639,7 @@ Retirar/pausar el anuncio modifica rollout sin retirar módulo y conserva histor
 
 ### 10.4 Controles del catálogo 2.0.0 (patrón común)
 
-Los veinticinco controles nuevos comparten un esqueleto (`controls/shared/`) para no reimplementar recolección ni decisión:
+Los treinta y dos controles nuevos comparten un esqueleto (`controls/shared/`) para no reimplementar recolección ni decisión:
 
 - **Contrato del equipo** (`contract-file.js`): JSON en una ruta contenida en el repo, validado contra su schema; ids duplicados lo invalidan. Del contrato sólo se extraen hechos mínimos (ids, enums, números, booleanos, fechas).
 - **Harness** (`harness-runner.js` + `harness.js` del control): el adapter del equipo corre en un proceso hijo con reloj virtual y transporte sintético; `trace-command` permite stacks no-JS con la misma traza estándar. La traza sólo lleva hechos derivados.
@@ -712,6 +712,13 @@ El adapter conecta el handler HTTP o el servidor real **en proceso** (`handle(re
 - `api.versioning`: por endpoint, sobre todas las versiones declaradas: `served`, `deprecation` (`Deprecation` y `Sunset` comparado por día), `unknown` (`v999`), `retired` y `compatible` (campos declarados, en el cuerpo o en el primer ítem).
 - `api.request-limits`: por endpoint con cuerpo, `within` (mitad del límite), `oversized` (doble, con `Content-Length`) y `chunked` (doble, sin él); siempre `slow` (`work` que sólo termina si se aborta su `signal`) y `fast` (termina a la mitad del timeout).
 - `api.http-cache`: dos usuarios sintéticos con registros propios en los recursos privados. Por recurso: `headers`, `validator`, `not-modified`, `changed` (el recurso cambia y se reenvía el validador viejo) y, en privados con ETag, `per-user`.
+- `api.response-schema`: valida cada respuesta real contra el schema del contrato con el validador del repo (subconjunto verificable, `$ref` locales) y cuenta campos no declarados. Los schemas viajan como texto JSON en los hechos del contrato.
+- `api.long-operations`: `work` termina a los 3 s virtuales, falla con un error interno canario o se cuelga hasta que se aborte su `signal`; el harness sigue `Location` cada segundo virtual: `accepted`, `completes`, `fails`, `stuck` y `unknown`.
+- `api.batch`: lotes de tres ítems con referencia; `store.save` y `store.transaction`. Por endpoint: `all-ok`, `invalid-item`, `apply-failure` (guardar `k-2` falla), `over-limit` y `empty`; las expectativas dependen del modo (`partial` o `atomic`).
+- `db.compatible-migrations`: el adapter entrega `[{ id, sql }]`; el clasificador (`sql.js`) quita comentarios y literales y cuenta por clase de cambio las sentencias posteriores al baseline, salvo tablas nuevas y contracciones respaldadas. La traza sólo lleva conteos.
+- `data.user-erasure`: almacenes sintéticos por id con filas de dos usuarios y datos canario; `store@<id>`, `others`, `reads`, `repeat` y `unknown`. Si el borrado sigue en segundo plano, el harness espera 60 s virtuales.
+- `svc.metrics`: lee la exposición Prometheus; la dependencia tarda 250 ms virtuales: `exposed`, `counted`, `errors`, `latency` y `cardinality` (5 ids distintos, token y email canario).
+- `svc.startup-config`: `startService({ env, logger, clock })` con entornos sintéticos: `valid`, `missing@`, `invalid@`, `optional@` y `secrets`. Negarse a arrancar es lanzar o rechazar dentro de 5 s virtuales.
 
 ## 11. Waivers y N/A gobernado
 

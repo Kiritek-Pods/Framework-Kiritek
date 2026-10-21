@@ -3,7 +3,7 @@
 
 /**
  * Construye el candidato de catálogo 2.0.0 (T17.7) a partir del 1.0.0
- * publicado: los tres controles iniciales, los veinticinco nuevos (T18–T42) con
+ * publicado: los tres controles iniciales, los treinta y dos nuevos (T18–T49) con
  * sus perfiles y schemas de parámetros, `enforce` soportado y
  * `enforcementContract` ligado a la suite R27 de cada control.
  * Reproducible: mismo input, mismo digest. Las notas (`notes/`) se
@@ -134,7 +134,7 @@ const NEW_CONTROLS = [
     ["nav.broken-routes", "nav-broken-routes", "routed-app", "routesContract"],
     ["ui.accessible-dialogs", "ui-accessible-dialogs", "dialogs", "dialogsContract"],
   ].map(([id, slug, profile, param]) => ({ id, slug, profile, properties: { [param]: { type: "string", minLength: 1, pattern: REPO_PATH }, maxEvidenceAgeHours: EVIDENCE_AGE }, defaults: { maxEvidenceAgeHours: 24 } })),
-  // Backend (T32–T42).
+  // Backend (T32–T49).
   ...[
     ["api.idempotency", "api-idempotency", "http-api", "idempotencyContract", {}, {}],
     ["api.error-responses", "api-error-responses", "http-api", "errorsContract", {}, {}],
@@ -147,6 +147,13 @@ const NEW_CONTROLS = [
     ["api.versioning", "api-versioning", "http-api", "versioningContract", {}, {}],
     ["api.request-limits", "api-request-limits", "http-api", "limitsContract", { maxBodyBytesLimit: { type: "integer", minimum: 256, maximum: 10485760 }, maxTimeoutMsLimit: { type: "integer", minimum: 10, maximum: 120000 } }, { maxBodyBytesLimit: 10485760, maxTimeoutMsLimit: 30000 }],
     ["api.http-cache", "api-http-cache", "http-api", "cacheContract", { maxAgeLimitSeconds: { type: "integer", minimum: 0, maximum: 31536000 } }, { maxAgeLimitSeconds: 31536000 }],
+    ["api.response-schema", "api-response-schema", "http-api", "responseSchemaContract", {}, {}],
+    ["api.long-operations", "api-long-operations", "http-api", "operationsContract", { maxDurationLimitMs: { type: "integer", minimum: 1000, maximum: 86400000 } }, { maxDurationLimitMs: 3600000 }],
+    ["api.batch", "api-batch", "http-api", "batchContract", { maxBatchItemsLimit: { type: "integer", minimum: 3, maximum: 10000 } }, { maxBatchItemsLimit: 1000 }],
+    ["db.compatible-migrations", "db-compatible-migrations", "backend-service", "migrationsContract", {}, {}],
+    ["data.user-erasure", "data-user-erasure", "backend-service", "erasureContract", {}, {}],
+    ["svc.metrics", "svc-metrics", "backend-service", "metricsContract", {}, {}],
+    ["svc.startup-config", "svc-startup-config", "backend-service", "startupConfigContract", {}, {}],
   ].map(([id, slug, profile, param, props, defs]) => ({ id, slug, profile, properties: { [param]: { type: "string", minLength: 1, pattern: REPO_PATH }, ...props, maxEvidenceAgeHours: EVIDENCE_AGE }, defaults: { ...defs, maxEvidenceAgeHours: 24 } })),
 ];
 

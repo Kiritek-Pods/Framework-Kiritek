@@ -18,10 +18,12 @@ completa (G1–G7, R27 y matriz de plataformas).
   `ui.accessible-dialogs` y, de backend, `api.idempotency`,
   `api.error-responses`, `api.rate-limit`, `api.pagination`,
   `api.concurrency`, `api.versioning`, `api.request-limits`,
-  `api.http-cache`, `svc.dependency-failure`, `svc.health-shutdown`,
-  `svc.log-hygiene`. Cada
+  `api.http-cache`, `api.response-schema`, `api.long-operations`,
+  `api.batch`, `svc.dependency-failure`, `svc.health-shutdown`,
+  `svc.log-hygiene`, `db.compatible-migrations`, `data.user-erasure`,
+  `svc.metrics`, `svc.startup-config`. Cada
   uno exige su perfil declarado y su contrato; sin contrato sólo avisa.
-- Los veintiocho controles declaran `enforce` en `supportedLevels` y un
+- Los treinta y cinco controles declaran `enforce` en `supportedLevels` y un
   `enforcementContract` ligado a su suite R27 (`kiritek/engineering/<control>@1.0.0`).
 - Momentos de enforcement: sólo `pr` y `release`. Agent y pre-commit siguen
   siendo warning (no hay ruta de bloqueo local).

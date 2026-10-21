@@ -10,7 +10,9 @@
 > `idempotency-confirmation`, `errors-confirmation`, `ratelimit-confirmation`,
 > `pagination-confirmation`, `dependency-confirmation`, `health-confirmation`,
 > `logs-confirmation`, `concurrency-confirmation`, `versioning-confirmation`,
-> `limits-confirmation`, `cache-confirmation`) sólo producen `warn` pidiendo evidencia verificable,
+> `limits-confirmation`, `cache-confirmation`, `schema-confirmation`,
+> `operations-confirmation`, `batch-confirmation`, `migrations-confirmation`,
+> `erasure-confirmation`, `metrics-confirmation`, `config-confirmation`) sólo producen `warn` pidiendo evidencia verificable,
 > en cualquier nivel. Sólo findings deterministas de contratos, manifests o
 > tests conductuales pueden llegar a bloquear, y sólo en `enforce`.
 
@@ -477,3 +479,102 @@ no una librería.
 | `stale-validator` | El validador debe cambiar cuando cambia el recurso: si no, el cliente se queda con datos viejos. |
 | `cross-user-validator` | El ETag de un recurso privado debe depender de su contenido para ese usuario: otro usuario no puede recibir 304 con el validador ajeno. |
 | `cache-confirmation` (heurística) | Declarar el contrato (`cacheContract`). |
+
+## `api.response-schema` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de schemas de respuesta (ruta, JSON, ids únicos y schema api-response-schema.contract). |
+| `contract-schema-unsupported` | El schema usa palabras clave que no se pueden verificar (oneOf, allOf, if, $ref externos…): reescríbalo con type, properties, required, items, enum, anyOf y $ref locales. |
+| `response-status` | El endpoint debe responder el código de éxito declarado. |
+| `schema-mismatch` | La respuesta real no cumple su schema (tipos, requeridos, enums o nulos no declarados): corrija la respuesta o el schema publicado. |
+| `undeclared-field` | La respuesta trae campos que el schema no declara: quítelos (pueden filtrar datos internos) o documéntelos. |
+| `error-status` | Un cuerpo inválido debe responder 4xx. |
+| `error-schema` | Las respuestas de error deben cumplir el errorSchema declarado. |
+| `schema-confirmation` (heurística) | Declarar el contrato (`responseSchemaContract`). |
+
+## `api.long-operations` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de operaciones largas (ruta, JSON, ids únicos y schema api-long-operations.contract). |
+| `contract-duration` | maxDurationMs supera parameters.maxDurationLimitMs. |
+| `not-async` | Una operación larga debe responder 202 enseguida y seguir en segundo plano, no hacer esperar al cliente. |
+| `status-location` | Responda 202 con la URL de estado en el header Location. |
+| `never-completes` | Cuando el trabajo termina, el estado debe pasar al valor final declarado (doneValue). |
+| `failure-not-reported` | Si el trabajo falla, el estado debe pasar a failedValue, no quedar 'en proceso' ni marcarse exitoso. |
+| `failure-leak` | El estado de una operación fallida no debe exponer detalles internos (stack, rutas, mensajes crudos). |
+| `stuck-forever` | Una operación que no termina debe marcarse fallida al vencer maxDurationMs. |
+| `not-cancelled` | Al vencer maxDurationMs cancele el trabajo (AbortSignal), no lo deje corriendo. |
+| `unknown-operation` | El estado de una operación inexistente debe responder 404. |
+| `operations-confirmation` (heurística) | Declarar el contrato (`operationsContract`). |
+
+## `api.batch` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de operaciones en lote (ruta, JSON, ids únicos y schema api-batch.contract). |
+| `contract-batch-size` | maxItems supera parameters.maxBatchItemsLimit. |
+| `batch-results` | Responda un resultado por ítem, en el mismo orden y con su referencia (refField). |
+| `batch-not-applied` | Un lote válido debe aplicar todos sus ítems. |
+| `silent-failure` | Informe qué ítem falló: en modo partial, un resultado con error para ese ítem; en modo atomic, una respuesta de error. |
+| `partial-lost` | En modo partial, un ítem malo no debe impedir aplicar los demás ni aplicarse a medias. |
+| `not-atomic` | En modo atomic, si un ítem falla no debe quedar ninguno aplicado (use una transacción). |
+| `batch-limit` | Un lote con más de maxItems ítems debe rechazarse con 4xx sin aplicar nada. |
+| `empty-batch` | Un lote vacío debe responder 2xx vacío o 4xx, nunca 5xx. |
+| `batch-confirmation` (heurística) | Declarar el contrato (`batchContract`). |
+
+## `db.compatible-migrations` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de migraciones (ruta, JSON, ids únicos y schema db-compatible-migrations.contract). |
+| `migrations-unreadable` | El adapter debe devolver las migraciones en orden como [{ id, sql }] e incluir el baseline declarado. |
+| `drop-column` | No borre columnas que el código desplegado todavía lee: deje de usarlas en un release y bórrelas en el siguiente (declárelo en contractPhase). |
+| `rename` | No renombre columnas ni tablas en un paso: agregue la nueva, escriba en ambas, migre los datos y quite la vieja después. |
+| `drop-table` | No borre tablas que el código desplegado todavía usa: hágalo en una migración de contracción posterior. |
+| `type-change` | No cambie el tipo de una columna en uso: agregue una columna nueva con el tipo correcto y migre. |
+| `not-null-without-default` | Una columna NOT NULL sin DEFAULT rompe los INSERT del código desplegado: agréguela con DEFAULT o nullable y ajústela después. |
+| `blocking-index` | En Postgres cree índices sobre tablas existentes con CREATE INDEX CONCURRENTLY, para no bloquear escrituras. |
+| `contract-without-expand` | Cada migración de contracción debe referir a su expansión (expandedBy), ya desplegada en o antes del baseline. |
+| `migrations-confirmation` (heurística) | Declarar el contrato (`migrationsContract`). |
+
+## `data.user-erasure` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de borrado (ruta, JSON, ids únicos y schema data-user-erasure.contract). |
+| `erasure-status` | El pedido de borrado debe responder 2xx (o 202 si sigue en segundo plano). |
+| `erasure-incomplete` | Borre o anonimice los datos del usuario en este almacén: no deben quedar su id, email, teléfono ni nombre (un borrado lógico con los datos intactos no cuenta). |
+| `collateral-deletion` | El borrado de un usuario no debe tocar los datos de otros. |
+| `erased-reappears` | Los datos borrados no deben reaparecer en listados ni exportaciones (cachés, índices de búsqueda, réplicas). |
+| `erasure-not-idempotent` | Repetir el borrado debe responder 2xx o 404, nunca 5xx. |
+| `erasure-unknown-user` | Borrar un usuario inexistente debe responder 404 (o 2xx) sin borrar nada. |
+| `erasure-confirmation` (heurística) | Declarar el contrato (`erasureContract`). |
+
+## `svc.metrics` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de métricas (ruta, JSON, ids únicos y schema svc-metrics.contract). |
+| `metrics-endpoint` | Exponga metricsPath en formato Prometheus, con el contador de requests (counter) y el histograma de duración (histogram) declarados. |
+| `request-count` | Cuente cada request en el contador declarado, con labels de ruta (la plantilla) y método. |
+| `error-count` | Cuente también las requests que fallan, con su código 5xx en el label de status. |
+| `latency-histogram` | Registre la duración de cada request en el histograma declarado (con bucket +Inf), medida con el reloj del servicio y en segundos. |
+| `high-cardinality` | Use la plantilla de la ruta (/users/:id) como label, nunca la URL concreta: cada id distinto crea una serie nueva. |
+| `pii-in-labels` | No ponga datos del usuario (ids, emails, tokens) en los labels de las métricas. |
+| `metrics-confirmation` (heurística) | Declarar el contrato (`metricsContract`). |
+
+## `svc.startup-config` (catálogo 2.0.0)
+
+| Regla | Remediación |
+|---|---|
+| `contract-invalid` | Corrija el contrato de configuración (ruta, JSON, nombres únicos y schema svc-startup-config.contract). |
+| `contract-enum-values` | Las variables de tipo enum deben declarar sus valores (values). |
+| `valid-config-rejected` | Con todas las variables válidas el servicio debe arrancar. |
+| `missing-not-detected` | Si falta una variable obligatoria, el servicio no debe arrancar (fail fast), en vez de fallar después en la primera request. |
+| `invalid-not-detected` | Valide el formato de cada variable al arrancar (URL, número, valores permitidos) y niéguese a arrancar si es inválida. |
+| `unhelpful-error` | El error de arranque debe nombrar la variable que falta o es inválida. |
+| `optional-required` | Una variable opcional no debe impedir el arranque: use su valor por defecto. |
+| `secret-in-config-error` | Los errores de configuración no deben mostrar valores de secretos (no imprima el entorno completo). |
+| `config-confirmation` (heurística) | Declarar el contrato (`startupConfigContract`). |

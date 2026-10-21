@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/db-compatible-migrations.contract.schema.json",
+  "title": "Contrato de migraciones compatibles (db.compatible-migrations)",
+  "description": "Dialecto SQL, última migración ya desplegada (baseline) y migraciones de contracción declaradas con su expansión.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "dialect"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "db.compatible-migrations" },
+    "dialect": { "type": "string", "enum": ["postgres", "mysql", "sqlite", "generic"] },
+    "baseline": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "contractPhase": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["migration", "expandedBy"],
+        "properties": {
+          "migration": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "expandedBy": { "type": "string", "minLength": 1, "maxLength": 200 }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

@@ -47,6 +47,13 @@ const PROFILES = {
   "api.versioning": ["http-api"],
   "api.request-limits": ["http-api"],
   "api.http-cache": ["http-api"],
+  "api.response-schema": ["http-api"],
+  "api.long-operations": ["http-api"],
+  "api.batch": ["http-api"],
+  "db.compatible-migrations": ["backend-service"],
+  "data.user-erasure": ["backend-service"],
+  "svc.metrics": ["backend-service"],
+  "svc.startup-config": ["backend-service"],
 };
 
 function obs(kind, facts, evidenceClass = "deterministic") {
@@ -205,6 +212,41 @@ const CASES = {
     params: { cacheContract: "apps/x/contract.json" },
     deterministic: [obs("cache-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
     heuristic: [obs("cache-contract", { declared: false, valid: false, errorCodes: [] }), obs("cache-signals", { signals: [{ signal: "HTTP_CACHE", path: "apps/x/products.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.response-schema": {
+    params: { responseSchemaContract: "apps/x/contract.json" },
+    deterministic: [obs("respschema-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("respschema-contract", { declared: false, valid: false, errorCodes: [] }), obs("respschema-signals", { signals: [{ signal: "API_SCHEMA", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.long-operations": {
+    params: { operationsContract: "apps/x/contract.json" },
+    deterministic: [obs("longops-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("longops-contract", { declared: false, valid: false, errorCodes: [] }), obs("longops-signals", { signals: [{ signal: "ASYNC_OPERATION", path: "apps/x/reports.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.batch": {
+    params: { batchContract: "apps/x/contract.json" },
+    deterministic: [obs("batch-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("batch-contract", { declared: false, valid: false, errorCodes: [] }), obs("batch-signals", { signals: [{ signal: "BATCH_ENDPOINT", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "db.compatible-migrations": {
+    params: { migrationsContract: "apps/x/contract.json" },
+    deterministic: [obs("migrations-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("migrations-contract", { declared: false, valid: false, errorCodes: [] }), obs("migrations-signals", { signals: [{ signal: "MIGRATIONS", path: "apps/x/migrations/003.sql" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "data.user-erasure": {
+    params: { erasureContract: "apps/x/contract.json" },
+    deterministic: [obs("erasure-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("erasure-contract", { declared: false, valid: false, errorCodes: [] }), obs("erasure-signals", { signals: [{ signal: "USER_ERASURE", path: "apps/x/account.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.metrics": {
+    params: { metricsContract: "apps/x/contract.json" },
+    deterministic: [obs("metrics-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("metrics-contract", { declared: false, valid: false, errorCodes: [] }), obs("metrics-signals", { signals: [{ signal: "METRICS", path: "apps/x/metrics.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.startup-config": {
+    params: { startupConfigContract: "apps/x/contract.json" },
+    deterministic: [obs("config-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("config-contract", { declared: false, valid: false, errorCodes: [] }), obs("config-signals", { signals: [{ signal: "ENV_CONFIG", path: "apps/x/config.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
   },
 };
 

@@ -34,6 +34,13 @@ function builtinControls() {
     "api.versioning": require("./api-versioning/index.js"),
     "api.request-limits": require("./api-request-limits/index.js"),
     "api.http-cache": require("./api-http-cache/index.js"),
+    "api.response-schema": require("./api-response-schema/index.js"),
+    "api.long-operations": require("./api-long-operations/index.js"),
+    "api.batch": require("./api-batch/index.js"),
+    "db.compatible-migrations": require("./db-compatible-migrations/index.js"),
+    "data.user-erasure": require("./data-user-erasure/index.js"),
+    "svc.metrics": require("./svc-metrics/index.js"),
+    "svc.startup-config": require("./svc-startup-config/index.js"),
   };
 }
 

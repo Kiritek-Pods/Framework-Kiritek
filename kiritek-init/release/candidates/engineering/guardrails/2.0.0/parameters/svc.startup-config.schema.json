@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Parámetros de svc.startup-config",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "startupConfigContract": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![/~])(?![A-Za-z]:)(?!(?:.*/)?\\.\\.(?:/|$))[^\\u0000\\\\]+$"
+    },
+    "maxEvidenceAgeHours": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 720
+    }
+  }
+}

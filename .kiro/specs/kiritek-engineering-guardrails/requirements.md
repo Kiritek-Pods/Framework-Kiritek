@@ -12,7 +12,7 @@ Los guardrails iniciales cubren:
 - políticas de versión mínima soportada para aplicaciones móviles;
 - anuncios explícitos y accesibles de módulos web nuevos.
 
-El catálogo 2.0.0 amplía la cobertura con veinticinco guardrails (requisitos 28–52), de interfaz y de backend:
+El catálogo 2.0.0 amplía la cobertura con treinta y dos guardrails (requisitos 28–59), de interfaz y de backend:
 
 - estados de carga, vacío y error en pantallas que cargan datos;
 - formularios con validación y errores accesibles;
@@ -31,7 +31,9 @@ El catálogo 2.0.0 amplía la cobertura con veinticinco guardrails (requisitos 2
 - APIs idempotentes, con errores consistentes, límites de uso y paginación acotada;
 - servicios que toleran dependencias caídas y se apagan sin cortar requests;
 - logs estructurados, correlacionados y sin datos personales ni secretos;
-- ediciones concurrentes que no se pisan, versiones de API que no rompen clientes, límites de tamaño y tiempo por request y caché HTTP explícita.
+- ediciones concurrentes que no se pisan, versiones de API que no rompen clientes, límites de tamaño y tiempo por request y caché HTTP explícita;
+- respuestas que cumplen su schema publicado, operaciones largas y en lote que informan su resultado;
+- migraciones compatibles con el código desplegado, borrado completo de los datos del usuario, métricas por ruta y configuración validada al arrancar.
 
 La definición integral de seguridad sigue siendo la autoridad para sus propios controles en `.kiro/specs/kiritek-init-integral-security/requirements.md` y `.kiro/specs/kiritek-init-integral-security/design.md`. Esta spec no la reemplaza ni modifica.
 
@@ -1093,6 +1095,120 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 
 52.5. **SI** sólo se detectan headers de caché sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
 
+### Requisito 53 — Control `api.response-schema`
+
+**Historia de usuario:** Como consumidor de una API, quiero que lo que la API responde coincida con lo que documenta.
+
+#### Criterios de aceptación
+
+53.1. **CUANDO** una unidad con perfil `http-api` declare endpoints con el JSON Schema de su respuesta, **EL CONTROL DEBERÁ** ejercitar el handler real y validar cada respuesta contra su schema.
+
+53.2. **CADA RESPUESTA DE ÉXITO DEBERÁ** tener el código declarado, cumplir su schema y no traer campos que el schema no declare.
+
+53.3. **CUANDO** se declare un cuerpo inválido y un schema de errores, **LA RESPUESTA DEBERÁ** ser 4xx y cumplir ese schema.
+
+53.4. **LOS SCHEMAS DEL CONTRATO DEBERÁN** usar sólo palabras clave verificables; una no verificable hace incoherente al contrato.
+
+53.5. **SI** sólo se detectan specs u objetos de schema sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 54 — Control `api.long-operations`
+
+**Historia de usuario:** Como consumidor de una API, quiero que una operación pesada no me haga esperar y siempre me diga cómo terminó.
+
+#### Criterios de aceptación
+
+54.1. **CUANDO** una unidad con perfil `http-api` declare operaciones largas con su ruta de estado y duración máxima, **EL CONTROL DEBERÁ** ejercitarlas con un trabajo sintético que termina, falla o se cuelga.
+
+54.2. **INICIAR LA OPERACIÓN DEBERÁ** responder 202 enseguida con la URL de estado en `Location`.
+
+54.3. **EL ESTADO DEBERÁ** llegar al valor final declarado cuando el trabajo termina, y al valor fallido, sin detalles internos, cuando falla.
+
+54.4. **UNA OPERACIÓN QUE NO TERMINA DEBERÁ** marcarse fallida al vencer su duración máxima y cancelar el trabajo.
+
+54.5. **EL ESTADO DE UNA OPERACIÓN INEXISTENTE DEBERÁ** responder 404.
+
+54.6. **SI** sólo se detectan colas o respuestas 202 sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 55 — Control `api.batch`
+
+**Historia de usuario:** Como consumidor de una API, quiero saber qué pasó con cada ítem de un lote.
+
+#### Criterios de aceptación
+
+55.1. **CUANDO** una unidad con perfil `http-api` declare endpoints de lote con su modo (`partial` o `atomic`), tope y ejemplos de ítem válido e inválido, **EL CONTROL DEBERÁ** ejercitarlos con un almacén sintético.
+
+55.2. **UN LOTE VÁLIDO DEBERÁ** aplicarse entero, con un resultado por ítem en orden y con su referencia.
+
+55.3. **EN MODO `partial`, UN ÍTEM QUE FALLA DEBERÁ** informarse sin impedir que se apliquen los demás; **EN MODO `atomic`** no deberá quedar ninguno aplicado.
+
+55.4. **UN LOTE POR ENCIMA DEL TOPE DEBERÁ** rechazarse con 4xx sin aplicar nada, y un lote vacío no deberá responder 5xx.
+
+55.5. **SI** sólo se detectan operaciones bulk sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 56 — Control `db.compatible-migrations`
+
+**Historia de usuario:** Como owner de un servicio, quiero que las migraciones no rompan al código que sigue corriendo durante el deploy.
+
+#### Criterios de aceptación
+
+56.1. **CUANDO** una unidad con perfil `backend-service` declare su dialecto SQL y su última migración desplegada, **EL CONTROL DEBERÁ** analizar el SQL de las migraciones posteriores que entrega el adapter.
+
+56.2. **LAS MIGRACIONES POSTERIORES AL BASELINE NO DEBERÁN** borrar ni renombrar columnas o tablas en uso, cambiar tipos, agregar `NOT NULL` sin `DEFAULT` ni, en Postgres, crear índices bloqueantes sobre tablas existentes.
+
+56.3. **LOS CAMBIOS SOBRE TABLAS CREADAS DESPUÉS DEL BASELINE** no deberán contarse como incompatibles.
+
+56.4. **UNA MIGRACIÓN DE CONTRACCIÓN DECLARADA** sólo quedará exenta si su expansión está en o antes del baseline.
+
+56.5. **SI** sólo se detectan archivos de migración sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 57 — Control `data.user-erasure`
+
+**Historia de usuario:** Como usuario, quiero que borrar mi cuenta borre mis datos de todos lados.
+
+#### Criterios de aceptación
+
+57.1. **CUANDO** una unidad con perfil `backend-service` declare su endpoint de borrado, los almacenes con datos del usuario y sus lecturas, **EL CONTROL DEBERÁ** ejercitar el servicio real con dos usuarios sintéticos con datos canario.
+
+57.2. **DESPUÉS DEL BORRADO NO DEBERÁ** quedar el id ni los datos personales del usuario en ningún almacén declarado.
+
+57.3. **EL BORRADO NO DEBERÁ** modificar datos de otros usuarios, y lo borrado no deberá reaparecer en las lecturas declaradas.
+
+57.4. **REPETIR EL BORRADO O BORRAR UN USUARIO INEXISTENTE NO DEBERÁ** responder 5xx ni borrar otros datos.
+
+57.5. **SI** sólo se detecta lógica de borrado sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 58 — Control `svc.metrics`
+
+**Historia de usuario:** Como owner de un servicio, quiero medir tráfico, errores y latencia por ruta sin romper el sistema de métricas.
+
+#### Criterios de aceptación
+
+58.1. **CUANDO** una unidad con perfil `backend-service` declare su ruta de métricas, nombres y endpoints, **EL CONTROL DEBERÁ** ejercitar el servicio real y leer la exposición Prometheus.
+
+58.2. **CADA REQUEST DEBERÁ** contarse con su ruta y método, y las fallidas con su código 5xx.
+
+58.3. **LA DURACIÓN DE CADA REQUEST DEBERÁ** registrarse en el histograma declarado, medida con el reloj del servicio.
+
+58.4. **LOS LABELS DEBERÁN** usar la plantilla de la ruta y no contener datos del usuario.
+
+58.5. **SI** sólo se detectan librerías de métricas sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 59 — Control `svc.startup-config`
+
+**Historia de usuario:** Como owner de un servicio, quiero que una configuración faltante o inválida se detecte al arrancar, no en producción.
+
+#### Criterios de aceptación
+
+59.1. **CUANDO** una unidad con perfil `backend-service` declare sus variables de entorno con tipo y obligatoriedad, **EL CONTROL DEBERÁ** arrancar el servicio real con entornos sintéticos.
+
+59.2. **CON TODAS LAS VARIABLES VÁLIDAS EL SERVICIO DEBERÁ** arrancar, y sin una opcional también.
+
+59.3. **SI FALTA UNA VARIABLE OBLIGATORIA O TIENE UN FORMATO INVÁLIDO, EL SERVICIO DEBERÁ** negarse a arrancar con un error que la nombre.
+
+59.4. **LOS ERRORES DE CONFIGURACIÓN NO DEBERÁN** contener valores de secretos.
+
+59.5. **SI** sólo se detectan lecturas del entorno sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
 ## 7. Matriz mínima de aplicabilidad
 
 | Control | Perfil requerido | Momentos mínimos | Evidencia apta para `deny` | Heurística permitida |
@@ -1125,6 +1241,13 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 | `api.versioning` | `http-api` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de versiones servidas, avisos de deprecación, versiones desconocidas o retiradas o campos quitados | Detección de rutas versionadas |
 | `api.request-limits` | `http-api` | PR, release | Contrato inválido o con límites excesivos, o escenarios fallidos de cuerpo excedido, timeout o cancelación | Detección de parsers y timeouts |
 | `api.http-cache` | `http-api` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de Cache-Control, validadores, 304 o aislamiento entre usuarios | Detección de headers de caché |
+| `api.response-schema` | `http-api` | PR, release | Contrato inválido o con schemas no verificables, o respuestas que no cumplen su schema | Detección de specs y schemas |
+| `api.long-operations` | `http-api` | PR, release | Contrato inválido o con duraciones excesivas, o escenarios fallidos de 202, estado final, falla, timeout o inexistente | Detección de colas y respuestas 202 |
+| `api.batch` | `http-api` | PR, release | Contrato inválido o con topes excesivos, o escenarios fallidos de resultados por ítem, falla parcial o todo-o-nada, tope o lote vacío | Detección de operaciones bulk |
+| `db.compatible-migrations` | `backend-service` | PR, release | Contrato inválido, migraciones ilegibles o cambios incompatibles posteriores al baseline | Detección de archivos de migración |
+| `data.user-erasure` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de rastros, daño colateral, reaparición o errores al repetir | Detección de lógica de borrado |
+| `svc.metrics` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de exposición, conteo, errores, latencia o labels | Detección de librerías de métricas |
+| `svc.startup-config` | `backend-service` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de arranque válido, rechazo temprano, error útil, opcionales o secretos | Detección de lecturas del entorno |
 
 La tabla define mínimos; el catálogo podrá ampliar momentos o evidencia sin contradecir la regla de que las heurísticas nunca bloquean.
 

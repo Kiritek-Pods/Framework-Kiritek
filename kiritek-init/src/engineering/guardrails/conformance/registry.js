@@ -45,6 +45,13 @@ const SUITES = Object.freeze({
   "api.versioning": { id: "kiritek/engineering/api-versioning", version: "1.0.0", slug: "api-versioning", catalog: "2.0.0" },
   "api.request-limits": { id: "kiritek/engineering/api-request-limits", version: "1.0.0", slug: "api-request-limits", catalog: "2.0.0" },
   "api.http-cache": { id: "kiritek/engineering/api-http-cache", version: "1.0.0", slug: "api-http-cache", catalog: "2.0.0" },
+  "api.response-schema": { id: "kiritek/engineering/api-response-schema", version: "1.0.0", slug: "api-response-schema", catalog: "2.0.0" },
+  "api.long-operations": { id: "kiritek/engineering/api-long-operations", version: "1.0.0", slug: "api-long-operations", catalog: "2.0.0" },
+  "api.batch": { id: "kiritek/engineering/api-batch", version: "1.0.0", slug: "api-batch", catalog: "2.0.0" },
+  "db.compatible-migrations": { id: "kiritek/engineering/db-compatible-migrations", version: "1.0.0", slug: "db-compatible-migrations", catalog: "2.0.0" },
+  "data.user-erasure": { id: "kiritek/engineering/data-user-erasure", version: "1.0.0", slug: "data-user-erasure", catalog: "2.0.0" },
+  "svc.metrics": { id: "kiritek/engineering/svc-metrics", version: "1.0.0", slug: "svc-metrics", catalog: "2.0.0" },
+  "svc.startup-config": { id: "kiritek/engineering/svc-startup-config", version: "1.0.0", slug: "svc-startup-config", catalog: "2.0.0" },
 });
 
 const APPROVED_FILE = path.join(__dirname, "approved.json");

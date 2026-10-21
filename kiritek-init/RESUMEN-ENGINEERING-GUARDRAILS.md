@@ -1,30 +1,30 @@
 # Engineering Guardrails: qué se hizo
 
-Resumen del trabajo sobre la spec `kiritek-engineering-guardrails`, en `kiritek-init`. Al 16 de octubre de 2026 están terminadas las fases 1 a 15 y 17 a 41. La fase 16 (la revisión final antes de publicar) está construida, pero todavía no aprueba el pack.
+Resumen del trabajo sobre la spec `kiritek-engineering-guardrails`, en `kiritek-init`. Al 16 de octubre de 2026 están terminadas las fases 1 a 15 y 17 a 48. La fase 16 (la revisión final antes de publicar) está construida, pero todavía no aprueba el pack.
 
 ---
 
 ## En una frase
 
-Construimos un sistema que revisa automáticamente, en cada cambio de código, veintiocho buenas prácticas de producto, de interfaz y de backend. Por ahora sólo avisa. Más adelante podrá bloquear, pero únicamente cuando la prueba sea objetiva y alguien lo active a propósito.
+Construimos un sistema que revisa automáticamente, en cada cambio de código, treinta y cinco buenas prácticas de producto, de interfaz y de backend. Por ahora sólo avisa. Más adelante podrá bloquear, pero únicamente cuando la prueba sea objetiva y alguien lo active a propósito.
 
 ## El trabajo en números
 
 | | Cantidad |
 |---|---|
-| Buenas prácticas revisadas | 28 (17 de interfaz y 11 de backend) |
-| Fases | 41 (más de 200 subtareas de la spec) |
-| Código del pack | ~33.000 líneas |
-| Tests del pack | 82 archivos, ~10.400 líneas |
-| Tests del repo completo | 1416 |
-| Casos de las suites de conformidad | 396 (entre 11 y 18 por práctica) |
+| Buenas prácticas revisadas | 35 (17 de interfaz y 18 de backend) |
+| Fases | 48 (más de 230 subtareas de la spec) |
+| Código del pack | ~38.000 líneas |
+| Tests del pack | 96 archivos, ~11.000 líneas |
+| Tests del repo completo | 1496 |
+| Casos de las suites de conformidad | 500 (entre 11 y 18 por práctica) |
 | Casos de prueba con datos al azar | más de 10.000 por corrida |
 | Documentación para usuarios | 12 documentos |
-| Formatos de datos validados | 28 |
+| Formatos de datos validados | 35 |
 | Lugares donde corre | 5: agente Kiro, agente Claude, antes del commit, PR y release |
 | Plataformas | macOS, Linux y Windows; Node 18, 20 y 22 |
 
-## Las veintiocho buenas prácticas que revisa
+## Las treinta y cinco buenas prácticas que revisa
 
 ### De interfaz (web y móvil)
 
@@ -63,8 +63,15 @@ Construimos un sistema que revisa automáticamente, en cada cambio de código, v
 | **Versionado de la API** | que las versiones viejas sigan funcionando, avisen antes de retirarse y no pierdan campos | una app vieja deja de funcionar de un día para otro porque se renombró un campo o se quitó la versión |
 | **Límites de tamaño y tiempo** | que un pedido gigante o una dependencia lenta no tumben el servicio | acepta un cuerpo de 1 GB, una consulta lenta deja la request colgada o el trabajo sigue corriendo después de responder |
 | **Caché HTTP** | que quede explícito qué se cachea, que lo privado nunca quede en una caché compartida y que no se sirvan datos viejos | el carrito de un usuario cacheado como público, sin 304 (todo se descarga de nuevo) o un ETag que no cambia y deja datos viejos |
+| **Respuestas según su schema** | que lo que la API responde coincida con lo que documenta | un monto que llega como texto, un campo "obligatorio" que falta o un costo interno que se filtra sin estar documentado |
+| **Operaciones largas** | que un proceso pesado responda enseguida "recibido", se pueda consultar y siempre diga cómo terminó | el cliente esperando minutos, un reporte "en proceso" para siempre o una falla que aparece como éxito |
+| **Operaciones en lote** | que un lote diga qué pasó con cada ítem y no quede aplicado a medias | un ítem malo frena todo el lote, el error se esconde o la mitad del lote queda guardada en modo "todo o nada" |
+| **Migraciones compatibles** | que un cambio de base de datos no rompa la versión que sigue corriendo durante el deploy | borrar o renombrar una columna en uso, agregar un campo obligatorio sin valor por defecto o un índice que bloquea la tabla |
+| **Borrado de datos del usuario** | que "borrar mi cuenta" borre o anonimice sus datos en todos lados | quedan sus órdenes con el email, un borrado "lógico" que guarda todo, o el usuario reaparece en un listado |
+| **Métricas del servicio** | que se mida tráfico, errores y latencia por ruta sin volver inmanejable el sistema de métricas | errores sin contar, latencia mal medida o una serie nueva por cada id de usuario |
+| **Configuración al arrancar** | que una variable de entorno faltante o inválida se detecte al arrancar, con un error claro y sin secretos | el servicio arranca "bien" y falla en la primera request, un error que no dice qué falta o que imprime las claves |
 
-Las tres primeras vienen desde el catálogo 1.0.0. Las otras veinticinco llegan con el catálogo 2.0.0 y sólo se revisan en las partes del repo que declaren el perfil correspondiente.
+Las tres primeras vienen desde el catálogo 1.0.0. Las otras treinta y dos llegan con el catálogo 2.0.0 y sólo se revisan en las partes del repo que declaren el perfil correspondiente.
 
 No exige usar ninguna librería ni framework en particular. Revisa **cómo se comporta** el producto, no cómo está escrito.
 
@@ -77,11 +84,11 @@ No exige usar ninguna librería ni framework en particular. Revisa **cómo se co
 - **Privacidad.** Nunca guarda código, búsquedas de usuarios, prompts ni datos personales.
 - **Todo es reversible.** Instalar, actualizar, activar el bloqueo, volver atrás y desinstalar tienen respaldo y marcha atrás.
 
-## Veintiocho prácticas, una plataforma para todas
+## Treinta y cinco prácticas, una plataforma para todas
 
 Es como un sistema de alarmas de un edificio: la central, el cableado, los avisos y el registro de quién la activa son lo grande; los sensores se enchufan.
 
-- **Los sensores** son las veintiocho prácticas.
+- **Los sensores** son las treinta y cinco prácticas.
 - **La central** es todo lo demás:
   - correr la revisión en el editor, en el commit, en el PR y en el release;
   - decidir si avisa o bloquea;
@@ -306,23 +313,43 @@ Por eso las últimas veintiún prácticas salieron mucho más rápido que las tr
 - Un solo pedido gigante, o una base lenta, puede dejar sin memoria o sin conexiones a todo el servicio.
 - Una caché mal configurada puede mostrarle a una persona los datos de otra, y es de los errores más difíciles de ver en pruebas.
 
+### Fases 42 a 48: siete buenas prácticas más de backend
+**Qué:** tres más del contrato de la API y cuatro de operación del servicio. La de migraciones no ejecuta nada: el adapter entrega el SQL de las migraciones (de los archivos o de la herramienta del equipo) y el control lo analiza.
+
+| Práctica | Escenarios que prueba | Ejemplos malos que detecta |
+|---|---|---|
+| Respuestas según su schema | respuesta de éxito y respuesta de error, contra el schema publicado | 8 (tipo distinto, falta requerido, valor fuera de lista, nulo no declarado, campo interno expuesto, código distinto, error en texto plano, error con 500) |
+| Operaciones largas | 5 por operación (recibida, termina, falla, se cuelga, inexistente) | 9 (cliente esperando, sin URL de estado, nunca termina, falla como éxito, error interno expuesto, en proceso para siempre, sin cancelar, inexistente con 200 o 500) |
+| Operaciones en lote | 5 por endpoint (todo bien, ítem inválido, falla al guardar, sobre el tope, vacío), según el modo parcial o todo-o-nada | 9 (se detiene en el error, oculta el error, un error tira todo, resultados desordenados, sin tope, vacío con 500, todo-o-nada sin transacción…) |
+| Migraciones compatibles | todas las migraciones nuevas desde la última desplegada | 7 (borrar columna, renombrar, borrar tabla, cambiar tipo, NOT NULL sin default, índice bloqueante, contracción sin expansión previa) |
+| Borrado de datos del usuario | uno por almacén, más otros usuarios intactos, lecturas, repetir e inexistente | 8 (olvida un almacén, borrado lógico, anonimiza a medias, borra datos ajenos, reaparece por caché, repetir o inexistente con 500…) |
+| Métricas del servicio | exposición, conteo, errores, latencia y cardinalidad por endpoint | 7 (sin métricas, URL concreta como label, errores sin contar, status siempre 200, sin histograma, reloj equivocado, email como label) |
+| Configuración al arrancar | arranque válido, una por variable faltante, inválida u opcional, y secretos | 5 (falla recién en la primera request, sin validar formato, error que no dice cuál, imprime el entorno, exige una opcional) |
+
+**Por qué importa:**
+- La documentación de una API que miente es peor que no tenerla: los clientes se integran contra algo que no existe.
+- "Borrar mi cuenta" es una obligación legal en muchos países; un borrado incompleto es un incumplimiento aunque el usuario no lo vea.
+- Las migraciones incompatibles son la causa más común de caídas durante un deploy "que no tocaba nada".
+- Sin métricas por ruta no se sabe qué está lento ni qué falla; con una serie por usuario, el sistema de métricas se cae.
+- Una variable mal puesta que se detecta al arrancar frena el deploy; detectada en producción, es un incidente.
+
 ---
 
 ## Dónde estamos hoy
 
 | | |
 |---|---|
-| Fases terminadas | 1 a 15 y 17 a 41 |
+| Fases terminadas | 1 a 15 y 17 a 48 |
 | Fase 16 | construida; su revisión final da **bloqueado** |
-| Prácticas | 28 (17 de interfaz y 11 de backend), todas con su suite de conformidad en verde |
+| Prácticas | 35 (17 de interfaz y 18 de backend), todas con su suite de conformidad en verde |
 | Modo actual | **sólo avisa**; ningún control puede bloquear |
-| Tests del repo | 1416 en total; 1414 pasan |
+| Tests del repo | 1496 en total; 1494 pasan |
 
 ### Por qué la revisión final todavía no aprueba
 
 1. **Falta correr CI en Linux y Windows.** Hasta ahora sólo se probó en una Mac. Se resuelve con un push de la rama.
 2. **Un test del pack de seguridad falla por la fecha** (el test 37.3). Usa una fecha fija que ya venció. No es de este pack, pero la revisión exige que *toda* la suite esté en verde, y hay otro test que falla por arrastre.
-3. **Hay que hacer commit.** Las fases 38 a 41 están sin commitear; lo anterior ya está en git.
+3. **Hay que hacer commit.** Las fases 42 a 48 están sin commitear; lo anterior ya está en git.
 
 La revisión hace lo que tiene que hacer: no aprueba algo que no está demostrado.
 
@@ -331,12 +358,13 @@ La revisión hace lo que tiene que hacer: no aprueba algo que no está demostrad
 1. Commit de todo el trabajo.
 2. Decidir quién arregla el test de seguridad: su dueño, o nosotros con su visto bueno (el arreglo es chico).
 3. Push, para que CI corra en todas las plataformas.
-4. Con todo en verde, aprobar con `node scripts/release-gate.js --approve`. A partir de ahí el catálogo 2.0.0 (con las veintiocho prácticas) queda publicado y los equipos pueden activar el bloqueo control por control.
+4. Con todo en verde, aprobar con `node scripts/release-gate.js --approve`. A partir de ahí el catálogo 2.0.0 (con las treinta y cinco prácticas) queda publicado y los equipos pueden activar el bloqueo control por control.
 
 ### Cosas menores pendientes
 
 - Faltan comandos para validar waivers y "no aplica" por separado (hoy se validan al correr la revisión).
 - La spec menciona criterios globales G1 a G7 sin definirlos en ningún lado. Los deduje del plan de tareas y conviene confirmarlos.
+- Los ejemplos de cuerpo que declara cada equipo en sus contratos (`sampleBody`, `sampleItem`) no pueden usar claves que la capa de privacidad prohíbe (como `query` o `payload`): el control fallaría con error en vez de evaluar. Conviene pasarlos como texto, como ya se hace con los schemas.
 
 ---
 
@@ -348,7 +376,7 @@ La revisión hace lo que tiene que hacer: no aprueba algo que no está demostrad
 | Código del pack | `kiritek-init/src/engineering/guardrails/` |
 | Documentación para usuarios | `kiritek-init/docs/engineering/` |
 | Catálogo publicado (1.0.0) | `kiritek-init/catalogs/engineering/guardrails/` |
-| Catálogo en espera (2.0.0, veintiocho prácticas) | `kiritek-init/release/candidates/` |
+| Catálogo en espera (2.0.0, treinta y cinco prácticas) | `kiritek-init/release/candidates/` |
 | Documentación de cada práctica | `kiritek-init/docs/engineering/controls/` |
 | Revisión final | `kiritek-init/scripts/release-gate.js` y `kiritek-init/release/gate/` |
 | CI | `.github/workflows/kiritek-init-ci.yml` |

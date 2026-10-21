@@ -90,6 +90,13 @@ unidades dependientes (nunca las omite en silencio).
 | [`api.versioning`](controls/api-versioning.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `versioningContract` |
 | [`api.request-limits`](controls/api-request-limits.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `limitsContract` |
 | [`api.http-cache`](controls/api-http-cache.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `cacheContract` |
+| [`api.response-schema`](controls/api-response-schema.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `responseSchemaContract` |
+| [`api.long-operations`](controls/api-long-operations.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `operationsContract` |
+| [`api.batch`](controls/api-batch.md) (2.0.0) | `http-api` | agent, pre-commit, pr, release | `batchContract` |
+| [`db.compatible-migrations`](controls/db-compatible-migrations.md) (2.0.0) | `backend-service` | agent, pre-commit, pr, release | `migrationsContract` |
+| [`data.user-erasure`](controls/data-user-erasure.md) (2.0.0) | `backend-service` | agent, pre-commit, pr, release | `erasureContract` |
+| [`svc.metrics`](controls/svc-metrics.md) (2.0.0) | `backend-service` | agent, pre-commit, pr, release | `metricsContract` |
+| [`svc.startup-config`](controls/svc-startup-config.md) (2.0.0) | `backend-service` | agent, pre-commit, pr, release | `startupConfigContract` |
 
 Niveles: `off` (no evalúa; no es "conforme"), `warn` (avisa), `enforce` (puede
 bloquear sólo lo determinista elegible). `enforce` exige que el catálogo lo
