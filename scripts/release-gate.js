@@ -55,7 +55,10 @@ function writeJson(file, value) {
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
-const progress = (f) => log(`${f.fail || f.exit ? "✗" : "✓"} ${f.file} (${f.pass}/${f.tests}${f.skipped ? `, ${f.skipped} skip` : ""})`);
+const progress = (f) => {
+  log(`${f.fail || f.exit ? "✗" : "✓"} ${f.file} (${f.pass}/${f.tests}${f.skipped ? `, ${f.skipped} skip` : ""})`);
+  if (process.env.CI && f.diagnostics) for (const line of f.diagnostics) log(`    ${line}`);
+};
 
 async function main() {
   if (has("--approve")) {

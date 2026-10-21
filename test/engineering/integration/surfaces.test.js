@@ -12,8 +12,7 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 
 // Aislar de la config Git global/sistema del desarrollador (hooksPath, firma).
-process.env.GIT_CONFIG_NOSYSTEM = "1";
-process.env.GIT_CONFIG_GLOBAL = os.devNull;
+require("../helpers/git-isolation.js").isolateGit();
 
 const cli = require("../../../src/engineering/guardrails/cli.js");
 const gitAdapter = require("../../../src/engineering/guardrails/adapters/git.js");
@@ -244,7 +243,7 @@ test("T14.6 release: artefacto candidato y unidad explícita; evidencia fresca d
 
 // --- T14.7 / T14.9 ----------------------------------------------------------------------------
 
-test("T14.7 audit declara cobertura por superficie y verificación real del hook Git", async () => {
+test("T14.7 audit declara cobertura por superficie y verificación real del hook Git", { skip: POSIX_ONLY }, async () => {
   const { repo } = makeRepo();
   try {
     const r = await runCli(["audit"], repo);

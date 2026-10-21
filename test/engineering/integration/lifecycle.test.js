@@ -11,8 +11,7 @@ const os = require("node:os");
 const path = require("node:path");
 const crypto = require("node:crypto");
 
-process.env.GIT_CONFIG_NOSYSTEM = "1";
-process.env.GIT_CONFIG_GLOBAL = os.devNull;
+require("../helpers/git-isolation.js").isolateGit();
 
 const { CONFIG, git, write, makeRepo, runCli } = require("../helpers/surfaces-repo.js");
 const H = require("../helpers/catalogs.js");

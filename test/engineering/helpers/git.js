@@ -5,6 +5,7 @@ const { spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
+const { EMPTY_GIT_CONFIG } = require("./git-isolation.js");
 
 const BASE_ARGS = ["-c", "core.hooksPath=/dev/null", "-c", "commit.gpgsign=false", "-c", "init.defaultBranch=main", "-c", "user.name=Test", "-c", "user.email=test@example.invalid", "-c", "core.autocrlf=false"];
 
@@ -12,7 +13,7 @@ function git(cwd, ...args) {
   const res = spawnSync("git", [...BASE_ARGS, ...args], {
     cwd,
     encoding: "utf8",
-    env: { ...process.env, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: os.devNull },
+    env: { ...process.env, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: EMPTY_GIT_CONFIG },
   });
   if (res.status !== 0) throw new Error(`git ${args.join(" ")} falló: ${res.stderr}`);
   return res.stdout.trim();
