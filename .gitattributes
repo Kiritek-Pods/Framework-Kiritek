@@ -1,2 +1,13 @@
+# Finales de línea LF en todas las plataformas. Los digests de catálogos,
+# candidatos, suites R27 y evidencia se calculan sobre los bytes: un checkout
+# con CRLF (core.autocrlf=true, el default de Git en Windows) los invalidaría.
+* text=auto eol=lf
+
 # Catálogos direccionados por digest: los bytes no deben cambiar con autocrlf.
 catalogs/** -text
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.tgz binary
