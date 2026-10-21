@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Parámetros de web.module-announcement",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "launchManifest": { "type": "string", "minLength": 1, "pattern": "^(?![/~])(?![A-Za-z]:)(?!(?:.*/)?\\.\\.(?:/|$))[^\\u0000\\\\]+$" },
+    "supportedChannels": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "enum": ["in-app", "release-notes", "banner", "email"] }
+    },
+    "accessibilityStandard": { "type": "string", "enum": ["WCAG-2.1-AA", "WCAG-2.2-AA"] },
+    "maxEvidenceAgeHours": { "type": "integer", "minimum": 1, "maximum": 720 }
+  }
+}

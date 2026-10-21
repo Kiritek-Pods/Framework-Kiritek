@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Kiritek Security - write guard",
+      "trigger": "PreToolUse",
+      "matcher": "fs_write|write|str_replace",
+      "action": {
+        "type": "command",
+        "command": "sh \"${CWD:-.}/.kiritek/adapters/kiro/pretooluse.sh\""
+      }
+    }
+  ]
+}

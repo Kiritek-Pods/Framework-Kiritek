@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "controlId": "secrets.gitleaks",
+  "scopeFingerprint": "test/fixtures/sample.txt:generic:3",
+  "reason": "Fixture de prueba no funcional, revisado.",
+  "owner": "equipo-seguridad",
+  "ticket": "SEC-100",
+  "approver": "lead-seguridad",
+  "createdAt": "2026-10-01T12:00:00.000Z",
+  "expiresAt": "2026-10-15T12:00:00.000Z"
+}

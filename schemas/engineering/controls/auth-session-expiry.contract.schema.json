@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/auth-session-expiry.contract.schema.json",
+  "title": "Contrato de sesión (auth.session-expiry)",
+  "description": "Cómo reacciona la app cuando la sesión expira: renovación de token o login directo, y si debe conservar el trabajo en curso.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "session"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "auth.session-expiry" },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["refresh", "preserveWork"],
+      "properties": {
+        "refresh": { "type": "string", "enum": ["token-refresh", "none"] },
+        "preserveWork": { "type": "string", "enum": ["required", "not-applicable"] }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

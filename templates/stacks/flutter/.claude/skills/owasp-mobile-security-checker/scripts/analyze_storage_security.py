@@ -14,6 +14,9 @@ import json
 from pathlib import Path
 from typing import List, Dict
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from redact import safe_findings, RedactionError  # noqa: E402
+
 
 def scan_shared_preferences_usage(file_path: Path) -> List[Dict]:
     """Scan for insecure SharedPreferences usage."""
@@ -208,6 +211,13 @@ def main():
     print(f"OWASP M9: Analyzing data storage security in {project_root}\n")
 
     results = scan_project(project_root)
+
+    # Mandatory redaction (12.3, G.12): the `code` field holds raw source lines.
+    try:
+        results['findings'] = safe_findings(results['findings'])
+    except RedactionError as e:
+        print(f"ERROR: redaction failed, aborting output: {e}", file=sys.stderr)
+        sys.exit(3)
 
     print(f"\n{'='*60}")
     print("Storage Security Scan Results:")

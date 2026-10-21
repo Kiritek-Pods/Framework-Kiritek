@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 2,
+  "domain": "engineering",
+  "packId": "engineering/guardrails",
+  "catalog": {
+    "id": "engineering/guardrails",
+    "version": "1.0.0",
+    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "control": {
+    "id": "search.input-rate",
+    "version": "1.0.0",
+    "contractVersion": "1.0.0"
+  },
+  "unit": {
+    "id": "acme/docs-site",
+    "rootHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  },
+  "profiles": [],
+  "moment": "pr",
+  "level": "warn",
+  "state": "not_applicable",
+  "revision": "0123456789abcdef0123456789abcdef01234567",
+  "scopeHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "configHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "applicability": {
+    "status": "not_applicable",
+    "confidence": "deterministic",
+    "reasons": [
+      {
+        "code": "PROFILE_NOT_DECLARED",
+        "message": "La unidad no declara el perfil 'search'."
+      }
+    ],
+    "sources": [],
+    "unitId": "acme/docs-site",
+    "controlId": "search.input-rate",
+    "profileRefs": [],
+    "moment": "pr",
+    "scopeHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "confidence": "deterministic",
+  "evidenceClass": "none",
+  "evidenceFreshness": "missing",
+  "evidenceCompleteness": "none",
+  "evidence": null,
+  "provenance": {
+    "level": {
+      "sourceKind": "catalog",
+      "sourceRef": "engineering/guardrails@1.0.0"
+    }
+  },
+  "result": null,
+  "findingEvidence": [],
+  "suppressed": [],
+  "diagnostics": [
+    {
+      "code": "PROFILE_NOT_DECLARED",
+      "message": "Control no aplicable: perfil 'search' no declarado."
+    }
+  ],
+  "durationMs": 0,
+  "cache": "bypass",
+  "blockingEligible": false
+}

@@ -1,0 +1,335 @@
+"use strict";
+
+/**
+ * Self-checks sintéticos de la auditoría profunda (T15.3, R19.6).
+ *
+ * Sin producto ni datos reales: cada control builtin evalúa observaciones
+ * fabricadas y el resultado pasa por el contrato de envelope en `enforce`:
+ *  - un fallo determinista debe ser ELEGIBLE para bloquear;
+ *  - una señal heurística nunca: un deny heurístico se rechaza con
+ *    DENY_NOT_ELIGIBLE;
+ *  - la publicación detecta un canario sintético (REDACTION_FAILED).
+ */
+
+const { createResultEnvelope } = require("../contracts/result-envelope.js");
+const { assertNoLeaks } = require("../privacy/validate-output.js");
+
+const H = (ch) => `sha256:${ch.repeat(64)}`;
+const REV = "0123456789abcdef0123456789abcdef01234567";
+const NOW = "2026-01-01T00:00:00.000Z";
+const CANARY = "KCANARY-selfcheck-5e1f";
+const PROFILES = {
+  "search.input-rate": ["search"],
+  "app.minimum-supported-version": ["mobile-app"],
+  "web.module-announcement": ["web", "module-launch"],
+  "ui.data-states": ["data-views"],
+  "ui.form-validation": ["forms"],
+  "net.resilient-requests": ["network-client"],
+  "flags.lifecycle": ["feature-flags"],
+  "auth.session-expiry": ["auth-session"],
+  "ui.file-upload": ["file-upload"],
+  "ui.pagination": ["paginated-lists"],
+  "analytics.events": ["analytics"],
+  "ui.destructive-actions": ["destructive-actions"],
+  "i18n.formatting": ["localized"],
+  "app.offline-mode": ["offline-capable"],
+  "app.device-permissions": ["device-permissions"],
+  "nav.broken-routes": ["routed-app"],
+  "ui.accessible-dialogs": ["dialogs"],
+  "api.idempotency": ["http-api"],
+  "api.error-responses": ["http-api"],
+  "api.rate-limit": ["http-api"],
+  "api.pagination": ["http-api"],
+  "svc.dependency-failure": ["backend-service"],
+  "svc.health-shutdown": ["backend-service"],
+  "svc.log-hygiene": ["backend-service"],
+  "api.concurrency": ["http-api"],
+  "api.versioning": ["http-api"],
+  "api.request-limits": ["http-api"],
+  "api.http-cache": ["http-api"],
+  "api.response-schema": ["http-api"],
+  "api.long-operations": ["http-api"],
+  "api.batch": ["http-api"],
+  "db.compatible-migrations": ["backend-service"],
+  "data.user-erasure": ["backend-service"],
+  "svc.metrics": ["backend-service"],
+  "svc.startup-config": ["backend-service"],
+};
+
+function obs(kind, facts, evidenceClass = "deterministic") {
+  return { observationId: `obs/selfcheck/${kind}`, kind, facts, evidenceClass, confidence: evidenceClass === "deterministic" ? "deterministic" : "low", status: "complete" };
+}
+
+/** Casos sintéticos por control: { deterministic, heuristic } → observaciones + config. */
+const CASES = {
+  "search.input-rate": {
+    params: { minChars: 3, behaviorContract: "apps/x/search.contract.json" },
+    deterministic: [
+      obs("search-contract", { declared: true, valid: true, errorCodes: [], triggers: "remote", cancellation: "supported", equivalence: "trim-lowercase", harnessKind: "node-adapter", minCharsException: false }),
+      obs("search-behavior", {
+        scenario: "burst",
+        params: { minChars: 3, windowMs: 250, strategy: "equivalent", dedupeWindowMs: 0, cancellation: "supported", equivalence: "trim-lowercase" },
+        minCharsException: false,
+        events: [
+          { type: "request-start", t: 0, len: 5, seq: 1, rid: "r1", qid: "q1", key: "k1" },
+          { type: "request-start", t: 10, len: 6, seq: 2, rid: "r2", qid: "q2", key: "k2" },
+        ],
+      }),
+    ],
+    heuristic: [obs("search-contract", { declared: false, valid: false, errorCodes: [] }), obs("search-signals", { signals: [{ signal: "SEARCH_HANDLER", path: "apps/x/search.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "app.minimum-supported-version": {
+    params: { policyContract: "apps/x/version-policy.json" },
+    deterministic: [obs("version-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("version-contract", { declared: false, valid: false, errorCodes: [] }), obs("version-signals", { signals: [{ signal: "VERSION_GATE_LOGIC", path: "apps/x/gate.dart" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "web.module-announcement": {
+    params: { launchManifest: "apps/x/launch.json", supportedChannels: ["in-app"] },
+    deterministic: [obs("announcement-manifest", { declared: true, valid: false, errorCodes: ["MANIFEST_SCHEMA"] })],
+    heuristic: [obs("announcement-manifest", { declared: false, valid: false, errorCodes: [] }), obs("announcement-signals", { signals: [{ signal: "POSSIBLE_NEW_MODULE", path: "apps/x/src/modules/m/index.tsx" }], pathsScanned: 1 }, "heuristic")],
+  },
+  "ui.data-states": {
+    params: { statesContract: "apps/x/states.json" },
+    deterministic: [obs("states-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("states-contract", { declared: false, valid: false, errorCodes: [] }), obs("states-signals", { signals: [{ signal: "DATA_LOADING", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.form-validation": {
+    params: { formsContract: "apps/x/forms.json" },
+    deterministic: [obs("forms-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("forms-contract", { declared: false, valid: false, errorCodes: [] }), obs("forms-signals", { signals: [{ signal: "FORM", path: "apps/x/signup.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "net.resilient-requests": {
+    params: { clientContract: "apps/x/client.json" },
+    deterministic: [obs("requests-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("requests-contract", { declared: false, valid: false, errorCodes: [] }), obs("requests-signals", { signals: [{ signal: "HTTP_CALL", path: "apps/x/api.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "flags.lifecycle": {
+    params: { flagRegistry: "apps/x/flags.json" },
+    deterministic: [obs("flags-registry", { declared: true, valid: false, errorCodes: ["REGISTRY_SCHEMA"] })],
+    heuristic: [obs("flags-registry", { declared: false, valid: false, errorCodes: [] }), obs("flags-signals", { signals: [{ signal: "FEATURE_FLAG_USE", path: "apps/x/checkout.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "auth.session-expiry": {
+    params: { sessionContract: "apps/x/session.json" },
+    deterministic: [obs("session-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("session-contract", { declared: false, valid: false, errorCodes: [] }), obs("session-signals", { signals: [{ signal: "SESSION_HANDLING", path: "apps/x/api.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.file-upload": {
+    params: { uploadsContract: "apps/x/uploads.json" },
+    deterministic: [obs("uploads-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("uploads-contract", { declared: false, valid: false, errorCodes: [] }), obs("uploads-signals", { signals: [{ signal: "FILE_UPLOAD", path: "apps/x/upload.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.pagination": {
+    params: { listsContract: "apps/x/lists.json" },
+    deterministic: [obs("lists-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("lists-contract", { declared: false, valid: false, errorCodes: [] }), obs("lists-signals", { signals: [{ signal: "PAGINATED_LIST", path: "apps/x/orders.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "analytics.events": {
+    params: { trackingPlan: "apps/x/tracking.json" },
+    deterministic: [obs("analytics-plan", { declared: true, valid: false, errorCodes: ["PLAN_SCHEMA"] })],
+    heuristic: [obs("analytics-plan", { declared: false, valid: false, errorCodes: [] }), obs("analytics-signals", { signals: [{ signal: "ANALYTICS_CALL", path: "apps/x/track.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.destructive-actions": {
+    params: { actionsContract: "apps/x/actions.json" },
+    deterministic: [obs("actions-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("actions-contract", { declared: false, valid: false, errorCodes: [] }), obs("actions-signals", { signals: [{ signal: "DESTRUCTIVE_ACTION", path: "apps/x/account.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "i18n.formatting": {
+    params: { i18nContract: "apps/x/i18n.json" },
+    deterministic: [obs("i18n-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("i18n-contract", { declared: false, valid: false, errorCodes: [] }), obs("i18n-signals", { signals: [{ signal: "HARDCODED_FORMAT", path: "apps/x/price.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "app.offline-mode": {
+    params: { offlineContract: "apps/x/offline.json" },
+    deterministic: [obs("offline-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("offline-contract", { declared: false, valid: false, errorCodes: [] }), obs("offline-signals", { signals: [{ signal: "OFFLINE_SUPPORT", path: "apps/x/sw.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "app.device-permissions": {
+    params: { permissionsContract: "apps/x/permissions.json" },
+    deterministic: [obs("permissions-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("permissions-contract", { declared: false, valid: false, errorCodes: [] }), obs("permissions-signals", { signals: [{ signal: "PERMISSION_REQUEST", path: "apps/x/scan.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "nav.broken-routes": {
+    params: { routesContract: "apps/x/routes.json" },
+    deterministic: [obs("routes-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("routes-contract", { declared: false, valid: false, errorCodes: [] }), obs("routes-signals", { signals: [{ signal: "ROUTER", path: "apps/x/router.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "ui.accessible-dialogs": {
+    params: { dialogsContract: "apps/x/dialogs.json" },
+    deterministic: [obs("dialogs-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("dialogs-contract", { declared: false, valid: false, errorCodes: [] }), obs("dialogs-signals", { signals: [{ signal: "DIALOG", path: "apps/x/modal.tsx" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.idempotency": {
+    params: { idempotencyContract: "apps/x/contract.json" },
+    deterministic: [obs("idempotency-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("idempotency-contract", { declared: false, valid: false, errorCodes: [] }), obs("idempotency-signals", { signals: [{ signal: "MUTATING_ENDPOINT", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.error-responses": {
+    params: { errorsContract: "apps/x/contract.json" },
+    deterministic: [obs("errors-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("errors-contract", { declared: false, valid: false, errorCodes: [] }), obs("errors-signals", { signals: [{ signal: "API_HANDLER", path: "apps/x/app.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.rate-limit": {
+    params: { rateLimitContract: "apps/x/contract.json" },
+    deterministic: [obs("ratelimit-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("ratelimit-contract", { declared: false, valid: false, errorCodes: [] }), obs("ratelimit-signals", { signals: [{ signal: "PUBLIC_ENDPOINT", path: "apps/x/app.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.pagination": {
+    params: { paginationContract: "apps/x/contract.json" },
+    deterministic: [obs("apipage-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("apipage-contract", { declared: false, valid: false, errorCodes: [] }), obs("apipage-signals", { signals: [{ signal: "LIST_ENDPOINT", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.dependency-failure": {
+    params: { dependencyContract: "apps/x/contract.json" },
+    deterministic: [obs("deps-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("deps-contract", { declared: false, valid: false, errorCodes: [] }), obs("deps-signals", { signals: [{ signal: "EXTERNAL_DEPENDENCY", path: "apps/x/db.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.health-shutdown": {
+    params: { healthContract: "apps/x/contract.json" },
+    deterministic: [obs("health-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("health-contract", { declared: false, valid: false, errorCodes: [] }), obs("health-signals", { signals: [{ signal: "SERVICE_ENTRYPOINT", path: "apps/x/server.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.log-hygiene": {
+    params: { logsContract: "apps/x/contract.json" },
+    deterministic: [obs("logs-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("logs-contract", { declared: false, valid: false, errorCodes: [] }), obs("logs-signals", { signals: [{ signal: "LOGGING", path: "apps/x/server.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.concurrency": {
+    params: { concurrencyContract: "apps/x/contract.json" },
+    deterministic: [obs("concurrency-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("concurrency-contract", { declared: false, valid: false, errorCodes: [] }), obs("concurrency-signals", { signals: [{ signal: "UPDATE_ENDPOINT", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.versioning": {
+    params: { versioningContract: "apps/x/contract.json" },
+    deterministic: [obs("versioning-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("versioning-contract", { declared: false, valid: false, errorCodes: [] }), obs("versioning-signals", { signals: [{ signal: "VERSIONED_ROUTE", path: "apps/x/routes.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.request-limits": {
+    params: { limitsContract: "apps/x/contract.json" },
+    deterministic: [obs("limits-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("limits-contract", { declared: false, valid: false, errorCodes: [] }), obs("limits-signals", { signals: [{ signal: "REQUEST_LIMITS", path: "apps/x/server.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.http-cache": {
+    params: { cacheContract: "apps/x/contract.json" },
+    deterministic: [obs("cache-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("cache-contract", { declared: false, valid: false, errorCodes: [] }), obs("cache-signals", { signals: [{ signal: "HTTP_CACHE", path: "apps/x/products.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.response-schema": {
+    params: { responseSchemaContract: "apps/x/contract.json" },
+    deterministic: [obs("respschema-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("respschema-contract", { declared: false, valid: false, errorCodes: [] }), obs("respschema-signals", { signals: [{ signal: "API_SCHEMA", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.long-operations": {
+    params: { operationsContract: "apps/x/contract.json" },
+    deterministic: [obs("longops-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("longops-contract", { declared: false, valid: false, errorCodes: [] }), obs("longops-signals", { signals: [{ signal: "ASYNC_OPERATION", path: "apps/x/reports.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "api.batch": {
+    params: { batchContract: "apps/x/contract.json" },
+    deterministic: [obs("batch-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("batch-contract", { declared: false, valid: false, errorCodes: [] }), obs("batch-signals", { signals: [{ signal: "BATCH_ENDPOINT", path: "apps/x/orders.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "db.compatible-migrations": {
+    params: { migrationsContract: "apps/x/contract.json" },
+    deterministic: [obs("migrations-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("migrations-contract", { declared: false, valid: false, errorCodes: [] }), obs("migrations-signals", { signals: [{ signal: "MIGRATIONS", path: "apps/x/migrations/003.sql" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "data.user-erasure": {
+    params: { erasureContract: "apps/x/contract.json" },
+    deterministic: [obs("erasure-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("erasure-contract", { declared: false, valid: false, errorCodes: [] }), obs("erasure-signals", { signals: [{ signal: "USER_ERASURE", path: "apps/x/account.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.metrics": {
+    params: { metricsContract: "apps/x/contract.json" },
+    deterministic: [obs("metrics-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("metrics-contract", { declared: false, valid: false, errorCodes: [] }), obs("metrics-signals", { signals: [{ signal: "METRICS", path: "apps/x/metrics.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+  "svc.startup-config": {
+    params: { startupConfigContract: "apps/x/contract.json" },
+    deterministic: [obs("config-contract", { declared: true, valid: false, errorCodes: ["CONTRACT_SCHEMA"] })],
+    heuristic: [obs("config-contract", { declared: false, valid: false, errorCodes: [] }), obs("config-signals", { signals: [{ signal: "ENV_CONFIG", path: "apps/x/config.ts" }], filesScanned: 1, truncated: false }, "heuristic")],
+  },
+};
+
+function envelopeDraft(controlId, result, evidenceClass) {
+  const profiles = (PROFILES[controlId] || []).map((id) => ({ id, version: "1.0.0" }));
+  const findings = (result.findings || []).map((f, i) => ({ ruleId: f.ruleId, path: f.path, severity: f.severity, fingerprint: f.fingerprint || `fp-${i}`, status: "new", remediation: f.remediation || "—" }));
+  return {
+    schemaVersion: 2,
+    domain: "engineering",
+    packId: "engineering/guardrails",
+    catalog: { id: "engineering/guardrails", version: "1.0.0", digest: H("a") },
+    control: { id: controlId, version: "1.0.0", contractVersion: "1.0.0", enforcementContractVersion: "1.0.0", enforcementMoments: ["pr"] },
+    unit: { id: "selfcheck/unit", rootHash: H("d") },
+    profiles,
+    moment: "pr",
+    level: "enforce",
+    state: "evaluated",
+    revision: REV,
+    scopeHash: H("b"),
+    configHash: H("c"),
+    applicability: { status: "applicable", confidence: "deterministic", reasons: [], sources: [], unitId: "selfcheck/unit", controlId, profileRefs: profiles, moment: "pr", scopeHash: H("b") },
+    confidence: evidenceClass === "deterministic" ? "deterministic" : "low",
+    evidenceClass,
+    evidenceFreshness: "fresh",
+    evidenceCompleteness: "complete",
+    evidence: { id: "eng-ev-selfcheck", revision: REV, scopeHash: H("b"), configHash: H("c"), catalogDigest: H("a"), unitId: "selfcheck/unit", controlId },
+    provenance: { level: { sourceKind: "unit", sourceRef: "selfcheck" } },
+    result: { schemaVersion: 1, controlId, decision: result.decision, severity: "high", toolStatus: "ok", findings, ...(result.reason ? { reason: "self-check" } : {}) },
+    findingEvidence: (result.findings || []).map((f, i) => ({ fingerprint: f.fingerprint || `fp-${i}`, evidenceClass: f.evidenceClass || evidenceClass })),
+    suppressed: [],
+    diagnostics: [],
+    durationMs: 0,
+    cache: "bypass",
+  };
+}
+
+function evaluate(impl, controlId, params, observations) {
+  return impl.evaluator.evaluate({ effectiveConfig: params, observations, unit: { id: "selfcheck/unit", root: "apps/x" }, event: "pr", clockRef: NOW, scope: { paths: ["apps/x/a.ts"] } });
+}
+
+/**
+ * @param {Record<string, object>} controls  Implementaciones builtin.
+ * @returns {{passed: boolean, checks: {id, controlId?, passed, detail}[]}}
+ */
+function runSelfChecks(controls) {
+  const checks = [];
+  const add = (id, controlId, passed, detail) => checks.push({ id, ...(controlId ? { controlId } : {}), passed: !!passed, detail });
+  for (const [controlId, c] of Object.entries(CASES)) {
+    const impl = controls[controlId];
+    if (!impl) {
+      add("implementation", controlId, false, "control sin implementación");
+      continue;
+    }
+    try {
+      const det = evaluate(impl, controlId, c.params, c.deterministic);
+      const env = createResultEnvelope(envelopeDraft(controlId, det, "deterministic"));
+      add("deterministic-eligible", controlId, det.decision === "deny" && env.blockingEligible === true, `decision=${det.decision} eligible=${env.blockingEligible}`);
+    } catch (err) {
+      add("deterministic-eligible", controlId, false, err.code || "ERROR");
+    }
+    try {
+      const heu = evaluate(impl, controlId, c.params, c.heuristic);
+      const env = createResultEnvelope(envelopeDraft(controlId, heu, "heuristic"));
+      const forced = envelopeDraft(controlId, { ...heu, decision: "deny" }, "heuristic");
+      let rejected = false;
+      try {
+        createResultEnvelope(forced);
+      } catch (err) {
+        rejected = err.code === "DENY_NOT_ELIGIBLE";
+      }
+      add("heuristic-never-blocks", controlId, heu.decision === "warn" && env.blockingEligible === false && rejected, `decision=${heu.decision} eligible=${env.blockingEligible} forcedDenyRejected=${rejected}`);
+    } catch (err) {
+      add("heuristic-never-blocks", controlId, false, err.code || "ERROR");
+    }
+  }
+  let blocked = false;
+  try {
+    assertNoLeaks({ note: `fuga ${CANARY}` }, { canaries: [CANARY] });
+  } catch (err) {
+    blocked = err.code === "REDACTION_FAILED";
+  }
+  add("redaction-canary", null, blocked, blocked ? "canario sintético bloqueado" : "el canario no fue detectado");
+  return { passed: checks.every((x) => x.passed), checks };
+}
+
+module.exports = { runSelfChecks, CASES, envelopeDraft };

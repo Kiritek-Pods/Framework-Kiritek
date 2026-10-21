@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "pack": { "id": "engineering/guardrails", "catalog": "1.0.0" },
+  "workspace": {
+    "inheritProfiles": false,
+    "sharedPaths": [],
+    "onAmbiguousImpact": "expand",
+    "units": []
+  },
+  "defaults": {
+    "controls": {
+      "search.input-rate": { "level": "warn" },
+      "app.minimum-supported-version": { "level": "warn" },
+      "web.module-announcement": { "level": "warn" }
+    }
+  },
+  "execution": {
+    "budgetsMs": { "agent": 1500, "pre-commit": 5000, "pr": 600000, "release": 900000 },
+    "offline": false,
+    "cacheDirectory": ".kiritek/cache/engineering"
+  },
+  "evidence": { "directory": ".kiritek/evidence/engineering", "retentionDays": 30 },
+  "exceptions": {
+    "waiverFiles": [".kiritek/engineering/waivers/*.json"],
+    "notApplicableFiles": [".kiritek/engineering/not-applicable/*.json"]
+  },
+  "telemetry": { "enabled": false, "endpoint": null, "retentionDays": 14, "categories": ["control-status", "duration", "cache"] },
+  "plugins": []
+}

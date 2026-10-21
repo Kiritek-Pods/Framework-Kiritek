@@ -1,0 +1,41 @@
+{
+  "note": "Fixtures sintéticos de declaraciones de evidencia. Sin secretos reales.",
+  "freshEvidence": {
+    "schemaVersion": 1,
+    "id": "ev-fixture-fresh",
+    "control": "secret-scan",
+    "command": "kiritek-init scan --scope=staged",
+    "toolVersion": "gitleaks 8.18.4",
+    "configHash": "sha256:fixturehash",
+    "scope": "staged@HEAD",
+    "exitCode": 0,
+    "decision": "allow",
+    "commit": "abc123",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  "failedEvidence": {
+    "schemaVersion": 1,
+    "id": "ev-fixture-failed",
+    "control": "secret-scan",
+    "command": "kiritek-init scan --scope=staged",
+    "toolVersion": "gitleaks 8.18.4",
+    "configHash": "sha256:fixturehash",
+    "scope": "staged@HEAD",
+    "exitCode": 1,
+    "decision": "deny",
+    "commit": "abc123",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  "expectation": {
+    "commit": "abc123",
+    "scope": "staged@HEAD",
+    "maxAgeHours": 24
+  },
+  "nowFresh": "2024-01-01T06:00:00.000Z",
+  "nowExpired": "2024-01-03T00:00:00.000Z",
+  "naFieldSamples": [
+    "N/A — cambio sin efecto en runtime",
+    "N/A — no toca secretos ni PII",
+    "N/A — sin dependencias"
+  ]
+}

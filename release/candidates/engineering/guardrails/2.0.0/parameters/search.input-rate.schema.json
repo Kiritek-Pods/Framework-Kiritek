@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Parámetros de search.input-rate",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "behaviorContract": { "type": "string", "minLength": 1, "pattern": "^(?![/~])(?![A-Za-z]:)(?!(?:.*/)?\\.\\.(?:/|$))[^\\u0000\\\\]+$" },
+    "minChars": { "type": "integer", "minimum": 1, "maximum": 64 },
+    "cadence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "windowMs"],
+      "properties": {
+        "strategy": { "type": "string", "enum": ["debounce", "throttle", "equivalent"] },
+        "windowMs": { "type": "integer", "minimum": 1, "maximum": 10000 }
+      }
+    },
+    "dedupeWindowMs": { "type": "integer", "minimum": 0, "maximum": 60000 },
+    "localCostThresholdMs": { "type": "integer", "minimum": 0, "maximum": 10000 },
+    "maxEvidenceAgeHours": { "type": "integer", "minimum": 1, "maximum": 720 }
+  }
+}

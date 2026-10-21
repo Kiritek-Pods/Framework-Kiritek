@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "controlId": "secrets.gitleaks",
+  "decision": "deny",
+  "severity": "critical",
+  "toolStatus": "ok",
+  "scope": "staged",
+  "remediation": "Elimina la credencial del archivo y rótala.",
+  "findings": [
+    {
+      "ruleId": "aws-access-key",
+      "path": "config/app.env",
+      "severity": "critical",
+      "fingerprint": "config/app.env:aws-access-key:1",
+      "status": "new",
+      "lineNumber": 12,
+      "remediation": "Mover a secret manager."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/api-http-cache.contract.schema.json",
+  "title": "Contrato de caché HTTP (api.http-cache)",
+  "description": "Recursos de lectura con su visibilidad (pública o por usuario), max-age de los públicos (obligatorio en ellos) y validador (ETag o Last-Modified).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "resources"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "api.http-cache" },
+    "resources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "visibility"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
+          "path": { "type": "string", "pattern": "^/[A-Za-z0-9/_.:-]*$", "maxLength": 200 },
+          "visibility": { "type": "string", "enum": ["public", "private"] },
+          "maxAgeSeconds": { "type": "integer", "minimum": 0, "maximum": 31536000 },
+          "validator": { "type": "string", "enum": ["etag", "last-modified"] }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

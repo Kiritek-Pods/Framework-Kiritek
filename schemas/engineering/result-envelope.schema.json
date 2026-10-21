@@ -1,0 +1,303 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/result-envelope.schema.json",
+  "title": "Kiritek EngineeringResultEnvelope v2",
+  "description": "Envuelve un PolicyResult v1 (schemas/result.schema.json) con contexto engineering. blockingEligible es derivado y se recalcula al leer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "domain",
+    "packId",
+    "catalog",
+    "control",
+    "unit",
+    "profiles",
+    "moment",
+    "level",
+    "state",
+    "revision",
+    "scopeHash",
+    "configHash",
+    "applicability",
+    "confidence",
+    "evidenceClass",
+    "evidenceFreshness",
+    "evidenceCompleteness",
+    "evidence",
+    "provenance",
+    "result",
+    "findingEvidence",
+    "suppressed",
+    "diagnostics",
+    "durationMs",
+    "cache",
+    "blockingEligible"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "domain": {
+      "type": "string",
+      "const": "engineering"
+    },
+    "packId": {
+      "type": "string",
+      "const": "engineering/guardrails"
+    },
+    "catalog": {
+      "$ref": "engineering/common.schema.json#/definitions/catalogRef"
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "contractVersion"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "engineering/common.schema.json#/definitions/controlId"
+        },
+        "version": {
+          "$ref": "engineering/common.schema.json#/definitions/semver"
+        },
+        "contractVersion": {
+          "$ref": "engineering/common.schema.json#/definitions/semver"
+        },
+        "enforcementContractVersion": {
+          "$ref": "engineering/common.schema.json#/definitions/semver"
+        },
+        "enforcementMoments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "engineering/common.schema.json#/definitions/moment"
+          }
+        }
+      }
+    },
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "rootHash"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "engineering/common.schema.json#/definitions/namespacedId"
+        },
+        "rootHash": {
+          "$ref": "engineering/common.schema.json#/definitions/sha256"
+        }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "$ref": "engineering/common.schema.json#/definitions/profileRef"
+      }
+    },
+    "moment": {
+      "$ref": "engineering/common.schema.json#/definitions/moment"
+    },
+    "level": {
+      "$ref": "engineering/common.schema.json#/definitions/level"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "evaluated",
+        "off",
+        "not_evaluated",
+        "not_applicable",
+        "unknown",
+        "unavailable",
+        "timeout",
+        "conflict",
+        "stale"
+      ]
+    },
+    "revision": {
+      "$ref": "engineering/common.schema.json#/definitions/revision"
+    },
+    "scopeHash": {
+      "$ref": "engineering/common.schema.json#/definitions/sha256"
+    },
+    "configHash": {
+      "$ref": "engineering/common.schema.json#/definitions/sha256"
+    },
+    "applicability": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "engineering/applicability.schema.json"
+        }
+      ]
+    },
+    "confidence": {
+      "$ref": "engineering/common.schema.json#/definitions/confidence"
+    },
+    "evidenceClass": {
+      "type": "string",
+      "enum": [
+        "deterministic",
+        "heuristic",
+        "manual",
+        "none"
+      ]
+    },
+    "evidenceFreshness": {
+      "$ref": "engineering/common.schema.json#/definitions/freshness"
+    },
+    "evidenceCompleteness": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "partial",
+        "none"
+      ]
+    },
+    "evidence": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "revision",
+            "scopeHash",
+            "configHash",
+            "catalogDigest",
+            "unitId",
+            "controlId"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "engineering/common.schema.json#/definitions/ref"
+            },
+            "revision": {
+              "$ref": "engineering/common.schema.json#/definitions/revision"
+            },
+            "scopeHash": {
+              "$ref": "engineering/common.schema.json#/definitions/sha256"
+            },
+            "configHash": {
+              "$ref": "engineering/common.schema.json#/definitions/sha256"
+            },
+            "catalogDigest": {
+              "$ref": "engineering/common.schema.json#/definitions/sha256"
+            },
+            "unitId": {
+              "$ref": "engineering/common.schema.json#/definitions/namespacedId"
+            },
+            "controlId": {
+              "$ref": "engineering/common.schema.json#/definitions/controlId"
+            }
+          }
+        }
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level"
+      ],
+      "properties": {
+        "level": {
+          "$ref": "engineering/common.schema.json#/definitions/provenance"
+        },
+        "profiles": {
+          "$ref": "engineering/common.schema.json#/definitions/provenance"
+        }
+      }
+    },
+    "result": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "result.schema.json"
+        }
+      ]
+    },
+    "findingEvidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fingerprint",
+          "evidenceClass"
+        ],
+        "properties": {
+          "fingerprint": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceClass": {
+            "$ref": "engineering/common.schema.json#/definitions/evidenceClass"
+          }
+        }
+      }
+    },
+    "suppressed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "ref",
+          "expiresAt"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "waiver",
+              "governed-na"
+            ]
+          },
+          "ref": {
+            "$ref": "engineering/common.schema.json#/definitions/ref"
+          },
+          "expiresAt": {
+            "$ref": "engineering/common.schema.json#/definitions/isoTimestamp"
+          },
+          "fingerprint": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "engineering/common.schema.json#/definitions/diagnostic"
+      }
+    },
+    "durationMs": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "cache": {
+      "$ref": "engineering/common.schema.json#/definitions/cache"
+    },
+    "blockingEligible": {
+      "type": "boolean"
+    }
+  }
+}

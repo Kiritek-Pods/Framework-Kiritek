@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "type": "break-glass",
+  "controlId": "git.command-guard",
+  "scopePath": "src/release/hotfix.js",
+  "reason": "Hotfix de incidente en producción, revisado por el lead.",
+  "motive": "Incidente P1: parche urgente coordinado con el equipo de guardia.",
+  "owner": "ingeniero-guardia",
+  "approver": "lead-seguridad",
+  "ticket": "SEC-200",
+  "incident": "INC-9001",
+  "postReview": true,
+  "createdAt": "2026-10-01T12:00:00.000Z",
+  "expiresAt": "2026-10-03T12:00:00.000Z"
+}

@@ -1,0 +1,2 @@
+# Catálogos direccionados por digest: los bytes no deben cambiar con autocrlf.
+catalogs/** -text

@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/ui-form-validation.contract.schema.json",
+  "title": "Contrato de formularios (ui.form-validation)",
+  "description": "Formularios y restricciones de sus campos. minLength/maxLength aplican a campos de texto. Las reglas semánticas las evalúa el control.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "forms"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "ui.form-validation" },
+    "forms": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "fields"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 30,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name", "required", "format"],
+              "properties": {
+                "name": { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9_-]*$", "maxLength": 64 },
+                "required": { "type": "boolean" },
+                "format": { "type": "string", "enum": ["text", "email", "number", "url", "phone"] },
+                "minLength": { "type": "integer", "minimum": 1, "maximum": 10000 },
+                "maxLength": { "type": "integer", "minimum": 1, "maximum": 10000 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

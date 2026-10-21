@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "controlId": "secrets.gitleaks",
+  "decision": "deny",
+  "severity": "high",
+  "toolStatus": "ok",
+  "secret": "REDACTED_PLACEHOLDER_NOT_A_REAL_VALUE",
+  "findings": []
+}

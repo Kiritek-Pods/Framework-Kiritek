@@ -1,0 +1,29 @@
+name: Kiritek — auditoría semanal (personalizada por el usuario)
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Auditar cumplimiento Kiritek
+        run: npx github:Kiritek-Pods/Framework-Kiritek#npx-release audit
+      - name: Commitear reporte (INSEGURO)
+        run: |
+          git add kiritek-compliance.md
+          git commit -m "chore: reporte"
+          git push origin HEAD
+  deploy:
+    runs-on: ubuntu-latest
+    needs: audit
+    steps:
+      - name: Paso propio del usuario — deploy a staging
+        run: ./scripts/deploy-staging.sh
+      - name: Notificar a Slack
+        run: ./scripts/notify-slack.sh

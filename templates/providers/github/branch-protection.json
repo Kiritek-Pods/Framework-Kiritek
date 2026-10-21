@@ -1,0 +1,18 @@
+{
+  "_comment": "Kiritek pack GitHub — FALLBACK equivalente con branch protection clásica (requisito 17.2) cuando los rulesets no están disponibles. Artefacto DESCRITO: el pack NO lo aplica. Aplicarlo requiere confirmación humana explícita, p. ej. 'gh api --method PUT /repos/{owner}/{repo}/branches/{{DEFAULT_BRANCH}}/protection --input branch-protection.json'. Equivale al ruleset: PR obligatorio, reviews, checks, resolución de conversaciones y sin force/borrado.",
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["Kiritek Security (GitHub pack) / scan"]
+  },
+  "enforce_admins": true,
+  "required_pull_request_reviews": {
+    "required_approving_review_count": "{{REQUIRED_REVIEWS}}",
+    "dismiss_stale_reviews": true,
+    "require_code_owner_reviews": true,
+    "require_last_push_approval": true
+  },
+  "required_conversation_resolution": true,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "restrictions": null
+}

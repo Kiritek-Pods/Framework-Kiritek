@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/net-resilient-requests.trace.schema.json",
+  "title": "Traza conductual de net.resilient-requests",
+  "description": "Sólo hechos derivados (intentos, esperas entre intentos, booleanos). Nunca URLs, payloads, headers ni claves de idempotencia.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harnessInfo" },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "maxItems": 60, "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "steps"],
+      "properties": {
+        "id": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioId" },
+        "status": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioStatus" },
+        "limitation": { "$ref": "engineering/controls/harness.schema.json#/definitions/limitation" },
+        "steps": { "type": "array", "maxItems": 1, "items": { "$ref": "#/definitions/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["settled", "attempts"],
+      "properties": {
+        "settled": { "type": "boolean" },
+        "ok": { "type": "boolean" },
+        "attempts": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "gaps": { "type": "array", "maxItems": 10, "items": { "type": "integer", "minimum": 0 } },
+        "sameKey": { "type": "boolean" },
+        "keyed": { "type": "boolean" }
+      }
+    }
+  }
+}

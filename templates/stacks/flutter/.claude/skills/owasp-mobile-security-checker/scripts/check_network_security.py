@@ -16,6 +16,9 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import List, Dict
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from redact import safe_findings, RedactionError  # noqa: E402
+
 
 def scan_http_usage(file_path: Path) -> List[Dict]:
     """Scan for insecure HTTP usage instead of HTTPS."""
@@ -254,6 +257,15 @@ def main():
     print(f"OWASP M5: Analyzing network security in {project_root}\n")
 
     results = scan_project(project_root)
+
+    # Mandatory redaction (12.3, G.12): the `code` field holds raw source lines
+    # that may embed URLs with credentials or payloads. Redact fail-closed BEFORE
+    # printing or persisting. If a canary survives, abort instead of leaking.
+    try:
+        results['findings'] = safe_findings(results['findings'])
+    except RedactionError as e:
+        print(f"ERROR: redaction failed, aborting output: {e}", file=sys.stderr)
+        sys.exit(3)
 
     # Group by severity (always initialised so the exit-code line is always safe)
     by_severity: Dict[str, List] = {'CRITICAL': [], 'HIGH': [], 'MEDIUM': [], 'LOW': []}

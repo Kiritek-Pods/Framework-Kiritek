@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/profile.schema.json",
+  "title": "Kiritek Engineering Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "version", "catalog", "extends", "parameters", "source", "provenance"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "id": { "$ref": "engineering/common.schema.json#/definitions/profileId" },
+    "version": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+    "catalog": { "$ref": "engineering/common.schema.json#/definitions/catalogRef" },
+    "extends": { "type": "array", "uniqueItems": true, "items": { "$ref": "engineering/common.schema.json#/definitions/profileRef" } },
+    "parametersSchemaRef": { "$ref": "engineering/common.schema.json#/definitions/ref" },
+    "parameters": { "type": "object" },
+    "source": { "type": "string", "enum": ["explicit", "inherited", "suggested"] },
+    "provenance": { "$ref": "engineering/common.schema.json#/definitions/provenance" }
+  }
+}

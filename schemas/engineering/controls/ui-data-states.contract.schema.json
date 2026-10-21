@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/ui-data-states.contract.schema.json",
+  "title": "Contrato de estados de pantalla (ui.data-states)",
+  "description": "Pantallas que cargan datos y qué estados deben ofrecer. Las reglas semánticas (timeout máximo) las evalúa el control.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "screens"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "ui.data-states" },
+    "screens": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "timeoutMs", "emptyState", "retry"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
+          "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 120000 },
+          "emptyState": { "type": "string", "enum": ["required", "not-applicable"] },
+          "retry": { "type": "string", "enum": ["required", "not-applicable"] }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

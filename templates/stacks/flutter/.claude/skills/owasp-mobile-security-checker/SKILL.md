@@ -1,9 +1,13 @@
 ---
 name: owasp-mobile-security-checker
-description: Use when performing security audits, vulnerability assessments, or compliance checks on Flutter or mobile applications. Covers OWASP Mobile Top 10 (2024) — hardcoded secrets (M1), insecure storage (M9), weak cryptography (M10), network issues (M5), and 6 more categories with automated scanners and remediation guidance.
+description: Use when performing security audits, vulnerability assessments, or compliance checks on Flutter or mobile applications. Covers OWASP Mobile Top 10 (2024) — insecure storage (M9), weak cryptography (M10), network issues (M5), outdated dependencies (M2), and more. Hardcoded secrets (M1) are enforced by the Kiritek core gate (Gitleaks), not duplicated here.
 metadata:
   author: harish
-  version: 1.1.0
+  version: 1.2.0
+  notes: >-
+    M1 (generic hardcoded secrets) migrated to the Kiritek core single source of
+    truth; the Flutter pack delegates. All mobile scanner outputs are redacted
+    fail-closed. M2 uses version heuristics, not a verified-CVE advisory feed.
 ---
 
 # OWASP Mobile Security Checker
@@ -19,23 +23,37 @@ Comprehensive security analysis for Flutter and mobile applications based on OWA
 
 ## Automated Scanners
 
-Four Python scanners cover the most automatable risk categories. Replace `<skill-dir>` with the skill's install path (e.g. `~/.claude/skills/owasp-mobile-security-checker`):
+The generic secrets control (M1) is handled by the Kiritek core gate. Three
+Flutter-specialized Python scanners (M2, M5, M9) cover the mobile-specific
+automatable categories. Replace `<skill-dir>` with the skill's install path (e.g. `~/.claude/skills/owasp-mobile-security-checker`):
 
-### M1 — Hardcoded Secrets
+### M1 — Hardcoded Secrets (delegated to the Kiritek core)
+
+The generic hardcoded-secrets control is **not** implemented in this Flutter
+pack. It lives in the Kiritek core as a Gitleaks-based gate — the single source
+of truth — which runs automatically in the pre-commit / pre-push hooks and in CI,
+and redacts all output fail-closed. Run the core gate instead of a Flutter-local
+scanner:
 
 ```bash
-python3 <skill-dir>/scripts/scan_hardcoded_secrets.py /path/to/project
+kiritek-init scan --scope=repository /path/to/project
 ```
 
-Detects API keys, tokens, passwords, AWS credentials, and Firebase keys in Dart code and config files.
+`scripts/scan_hardcoded_secrets.py` is kept as a thin **delegator**: it points at
+(and, when the core CLI is on PATH, forwards to) the core gate. It never carries
+its own divergent regex gate, so there is no double execution and no drift.
 
-### M2 — Dependency Vulnerabilities
+### M2 — Dependency Hygiene
 
 ```bash
 python3 <skill-dir>/scripts/check_dependencies.py /path/to/project
 ```
 
-Analyzes `pubspec.yaml` for outdated packages, `any` version constraints, and known CVEs.
+Analyzes `pubspec.yaml` for outdated packages and `any`/unconstrained version
+constraints. This is a **version heuristic**, not a verified-CVE lookup: it does
+not consult an advisory feed and never asserts a known CVE. Confirm any finding
+against a real advisory source (OSV, GitHub Advisories, pub.dev) before treating
+it as a vulnerability.
 
 ### M5 — Network Security
 
@@ -61,34 +79,36 @@ M3, M4, M6, M7, M8, and M10 require code review. See `references/owasp_mobile_to
 
 ```text
 Is this a comprehensive audit?
-├─ YES → Run all 4 scanners → Review JSON outputs → Manual analysis (M3/M4/M6/M7/M8/M10) → Generate report
+├─ YES → Core secrets gate (M1) + 3 mobile scanners (M2/M5/M9) → Review JSON outputs → Manual analysis (M3/M4/M6/M7/M8/M10) → Generate report
 └─ NO → Continue...
 
 Specific risk category?
-├─ M1 → scan_hardcoded_secrets.py
+├─ M1 → core gate: kiritek-init scan (secrets live in the core, not here)
 ├─ M2 → check_dependencies.py
 ├─ M5 → check_network_security.py
 ├─ M9 → analyze_storage_security.py
 └─ M3/M4/M6/M7/M8/M10 → references/owasp_mobile_top_10_2024.md → manual analysis
 
 Quick pre-release check?
-└─ YES → Run all 4 scanners → Fix CRITICAL and HIGH findings only
+└─ YES → Core secrets gate (M1) + 3 mobile scanners (M2/M5/M9) → Fix CRITICAL and HIGH findings only
 ```
 
 ## Quick Start: Full Audit
 
 ```bash
-# Run all automated scanners from the project root
-python3 <skill-dir>/scripts/scan_hardcoded_secrets.py .
+# M1 (generic secrets) is enforced by the Kiritek core gate, not here:
+kiritek-init scan --scope=repository .
+
+# Flutter-specialized mobile scanners (run from the project root):
 python3 <skill-dir>/scripts/check_dependencies.py .
 python3 <skill-dir>/scripts/check_network_security.py .
 python3 <skill-dir>/scripts/analyze_storage_security.py .
 
-# Outputs produced:
-#   owasp_m1_secrets_scan.json
+# Outputs produced by the mobile scanners (all fields redacted fail-closed):
 #   owasp_m2_dependencies_scan.json
 #   owasp_m5_network_scan.json
 #   owasp_m9_storage_scan.json
+# (M1 secrets findings come from the core gate's redacted report.)
 ```
 
 1. **Prioritise by severity** — fix CRITICAL and HIGH before release
@@ -99,8 +119,8 @@ python3 <skill-dir>/scripts/analyze_storage_security.py .
 
 | Risk | Issue | Automated? | Key Check |
 | --- | --- | --- | --- |
-| **M1** | Hardcoded credentials | ✅ scanner | API keys, tokens in source/config |
-| **M2** | Vulnerable dependencies | ✅ scanner | Outdated or unconstrained packages |
+| **M1** | Hardcoded credentials | ✅ core gate | Enforced by the Kiritek core (Gitleaks), not Flutter |
+| **M2** | Outdated dependencies | ✅ scanner | Outdated or unconstrained packages (heuristic, not CVE lookup) |
 | **M3** | Weak authentication | Manual | Token storage, MFA, session expiry |
 | **M4** | Input validation | Manual | SQL injection, XSS in WebViews, IDOR |
 | **M5** | Insecure communication | ✅ scanner | HTTP usage, missing cert pinning |
@@ -149,9 +169,9 @@ Always verify findings in context before flagging as vulnerabilities.
 
 | Stage | Action |
 | --- | --- |
-| Pre-commit | Run `scan_hardcoded_secrets.py` as a lightweight secrets gate |
-| Pull requests | Run all 4 scanners, post findings as PR comment |
-| Release builds | Full audit including manual analysis for all 10 categories |
+| Pre-commit | Secrets gate runs via the Kiritek core hook (Gitleaks) — not a Flutter scanner |
+| Pull requests | Run the 3 mobile scanners (M2/M5/M9); M1 secrets come from the core gate |
+| Release builds | Full audit: core secrets gate + mobile scanners + manual analysis for all 10 categories |
 
 ---
 _Kiritek Framework — stack pack `flutter`. Adaptado de [Harishwarrior/flutter-claude-skills](https://github.com/Harishwarrior/flutter-claude-skills) (MIT). Relevante para apps que manejan datos sensibles (ej. Skolable)._

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "ev-fixture-1",
+  "control": "secrets.gitleaks",
+  "command": "gitleaks protect --staged",
+  "toolVersion": "8.0.0",
+  "configHash": "sha256:abcdef",
+  "scope": "staged",
+  "exitCode": 0,
+  "decision": "allow",
+  "createdAt": "2026-10-01T12:00:00.000Z",
+  "commit": "deadbeef"
+}

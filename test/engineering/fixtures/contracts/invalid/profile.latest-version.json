@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "search",
+  "version": "latest",
+  "catalog": {
+    "id": "engineering/guardrails",
+    "version": "1.0.0",
+    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "extends": [],
+  "parameters": {
+    "localCostThresholdMs": 20
+  },
+  "source": "explicit",
+  "provenance": {
+    "sourceKind": "unit",
+    "sourceRef": "kiritek-engineering.config.json#/workspace/units/0"
+  }
+}

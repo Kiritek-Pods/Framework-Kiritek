@@ -1,0 +1,22 @@
+node_modules/
+*.tgz
+.DS_Store
+
+# Colección de evidencia de la ejecución de aceptación (tarea 44).
+# Son datos ESPECÍFICOS de cada corrida (commit/config hash, plataforma,
+# comando, timestamp, exit code). El índice committeado
+# (templates/core/security/docs/EVIDENCE-INDEX.md) es el contrato de cobertura;
+# el registro por corrida NO se versiona.
+test/.acceptance-evidence/
+
+# >>> kiritek-security (managed) >>>
+.kiritek/security/
+.kiritek/tmp/
+# <<< kiritek-security (managed) <<<
+
+# Gate de release (T17): resultados por corrida. Se versiona sólo la
+# evidencia aprobada (release/evidence/<pack>-<versión>.gate.json).
+/job-result/
+/jobs/
+/gate/
+/release/evidence/latest.gate.json

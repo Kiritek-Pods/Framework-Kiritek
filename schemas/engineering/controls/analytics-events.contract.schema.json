@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/analytics-events.contract.schema.json",
+  "title": "Plan de tracking (analytics.events)",
+  "description": "Eventos de analytics con sus propiedades, tipos y valores permitidos. Las reglas de privacidad las evalúa el control.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "events"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "analytics.events" },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "properties"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z][a-z0-9_.]*$", "maxLength": 96 },
+          "properties": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name", "type", "required"],
+              "properties": {
+                "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64 },
+                "type": { "type": "string", "enum": ["string", "number", "boolean"] },
+                "required": { "type": "boolean" },
+                "enum": { "type": "array", "minItems": 1, "maxItems": 50, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$", "maxLength": 64 } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Parámetros de ui.file-upload",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "uploadsContract": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![/~])(?![A-Za-z]:)(?!(?:.*/)?\\.\\.(?:/|$))[^\\u0000\\\\]+$"
+    },
+    "maxBytesLimit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10737418240
+    },
+    "allowAnyType": {
+      "type": "boolean"
+    },
+    "maxEvidenceAgeHours": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 720
+    }
+  }
+}

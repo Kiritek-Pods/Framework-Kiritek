@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 2,
+  "domain": "engineering",
+  "packId": "engineering/guardrails",
+  "catalog": {
+    "id": "engineering/guardrails",
+    "version": "1.0.0",
+    "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "control": {
+    "id": "search.input-rate",
+    "version": "1.0.0",
+    "contractVersion": "1.0.0",
+    "enforcementContractVersion": "1.0.0",
+    "enforcementMoments": [
+      "pr"
+    ]
+  },
+  "unit": {
+    "id": "acme/search-web",
+    "rootHash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  },
+  "profiles": [
+    {
+      "id": "search",
+      "version": "1.0.0"
+    }
+  ],
+  "moment": "pr",
+  "level": "enforce",
+  "state": "evaluated",
+  "revision": "0123456789abcdef0123456789abcdef01234567",
+  "scopeHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "configHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "applicability": {
+    "status": "applicable",
+    "confidence": "deterministic",
+    "reasons": [],
+    "sources": [
+      "obs/search-burst-1"
+    ],
+    "unitId": "acme/search-web",
+    "controlId": "search.input-rate",
+    "profileRefs": [
+      {
+        "id": "search",
+        "version": "1.0.0"
+      }
+    ],
+    "moment": "pr",
+    "scopeHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "confidence": "deterministic",
+  "evidenceClass": "deterministic",
+  "evidenceFreshness": "fresh",
+  "evidence": {
+    "id": "eng-ev-fixture-1",
+    "revision": "0123456789abcdef0123456789abcdef01234567",
+    "scopeHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "configHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "catalogDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "unitId": "acme/search-web",
+    "controlId": "search.input-rate"
+  },
+  "provenance": {
+    "level": {
+      "sourceKind": "unit",
+      "sourceRef": "kiritek-engineering.config.json#/workspace/units/0/controls"
+    }
+  },
+  "result": {
+    "schemaVersion": 1,
+    "controlId": "search.input-rate",
+    "decision": "deny",
+    "severity": "high",
+    "toolStatus": "ok",
+    "findings": [
+      {
+        "ruleId": "search.input-rate/cadence",
+        "path": "apps/search web/src/search.ts",
+        "severity": "high",
+        "fingerprint": "fp-cadence-1",
+        "status": "new",
+        "remediation": "Aplicar debounce/throttle según la política declarada."
+      }
+    ],
+    "reason": "La ráfaga sintética inició 4 búsquedas; la política permite 1."
+  },
+  "findingEvidence": [
+    {
+      "fingerprint": "fp-cadence-1",
+      "evidenceClass": "deterministic"
+    }
+  ],
+  "suppressed": [],
+  "diagnostics": [],
+  "durationMs": 120,
+  "cache": "miss",
+  "blockingEligible": true,
+  "extra": true,
+  "evidenceCompleteness": "complete"
+}

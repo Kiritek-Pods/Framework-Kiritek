@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/svc-health-shutdown.contract.schema.json",
+  "title": "Contrato de salud y apagado (svc.health-shutdown)",
+  "description": "Rutas de liveness y readiness, dependencias que readiness debe revisar, un endpoint de trabajo y el tiempo de gracia del apagado.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "livenessPath", "readinessPath", "dependencies", "work", "shutdownGraceMs"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "svc.health-shutdown" },
+    "livenessPath": { "type": "string", "pattern": "^/[A-Za-z0-9/_.-]*$", "maxLength": 100 },
+    "readinessPath": { "type": "string", "pattern": "^/[A-Za-z0-9/_.-]*$", "maxLength": 100 },
+    "dependencies": { "type": "array", "maxItems": 10, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9-]*$" } },
+    "work": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "path"],
+      "properties": {
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+        "path": { "type": "string", "pattern": "^/[A-Za-z0-9/_.:-]*$", "maxLength": 200 }
+      }
+    },
+    "shutdownGraceMs": { "type": "integer", "minimum": 100, "maximum": 600000 },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

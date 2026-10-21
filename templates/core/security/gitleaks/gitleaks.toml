@@ -1,0 +1,26 @@
+# Configuración portable de Gitleaks para el core de seguridad Kiritek.
+#
+# Extiende el conjunto de reglas por defecto de Gitleaks y añade una allowlist
+# acotada. Una configuración local del proyecto puede EXTENDER esta base; el
+# ejecutor no edita la personalización del usuario.
+
+title = "Kiritek core gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist base de Kiritek (acotada)"
+# Rutas de ejemplo y fixtures: la política de archivos de Kiritek ya valida que
+# sólo contengan placeholders; aquí se evita ruido de los scanners.
+paths = [
+  '''(^|/)\.env\.example$''',
+  '''(^|/)\.env\.sample$''',
+  '''(^|/)test/fixtures/''',
+]
+# Valores de placeholder habituales.
+regexes = [
+  '''(?i)your[_-]?(api[_-]?)?(key|token|secret)''',
+  '''(?i)example''',
+  '''(?i)replace[_-]?me''',
+]

@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Kiritek Security - command guard",
+      "trigger": "PreToolUse",
+      "matcher": "execute_bash|shell|use_aws",
+      "action": {
+        "type": "command",
+        "command": "sh \"${CWD:-.}/.kiritek/adapters/kiro/pretooluse.sh\""
+      }
+    }
+  ]
+}

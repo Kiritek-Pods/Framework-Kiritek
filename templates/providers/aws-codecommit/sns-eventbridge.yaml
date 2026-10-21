@@ -1,0 +1,86 @@
+# Kiritek — pack AWS CodeCommit endurecido: alertas SNS + EventBridge (tarea 40.4).
+#
+# Artefacto DESCRITO (dry-run): el pack NO lo aplica. Aplicarlo requiere
+# confirmación humana explícita, p. ej.:
+#   aws cloudformation deploy \
+#     --stack-name kiritek-codecommit-{{ENVIRONMENT}}-alerts \
+#     --template-file sns-eventbridge.yaml \
+#     --parameter-overrides RepositoryName={{REPOSITORY}} Environment={{ENVIRONMENT}}
+#
+# Endurecimiento (requisito 16.6 / 26.9):
+#  - SIN SECRETOS en la plantilla ni en los mensajes: sólo metadata del evento
+#    (repo, rama, tipo de evento). Nunca credenciales ni líneas fuente.
+#  - PREFERENCIA por roles/credenciales TEMPORALES (STS) sobre claves de larga
+#    duración. El rol de publicación sólo puede publicar en el topic.
+#  - ROTACIÓN/REVOCACIÓN de credenciales como procedimiento documentado; la
+#    detección de claves obsoletas se reporta REDACTADA (nunca el valor).
+#
+# Eventos vigilados: push a la rama default, borrado de rama, actualización de
+# pull request. EventBridge publica en el topic SNS; los suscriptores se
+# configuran aparte (correo/Slack/PagerDuty), sin credenciales embebidas.
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Kiritek CodeCommit security alerts via SNS + EventBridge, no secrets, roles
+  preferred (synthetic; apply requires explicit human confirmation).
+
+Parameters:
+  RepositoryName:
+    Type: String
+  Environment:
+    Type: String
+    AllowedValues: [dev, staging, prod]
+    Default: prod
+
+Resources:
+  KiritekAlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "kiritek-codecommit-alerts-${Environment}"
+      # Sin secretos: el cifrado usa una CMK gestionada, no una clave embebida.
+      KmsMasterKeyId: alias/aws/sns
+
+  # Política del topic: sólo EventBridge puede publicar; preferir roles.
+  KiritekAlertTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics: [!Ref KiritekAlertTopic]
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowEventBridgePublish
+            Effect: Allow
+            Principal: { Service: events.amazonaws.com }
+            Action: sns:Publish
+            Resource: !Ref KiritekAlertTopic
+
+  KiritekCodeCommitEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "kiritek-codecommit-events-${Environment}"
+      Description: Push a rama default, borrado de rama y cambios de PR.
+      EventPattern:
+        source: ["aws.codecommit"]
+        detail-type:
+          - "CodeCommit Repository State Change"
+          - "CodeCommit Pull Request State Change"
+        resources:
+          - !Sub "arn:aws:codecommit:*:*:${RepositoryName}"
+      State: ENABLED
+      Targets:
+        - Id: KiritekAlertTopic
+          Arn: !Ref KiritekAlertTopic
+          # El mensaje transporta SÓLO metadata del evento (sin secretos).
+          InputTransformer:
+            InputPathsMap:
+              repo: "$.detail.repositoryName"
+              event: "$.detail.event"
+              ref: "$.detail.referenceName"
+            InputTemplate: >-
+              "Kiritek alert: event <event> on repo <repo> ref <ref> (no secrets)."
+
+Outputs:
+  AlertTopicArn:
+    Value: !Ref KiritekAlertTopic
+  EventRuleName:
+    Value: !Ref KiritekCodeCommitEventRule

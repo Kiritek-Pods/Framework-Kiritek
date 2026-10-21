@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "provider": "github",
+  "generatedAt": "2026-10-01T12:00:00.000Z",
+  "planId": "plan-github-applied",
+  "observation": "observed",
+  "observationReason": null,
+  "dryRun": false,
+  "applied": true,
+  "apply": {
+    "supported": true,
+    "requiresHumanConfirmation": false,
+    "note": "intenta autoaplicar — prohibido por el contrato"
+  },
+  "changes": [],
+  "requiredPermissions": [],
+  "parameters": [],
+  "rollback": [],
+  "reason": "plan que afirma haberse aplicado; debe ser rechazado"
+}

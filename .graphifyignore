@@ -1,0 +1,4 @@
+# >>> kiritek-security (managed) >>>
+.kiritek/security/
+.kiritek/tmp/
+# <<< kiritek-security (managed) <<<

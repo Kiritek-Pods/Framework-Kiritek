@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/search-input-rate.contract.schema.json",
+  "title": "Contrato conductual de search.input-rate",
+  "description": "Declaración versionada del equipo: tipo de búsqueda, cancelación, equivalencia y cómo ejecutar el harness con reloj/transporte controlables.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "triggers", "cancellation", "equivalence", "harness"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "search.input-rate" },
+    "triggers": { "type": "string", "enum": ["remote", "costly", "local"] },
+    "cancellation": { "type": "string", "enum": ["supported", "unsupported"] },
+    "equivalence": { "type": "string", "enum": ["exact", "trim", "trim-lowercase"] },
+    "minCharsException": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "testedBy"],
+      "properties": {
+        "reason": { "type": "string", "minLength": 10 },
+        "testedBy": { "$ref": "engineering/common.schema.json#/definitions/repoPath" }
+      }
+    },
+    "harness": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "adapter"],
+          "properties": { "kind": { "type": "string", "const": "node-adapter" }, "adapter": { "$ref": "engineering/common.schema.json#/definitions/repoPath" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "command", "args", "traceFile"],
+          "properties": {
+            "kind": { "type": "string", "const": "trace-command" },
+            "command": { "type": "string", "pattern": "^[A-Za-z0-9._-]+$" },
+            "args": { "type": "array", "maxItems": 32, "items": { "type": "string", "maxLength": 512 } },
+            "traceFile": { "$ref": "engineering/common.schema.json#/definitions/repoPath" }
+          }
+        }
+      ]
+    }
+  }
+}

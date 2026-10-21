@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/ui-file-upload.trace.schema.json",
+  "title": "Traza conductual de ui.file-upload",
+  "description": "Sólo estado, conteos y booleanos. Nunca nombres ni contenido de archivos.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harnessInfo" },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "maxItems": 40, "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "steps"],
+      "properties": {
+        "id": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioId" },
+        "status": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioStatus" },
+        "limitation": { "$ref": "engineering/controls/harness.schema.json#/definitions/limitation" },
+        "steps": { "type": "array", "maxItems": 2, "items": { "$ref": "#/definitions/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uploads"],
+      "properties": {
+        "state": { "type": "string", "enum": ["idle", "selected", "rejected", "uploading", "done", "error", "cancelled", "other"] },
+        "uploads": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "progressSeen": { "type": "boolean" },
+        "aborted": { "type": "boolean" },
+        "message": { "type": "string", "enum": ["ok", "empty", "internal-key", "markup"] },
+        "retried": { "type": "boolean" }
+      }
+    }
+  }
+}

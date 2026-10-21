@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "entries": {
+    "kiritek-security.config.json": {
+      "owner": "core",
+      "strategy": "owned",
+      "installedHash": "c6e05b22e13b95aaed546ccfd42efeffb548c744c346d511953c75fc22f01dc3",
+      "version": null
+    },
+    ".gitignore": {
+      "owner": "core",
+      "strategy": "managed-block",
+      "installedHash": "5ecfbd415a25670641a993002e1ec453fe5be500ec3b36b6b00ba6cdfee92c17",
+      "version": null
+    },
+    ".graphifyignore": {
+      "owner": "core",
+      "strategy": "managed-block",
+      "installedHash": "74588667790110ca3037cc395bfa9b1fb9c7fafb8755104ac2def5214d059785",
+      "version": null
+    },
+    ".kiritek/gitleaks.toml": {
+      "owner": "core",
+      "strategy": "owned",
+      "installedHash": "85398c979bad0b7b0d9a90d3230f9735c0592d3e73805d346e1389f5b68e6697",
+      "version": null
+    },
+    ".kiritek/tools/manifest.json": {
+      "owner": "core",
+      "strategy": "owned",
+      "installedHash": "5e3c3caf200c33f937780e6f2fab7660b1b25fd0abb33cbb30469919f700affd",
+      "version": null
+    },
+    ".kiritek/adapters/claude/pretooluse.sh": {
+      "owner": "core",
+      "strategy": "owned",
+      "installedHash": "7d6613a020cf4ddad9aeffbf1cff9e664859abdb3902e8644b9167196dd776ec",
+      "version": null
+    },
+    ".kiritek/adapters/kiro/pretooluse.sh": {
+      "owner": "core",
+      "strategy": "owned",
+      "installedHash": "b8784ba5acf6b217c9164c37bad47e5ba2d2a4baf1c41983572533ddc204c11e",
+      "version": null
+    },
+    ".github/workflows/kiritek-security.yml": {
+      "owner": "core",
+      "strategy": "owned",
+      "installedHash": "5d82a91a227bc2d4fdeadc5b71ecde05eff4dd1185d5b14de4f046cc366a196b",
+      "version": null
+    }
+  }
+}

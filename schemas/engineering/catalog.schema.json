@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/catalog.schema.json",
+  "title": "Kiritek Engineering Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "version", "digest", "compatibility", "profiles", "controls", "migrations", "publishedAt"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "id": { "type": "string", "const": "engineering/guardrails" },
+    "version": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+    "digest": { "$ref": "engineering/common.schema.json#/definitions/sha256" },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keyId", "algorithm", "signatureRef"],
+      "properties": {
+        "keyId": { "type": "string", "minLength": 1 },
+        "algorithm": { "type": "string", "enum": ["ed25519", "ecdsa-p256-sha256"] },
+        "signatureRef": { "$ref": "engineering/common.schema.json#/definitions/ref" }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node", "kiritekInit", "platforms"],
+      "properties": {
+        "node": { "type": "string", "minLength": 1 },
+        "kiritekInit": { "type": "string", "minLength": 1 },
+        "platforms": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "enum": ["darwin", "linux", "win32"] } }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version", "description", "extends"],
+        "properties": {
+          "id": { "$ref": "engineering/common.schema.json#/definitions/profileId" },
+          "version": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+          "description": { "type": "string", "minLength": 1 },
+          "extends": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/profileRef" } },
+          "parametersSchemaRef": { "$ref": "engineering/common.schema.json#/definitions/ref" }
+        }
+      }
+    },
+    "controls": { "type": "array", "items": { "$ref": "engineering/control.schema.json" } },
+    "migrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "ref"],
+        "properties": {
+          "from": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+          "to": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+          "ref": { "$ref": "engineering/common.schema.json#/definitions/ref" }
+        }
+      }
+    },
+    "publishedAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" }
+  }
+}
