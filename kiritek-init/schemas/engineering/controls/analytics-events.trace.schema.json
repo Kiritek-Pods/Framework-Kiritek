@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/analytics-events.trace.schema.json",
+  "title": "Traza conductual de analytics.events",
+  "description": "Sólo conteos y booleanos. Nunca propiedades ni payloads de eventos.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harnessInfo" },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "maxItems": 20, "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "steps"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*(#[a-z][a-z0-9_.]*)?$", "maxLength": 128 },
+        "status": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioStatus" },
+        "limitation": { "$ref": "engineering/controls/harness.schema.json#/definitions/limitation" },
+        "steps": { "type": "array", "maxItems": 1, "items": { "$ref": "#/definitions/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "emitted": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "schemaOk": { "type": "boolean" },
+        "noExtra": { "type": "boolean" },
+        "piiLeak": { "type": "boolean" },
+        "isolated": { "type": "boolean" },
+        "noDuplicates": { "type": "boolean" }
+      }
+    }
+  }
+}

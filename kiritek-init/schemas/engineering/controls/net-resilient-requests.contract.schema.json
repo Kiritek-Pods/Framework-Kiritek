@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/net-resilient-requests.contract.schema.json",
+  "title": "Contrato de llamadas de red (net.resilient-requests)",
+  "description": "Operaciones remotas del cliente con timeout, política de reintento e idempotencia. Las reglas semánticas las evalúa el control.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "operations"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "net.resilient-requests" },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "idempotent", "timeoutMs", "retry", "idempotencyKey"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
+          "idempotent": { "type": "boolean" },
+          "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 120000 },
+          "retry": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["maxAttempts", "backoff", "baseMs", "on"],
+            "properties": {
+              "maxAttempts": { "type": "integer", "minimum": 1, "maximum": 10 },
+              "backoff": { "type": "string", "enum": ["exponential", "fixed"] },
+              "baseMs": { "type": "integer", "minimum": 0, "maximum": 60000 },
+              "maxDelayMs": { "type": "integer", "minimum": 0, "maximum": 300000 },
+              "on": { "type": "array", "uniqueItems": true, "maxItems": 4, "items": { "type": "string", "enum": ["network", "timeout", "5xx", "429"] } }
+            }
+          },
+          "idempotencyKey": { "type": "string", "enum": ["header", "none"] }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

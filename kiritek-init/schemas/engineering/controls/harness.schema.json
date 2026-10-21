@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/harness.schema.json",
+  "title": "Declaración de harness conductual (común a los controles T18–T21)",
+  "description": "node-adapter: el pack carga el adapter del equipo en un proceso hijo con reloj y transporte sintéticos. trace-command: el equipo corre su propio stack y deja la traza estándar en traceFile.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "harness"
+  ],
+  "properties": {
+    "harness": {
+      "$ref": "#/definitions/harness"
+    }
+  },
+  "definitions": {
+    "harness": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "adapter"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "node-adapter"
+            },
+            "adapter": {
+              "$ref": "engineering/common.schema.json#/definitions/repoPath"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "command",
+            "args",
+            "traceFile"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "trace-command"
+            },
+            "command": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]+$"
+            },
+            "args": {
+              "type": "array",
+              "maxItems": 32,
+              "items": {
+                "type": "string",
+                "maxLength": 512
+              }
+            },
+            "traceFile": {
+              "$ref": "engineering/common.schema.json#/definitions/repoPath"
+            }
+          }
+        }
+      ]
+    },
+    "harnessInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "version": {
+          "$ref": "engineering/common.schema.json#/definitions/semver"
+        }
+      }
+    },
+    "scenarioId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(@[a-z][a-z0-9-]*)?$",
+      "maxLength": 128
+    },
+    "scenarioStatus": {
+      "type": "string",
+      "enum": [
+        "ok",
+        "error",
+        "timeout",
+        "skipped"
+      ]
+    },
+    "limitation": {
+      "type": "string",
+      "pattern": "^[A-Z_]+$"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "id": "search",
+  "version": "1.0.0",
+  "contractVersion": "1.0.0",
+  "profiles": {
+    "allOf": [
+      "search"
+    ]
+  },
+  "moments": [
+    {
+      "moment": "agent",
+      "scope": "change",
+      "network": false,
+      "budgetMs": 1500,
+      "fallback": "defer-to-later-surface"
+    },
+    {
+      "moment": "pr",
+      "scope": "change",
+      "network": false,
+      "budgetMs": 600000,
+      "fallback": "error-operational"
+    }
+  ],
+  "parametersSchemaRef": "schemas/engineering/controls/search-input-rate.params.schema.json",
+  "supportedLevels": [
+    "off",
+    "warn",
+    "enforce"
+  ],
+  "enforcementContract": {
+    "evidenceTypes": [
+      "deterministic"
+    ],
+    "conformanceSuite": "test/engineering/contract/search-input-rate",
+    "approvedVersion": "1.0.0",
+    "moments": [
+      "pr"
+    ]
+  },
+  "collectors": [
+    "search-input-rate/collector"
+  ],
+  "normalizer": "search-input-rate/normalizer",
+  "applicability": "search-input-rate/applicability",
+  "evaluator": "search-input-rate/evaluator",
+  "costClass": "medium",
+  "timeoutMs": 120000,
+  "cachePolicy": {
+    "enabled": true,
+    "ttlSeconds": 86400
+  },
+  "freshness": {
+    "maxAgeSeconds": 86400
+  },
+  "permissions": {
+    "filesystemRead": [
+      "apps/**"
+    ],
+    "networkHosts": [],
+    "envNames": [],
+    "processes": [
+      "node"
+    ]
+  },
+  "documentationRef": "docs/engineering/controls/search-input-rate.md",
+  "defaults": {
+    "level": "warn",
+    "parameters": {
+      "minChars": 3
+    }
+  }
+}

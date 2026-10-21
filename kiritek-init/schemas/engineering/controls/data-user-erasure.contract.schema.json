@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/data-user-erasure.contract.schema.json",
+  "title": "Contrato de borrado de datos del usuario (data.user-erasure)",
+  "description": "Endpoint de borrado (con :userId), almacenes que guardan datos del usuario y lecturas (listados, exportaciones) donde no deben reaparecer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "erasure", "stores"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "data.user-erasure" },
+    "erasure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "path"],
+      "properties": {
+        "method": { "type": "string", "enum": ["DELETE", "POST"] },
+        "path": { "type": "string", "pattern": "^/[A-Za-z0-9/_.-]*:userId[A-Za-z0-9/_.-]*$", "maxLength": 200 }
+      }
+    },
+    "stores": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": { "type": "object", "additionalProperties": false, "required": ["id"], "properties": { "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 } } }
+    },
+    "readEndpoints": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
+          "path": { "type": "string", "pattern": "^/[A-Za-z0-9/_.:-]*$", "maxLength": 200 }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

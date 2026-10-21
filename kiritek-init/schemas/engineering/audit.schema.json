@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/audit.schema.json",
+  "title": "Auditoría engineering por capacidades",
+  "description": "Una fila por unidad × control × momento (R19, T15). Sin booleano global de cumplimiento.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "domain", "packId", "generatedAt", "pack", "capabilities", "summary", "diagnostics"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "domain": { "type": "string", "const": "engineering" },
+    "packId": { "type": "string", "const": "engineering/guardrails" },
+    "generatedAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+    "catalog": { "$ref": "engineering/common.schema.json#/definitions/catalogRef" },
+    "configHash": { "$ref": "engineering/common.schema.json#/definitions/sha256" },
+    "revision": { "$ref": "engineering/common.schema.json#/definitions/revision" },
+    "pack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["installed", "integrity", "configured"],
+      "properties": {
+        "installed": { "type": "boolean" },
+        "version": { "anyOf": [{ "type": "null" }, { "$ref": "engineering/common.schema.json#/definitions/semver" }] },
+        "integrity": { "type": "string", "enum": ["ok", "failed", "unknown"] },
+        "configured": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["absent"] },
+        "reason": { "type": "string" },
+        "altered": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["path", "reason"], "properties": { "path": { "$ref": "engineering/common.schema.json#/definitions/repoPath" }, "reason": { "type": "string", "enum": ["missing", "modified"] } } } }
+      }
+    },
+    "surfaces": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status"],
+        "properties": {
+          "status": { "type": "string", "enum": ["verified", "missing", "disconnected", "drift", "not-executable", "unknown"] },
+          "reason": { "type": "string" },
+          "observation": { "type": "string", "enum": ["observed", "unauthorized", "not-configured", "not-applicable", "unknown"] },
+          "snippet": { "type": "string" }
+        }
+      }
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["unitId", "declared", "suggested", "controls"],
+        "properties": {
+          "unitId": { "$ref": "engineering/common.schema.json#/definitions/namespacedId" },
+          "declared": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "version", "source"], "properties": { "id": { "type": "string" }, "version": { "type": "string" }, "source": { "type": "string", "enum": ["explicit", "inherited", "suggested"] } } } },
+          "suggested": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "confidence"], "properties": { "id": { "type": "string" }, "confidence": { "type": "string" } } } },
+          "controls": { "type": "object", "additionalProperties": { "type": "object", "additionalProperties": false, "required": ["level"], "properties": { "level": { "type": "string", "enum": ["off", "warn", "enforce"] } } } }
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "unitId", "controlId", "controlVersion", "moment", "applicable", "applicabilityStatus", "installed", "integrity", "configured", "active", "executable", "linkage", "momentCovered", "level", "enforcementEligible", "lastRun", "lastResult", "lastResultFresh", "drift", "evidenceRef", "observation", "status"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "unitId": { "$ref": "engineering/common.schema.json#/definitions/namespacedId" },
+          "controlId": { "$ref": "engineering/common.schema.json#/definitions/controlId" },
+          "controlVersion": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+          "moment": { "$ref": "engineering/common.schema.json#/definitions/moment" },
+          "packId": { "type": "string" },
+          "catalogVersion": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+          "catalogDigest": { "$ref": "engineering/common.schema.json#/definitions/sha256" },
+          "profiles": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "status"], "properties": { "id": { "type": "string" }, "status": { "type": "string", "enum": ["explicit", "inherited", "suggested", "undeclared"] } } } },
+          "applicable": { "type": "boolean" },
+          "applicabilityStatus": { "type": "string", "enum": ["applicable", "not_applicable", "suggested"] },
+          "installed": { "type": "boolean" },
+          "version": { "anyOf": [{ "type": "null" }, { "$ref": "engineering/common.schema.json#/definitions/semver" }] },
+          "integrity": { "type": "string", "enum": ["ok", "failed", "unknown"] },
+          "configured": { "type": "boolean" },
+          "active": { "type": "boolean" },
+          "executable": { "type": "boolean" },
+          "linkage": { "type": "string", "enum": ["verified", "missing", "unsupported", "unknown"] },
+          "momentCovered": { "type": "string", "enum": ["verified", "unavailable", "unknown", "drift"] },
+          "level": { "type": "string", "enum": ["off", "warn", "enforce"] },
+          "enforcementEligible": { "type": "boolean" },
+          "lastRun": { "anyOf": [{ "type": "null" }, { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" }] },
+          "lastResult": { "type": "string", "enum": ["allow", "warn", "deny", "error", "none", "unknown"] },
+          "lastResultFresh": { "type": "boolean" },
+          "drift": { "type": "boolean" },
+          "evidenceRef": { "anyOf": [{ "type": "null" }, { "$ref": "engineering/common.schema.json#/definitions/repoPath" }] },
+          "observation": { "type": "string", "enum": ["observed", "unauthorized", "not-configured", "not-applicable", "unknown"] },
+          "status": { "type": "string", "enum": ["absent", "off", "suggested", "not_applicable", "unavailable", "unknown", "stale", "conflict", "drift", "verified"] },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "notInterceptable": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["surface", "status", "operation", "coveredBy"], "properties": { "surface": { "type": "string" }, "status": { "type": "string", "const": "unavailable" }, "operation": { "type": "string" }, "coveredBy": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/moment" } } } }
+    },
+    "exceptions": { "type": "object", "additionalProperties": false, "required": ["rejected"], "properties": { "rejected": { "type": "integer", "minimum": 0 } } },
+    "selfCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "checks"],
+      "properties": {
+        "passed": { "type": "boolean" },
+        "checks": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "passed", "detail"], "properties": { "id": { "type": "string" }, "controlId": { "$ref": "engineering/common.schema.json#/definitions/controlId" }, "passed": { "type": "boolean" }, "detail": { "type": "string" } } } }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "byStatus"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "byStatus": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "byUnit": { "type": "object", "additionalProperties": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } } },
+        "byControl": { "type": "object", "additionalProperties": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } } },
+        "byMoment": { "type": "object", "additionalProperties": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } } },
+        "byLevel": { "type": "object", "additionalProperties": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } } }
+      }
+    },
+    "diagnostics": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/diagnostic" } }
+  }
+}

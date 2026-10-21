@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/ui-destructive-actions.contract.schema.json",
+  "title": "Contrato de acciones destructivas (ui.destructive-actions)",
+  "description": "Acciones que borran, cancelan o cobran, con su salvaguarda (confirmar, deshacer o ambas).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "control", "actions"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "control": { "type": "string", "const": "ui.destructive-actions" },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "safeguard"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 64 },
+          "safeguard": { "type": "string", "enum": ["confirm", "undo", "confirm-and-undo"] },
+          "undoWindowMs": { "type": "integer", "minimum": 0, "maximum": 600000 }
+        }
+      }
+    },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harness" }
+  }
+}

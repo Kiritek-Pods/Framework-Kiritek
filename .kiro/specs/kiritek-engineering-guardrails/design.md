@@ -637,6 +637,89 @@ FUNCTION evaluateModuleAnnouncement(input):
 
 Retirar/pausar el anuncio modifica rollout sin retirar módulo y conserva historial. Contenido es referencia, no se copia a evidencia.
 
+### 10.4 Controles del catálogo 2.0.0 (patrón común)
+
+Los treinta y dos controles nuevos comparten un esqueleto (`controls/shared/`) para no reimplementar recolección ni decisión:
+
+- **Contrato del equipo** (`contract-file.js`): JSON en una ruta contenida en el repo, validado contra su schema; ids duplicados lo invalidan. Del contrato sólo se extraen hechos mínimos (ids, enums, números, booleanos, fechas).
+- **Harness** (`harness-runner.js` + `harness.js` del control): el adapter del equipo corre en un proceso hijo con reloj virtual y transporte sintético; `trace-command` permite stacks no-JS con la misma traza estándar. La traza sólo lleva hechos derivados.
+- **Collector** (`behavior-collector.js`): contrato ⇒ observación determinista; sin contrato ⇒ señales heurísticas; con harness y en PR/release ⇒ dos corridas (`complete`, `conflict` si difieren, `partial`/`timeout` si no terminan). En agent y pre-commit sólo se valida el contrato.
+- **Evaluator** (`behavior-evaluator.js`, puro): contrato inválido ⇒ finding `contract-invalid`; reglas semánticas del contrato; cada escenario compara sus pasos con expectativas derivadas del contrato (valor, lista permitida o predicado) y cada hecho discrepante mapea a una regla. Sin contrato ⇒ `warn` heurístico. Tests faltantes ⇒ `warn`.
+
+| Estado | Evidencia | warn | enforce |
+|---|---|---|---|
+| Escenarios pasan | tests reproducibles | allow | allow |
+| Contrato inválido o regla semántica incumplida | schema/contrato | warn | deny |
+| Escenario fallido | test fresh reproducible | warn | deny |
+| Sin contrato, sólo patrones | heurística | warn | warn |
+| Sin harness o escenarios faltantes | ninguna | warn | warn |
+| Adapter que no monta, timeout, conflicto | incompleta | warn | error, nunca deny |
+
+### 10.5 `ui.data-states` y `ui.form-validation`
+
+`ui.data-states` prueba por pantalla (máx. 5): `loading` (carga anunciada, luego contenido), `content`, `empty`, `error` (con reintento si se exige), `retry`, `timeout` (sin respuesta ⇒ error tras `timeoutMs`) y `single-request`. Snapshot del adapter: `{ state, items, retry, busy }`.
+
+`ui.form-validation` prueba por formulario (máx. 5) con valores sintéticos por formato: `required`, `format`, `valid-submit`, `double-submit`, `server-error` (conserva valores, anuncia, permite reenviar) y `error-clears`. La clase del mensaje (`ok | empty | internal-key | markup`) se deriva sin copiar el texto.
+
+### 10.6 `net.resilient-requests`
+
+Por operación (máx. 5): `timeout`, `client-error`, `transient`, `network`, `retry-limit`, `backoff` (esperas ≥ base·0,5, crecientes si exponencial, ≤ `maxDelayMs`), `retry-after` y, para no idempotentes, `ambiguous` (un intento, o reintentos con la misma `Idempotency-Key`). `random` es fijo para que el jitter sea determinista. Contrato inseguro: no idempotente, sin clave y con reintentos ante `network`/`timeout`.
+
+### 10.7 `flags.lifecycle`
+
+Reglas del registro: `remove-by-missing`, `flag-expired`, `flag-lifetime`, `unsafe-default` (permiso con default ≠ `false`), `kill-switch-type` y timeout del cliente. Vencimientos próximos se informan en `allow`. Sólo si el registro declara `client` se exigen escenarios: `provider-value`, `provider-down`, `provider-timeout`, `invalid-value`, `unknown-flag` y `propagation` (cambio visible tras `refreshSeconds`). La traza lleva sólo la clase del valor resuelto.
+
+### 10.8 `auth.session-expiry` y `ui.file-upload`
+
+`auth.session-expiry`: tokens sintéticos; el transporte responde 401 a tokens vencidos y `auth.refresh()` entrega uno nuevo (o falla). Con renovación: `valid`, `expired-refresh`, `concurrent` (tres 401 simultáneos ⇒ una renovación), `refresh-fails` y `repeated-401` (sin bucle). Sin renovación: `valid` y `no-refresh`. El borrador sintético mide si se conserva el trabajo.
+
+`ui.file-upload`: archivos sintéticos sin contenido; el transporte reporta progreso por timers y expone `abort()`. Por punto de subida: `accept`, `too-large`, `wrong-type` (salvo `*/*`), `cancel` (si se exige), `network-error` (con reintento si se exige) y `double-start`.
+
+### 10.9 `ui.pagination` y `analytics.events`
+
+`ui.pagination`: dataset de `pageSize × 2 + 3` ítems opacos; el transporte pagina por cursor u offset y cuenta peticiones en vuelo. Por lista: `first-page`, `all-pages` (completo, sin duplicados, ordenado, fin visible, a lo sumo una petición extra), `load-after-end`, `concurrent-load`, `page-error` y, en modo cursor, `shifting` (ítems nuevos arriba).
+
+`analytics.events`: el adapter dispara el flujo real que emite cada evento con un perfil de usuario sintético que lleva canarios de PII. Escenarios: `schema#<evento>` (una vez, esquema y sin extras), `no-pii` (ningún canario en lo enviado) y `transport-down` (la acción no falla y los reintentos no duplican). El separador `#` evita ids con forma de email, que el validador de privacidad rechaza.
+
+### 10.10 `ui.destructive-actions`, `i18n.formatting` y `app.offline-mode`
+
+`ui.destructive-actions`: el transporte cuenta ejecuciones y reversiones; se evalúa el efecto neto, así deshacer puede demorar la ejecución o revertirla. Por acción: `confirm-required` y `dismiss` (si confirma), `execute`, `double-execute`, `undo` y `undo-expired` (si deshace) y `failure`.
+
+`i18n.formatting`: la referencia es `Intl` de la plataforma. Por idioma (máx. 5): `date` (año y orden día/mes cuando el mes es numérico), `number` (separador decimal), `currency` (símbolo/código y monto entero, válido en monedas sin decimales), `timezone` (instante elegido para que el día local difiera del de UTC). Con `messages`: `fallback` y `missing-key`.
+
+`app.offline-mode`: el harness corta y devuelve la red y puede recrear la app con el mismo almacenamiento. Escenarios: `notice`, `online@`, y para acciones encolables `queue@`, `restart@` y `order@`; para `online-only`, `offline-reject@`.
+
+### 10.11 `app.device-permissions`, `nav.broken-routes` y `ui.accessible-dialogs`
+
+`app.device-permissions`: la plataforma sintética registra cada pedido y, en el instante del pedido, si la explicación está visible. Por permiso: `not-on-launch`, `rationale`, `granted`, `denied`, `no-reprompt` y `blocked`.
+
+`nav.broken-routes`: URLs armadas desde el contrato (cada `:param` por un valor opaco). Escenarios: `known` (primera ruta pública), `unknown`, `malformed` (codificación inválida) y, con enlaces profundos y una ruta protegida, `deep-auth` (login y retorno con parámetros).
+
+`ui.accessible-dialogs`: síncrono, sin reloj. Por diálogo: `focus-in`, `escape`, `outside-click`, `semantics` y, en modales y paneles, `focus-trap` e `inert-background`. Un diálogo no descartable debe seguir abierto ante Escape y clic afuera.
+
+### 10.12 Controles de backend (`api.*`, `svc.*`)
+
+El adapter conecta el handler HTTP o el servidor real **en proceso** (`handle(req) → { status, headers, body }`, `shutdown()`) y recibe dependencias sintéticas en `deps`: contador de efectos (`effect`), dependencia que falla con detalles internos canario (`dependency`), almacén de ítems (`store.all`), dependencias que responden/se cuelgan/fallan (`<id>.call`, `<id>.ping`) y trabajo lento (`work`). `shared/http.js` normaliza respuestas y detecta fugas (stack traces, rutas del servidor, SQL, IPs internas, canario). La traza usa el schema común `facts.trace`, que sólo admite booleanos y enteros: por construcción no puede llevar cuerpos, headers ni identificadores.
+
+- `api.idempotency`: `replay`, `concurrent`, `distinct-keys`, `key-mismatch` y `missing-key` (si es obligatoria).
+- `api.error-responses`: `invalid@`, `malformed@`, `internal@` por endpoint y `not-found`; cada uno mide código, formato y fuga.
+- `api.rate-limit`: un escenario por límite con `limit` pedidos dentro de la ventana, el siguiente, otro cliente y la ventana vencida.
+- `api.pagination`: `default-size`, `max-size` (con un dataset mayor al máximo), `walk`, `bad-limit` y, en cursor, `stable-cursor` e `invalid-cursor`.
+- `svc.dependency-failure`: `healthy`, `hang`, `error` y `breaker` (20 fallas, recuperación tras 120 s virtuales).
+- `svc.health-shutdown`: `live`, `ready`, `not-ready@` por dependencia, `drain` (SIGTERM a los 100 ms con trabajo en curso) y `grace-bound` (trabajo que nunca termina).
+- `svc.log-hygiene`: el adapter dirige su logger a `logger.write(line)`; las requests llevan email, teléfono, tarjeta, token, cookie y contraseña canario. Por endpoint: `structured`, `correlation` (con y sin header), `no-pii` y `error` (dependencia que falla con datos en el mensaje).
+- `api.concurrency`: almacén asíncrono con latencia virtual (`get`, `save`, `saveIfVersion`). Por recurso: `exposed`, `conditional`, `stale` (otro guardó antes), `precondition` (si se exige) y `race` (dos actualizaciones simultáneas con la misma versión).
+- `api.versioning`: por endpoint, sobre todas las versiones declaradas: `served`, `deprecation` (`Deprecation` y `Sunset` comparado por día), `unknown` (`v999`), `retired` y `compatible` (campos declarados, en el cuerpo o en el primer ítem).
+- `api.request-limits`: por endpoint con cuerpo, `within` (mitad del límite), `oversized` (doble, con `Content-Length`) y `chunked` (doble, sin él); siempre `slow` (`work` que sólo termina si se aborta su `signal`) y `fast` (termina a la mitad del timeout).
+- `api.http-cache`: dos usuarios sintéticos con registros propios en los recursos privados. Por recurso: `headers`, `validator`, `not-modified`, `changed` (el recurso cambia y se reenvía el validador viejo) y, en privados con ETag, `per-user`.
+- `api.response-schema`: valida cada respuesta real contra el schema del contrato con el validador del repo (subconjunto verificable, `$ref` locales) y cuenta campos no declarados. Los schemas viajan como texto JSON en los hechos del contrato.
+- `api.long-operations`: `work` termina a los 3 s virtuales, falla con un error interno canario o se cuelga hasta que se aborte su `signal`; el harness sigue `Location` cada segundo virtual: `accepted`, `completes`, `fails`, `stuck` y `unknown`.
+- `api.batch`: lotes de tres ítems con referencia; `store.save` y `store.transaction`. Por endpoint: `all-ok`, `invalid-item`, `apply-failure` (guardar `k-2` falla), `over-limit` y `empty`; las expectativas dependen del modo (`partial` o `atomic`).
+- `db.compatible-migrations`: el adapter entrega `[{ id, sql }]`; el clasificador (`sql.js`) quita comentarios y literales y cuenta por clase de cambio las sentencias posteriores al baseline, salvo tablas nuevas y contracciones respaldadas. La traza sólo lleva conteos.
+- `data.user-erasure`: almacenes sintéticos por id con filas de dos usuarios y datos canario; `store@<id>`, `others`, `reads`, `repeat` y `unknown`. Si el borrado sigue en segundo plano, el harness espera 60 s virtuales.
+- `svc.metrics`: lee la exposición Prometheus; la dependencia tarda 250 ms virtuales: `exposed`, `counted`, `errors`, `latency` y `cardinality` (5 ids distintos, token y email canario).
+- `svc.startup-config`: `startService({ env, logger, clock })` con entornos sintéticos: `valid`, `missing@`, `invalid@`, `optional@` y `secrets`. Negarse a arrancar es lanzar o rechazar dentro de 5 s virtuales.
+
 ## 11. Waivers y N/A gobernado
 
 `Waiver` adapta `domain/exception.js`: añade `kind:"waiver"`, `unitId`, `scopeHash|findingFingerprint`, aprobador según política, ticket, created/expires y máximo del contrato (nunca indefinido). `GovernedNA` es tipo separado porque no necesita finding: `{controlId, unitId, functionalReason, owner, approver?, evidenceRef, createdAt, reviewAt, scopeHash}`.

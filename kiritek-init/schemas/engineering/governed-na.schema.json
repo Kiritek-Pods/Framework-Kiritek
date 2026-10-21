@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/governed-na.schema.json",
+  "title": "N/A gobernado engineering",
+  "description": "Declaración explícita y revisable de no aplicabilidad funcional (R18.2). No finge un finding: exige prueba (evidenceRef) y fecha de revisión.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "id", "controlId", "unitId", "scope", "functionalReason", "owner", "evidenceRef", "createdAt", "reviewAt"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "kind": { "type": "string", "const": "governed-na" },
+    "id": { "$ref": "engineering/waiver.schema.json#/definitions/exceptionId" },
+    "controlId": { "$ref": "engineering/common.schema.json#/definitions/controlId" },
+    "controlVersion": { "$ref": "engineering/common.schema.json#/definitions/semver" },
+    "unitId": { "$ref": "engineering/common.schema.json#/definitions/namespacedId" },
+    "scope": { "$ref": "engineering/waiver.schema.json#/definitions/scope" },
+    "functionalReason": { "type": "string", "minLength": 10, "maxLength": 1000 },
+    "owner": { "$ref": "engineering/waiver.schema.json#/definitions/principal" },
+    "approver": { "$ref": "engineering/waiver.schema.json#/definitions/principal" },
+    "criticality": { "type": "string", "enum": ["low", "medium", "high"] },
+    "evidenceRef": { "$ref": "engineering/common.schema.json#/definitions/repoPath" },
+    "createdAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+    "reviewAt": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+    "history": { "$ref": "engineering/waiver.schema.json#/definitions/history" }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/run-ledger.schema.json",
+  "title": "Registro de la última ejecución engineering por momento",
+  "description": "Sólo identidad, estado y decisión por unidad/control (T15.1). Fuente de lastRun/lastResult de la auditoría; sin findings ni contenido.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "moment",
+    "at",
+    "revision",
+    "configHash",
+    "catalog",
+    "results"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "moment": {
+      "$ref": "engineering/common.schema.json#/definitions/moment"
+    },
+    "at": {
+      "$ref": "engineering/common.schema.json#/definitions/isoTimestamp"
+    },
+    "revision": {
+      "$ref": "engineering/common.schema.json#/definitions/revision"
+    },
+    "configHash": {
+      "$ref": "engineering/common.schema.json#/definitions/sha256"
+    },
+    "catalog": {
+      "$ref": "engineering/common.schema.json#/definitions/catalogRef"
+    },
+    "surface": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "unitId",
+          "controlId",
+          "controlVersion",
+          "level",
+          "state",
+          "decision",
+          "blockingEligible",
+          "durationMs"
+        ],
+        "properties": {
+          "unitId": {
+            "$ref": "engineering/common.schema.json#/definitions/namespacedId"
+          },
+          "controlId": {
+            "$ref": "engineering/common.schema.json#/definitions/controlId"
+          },
+          "controlVersion": {
+            "$ref": "engineering/common.schema.json#/definitions/semver"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "off",
+              "warn",
+              "enforce"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "evaluated",
+              "off",
+              "not_evaluated",
+              "not_applicable",
+              "unknown",
+              "unavailable",
+              "timeout",
+              "conflict",
+              "stale"
+            ]
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "allow",
+              "warn",
+              "deny",
+              "error",
+              "none"
+            ]
+          },
+          "blockingEligible": {
+            "type": "boolean"
+          },
+          "evidenceClass": {
+            "type": "string",
+            "enum": [
+              "deterministic",
+              "heuristic",
+              "manual",
+              "none"
+            ]
+          },
+          "evidenceFreshness": {
+            "type": "string",
+            "enum": [
+              "fresh",
+              "stale",
+              "conflict",
+              "missing",
+              "unknown"
+            ]
+          },
+          "evidenceCompleteness": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "partial",
+              "none"
+            ]
+          },
+          "evidenceRef": {
+            "$ref": "engineering/common.schema.json#/definitions/ref"
+          },
+          "durationMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "findings": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "suppressed": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "controlConfigHash": {
+            "$ref": "engineering/common.schema.json#/definitions/sha256"
+          }
+        }
+      }
+    }
+  }
+}

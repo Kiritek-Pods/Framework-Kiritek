@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Parámetros de auth.session-expiry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "sessionContract": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![/~])(?![A-Za-z]:)(?!(?:.*/)?\\.\\.(?:/|$))[^\\u0000\\\\]+$"
+    },
+    "requireRefresh": {
+      "type": "boolean"
+    },
+    "maxEvidenceAgeHours": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 720
+    }
+  }
+}

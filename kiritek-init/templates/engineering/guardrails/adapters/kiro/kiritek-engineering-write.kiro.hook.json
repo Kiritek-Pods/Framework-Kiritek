@@ -1,0 +1,14 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Kiritek Engineering - guardrails feedback",
+      "trigger": "PreToolUse",
+      "matcher": "fs_write|write|str_replace",
+      "action": {
+        "type": "command",
+        "command": "sh \"${CWD:-.}/.kiritek/adapters/engineering/kiro-pretooluse.sh\""
+      }
+    }
+  ]
+}

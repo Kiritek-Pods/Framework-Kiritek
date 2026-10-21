@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/ui-form-validation.trace.schema.json",
+  "title": "Traza conductual de ui.form-validation",
+  "description": "Sólo hechos derivados (conteos, booleanos, clase de mensaje). Nunca valores ingresados ni textos de error.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "harness",
+    "scenarios"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "harness": {
+      "$ref": "engineering/controls/harness.schema.json#/definitions/harnessInfo"
+    },
+    "fatal": {
+      "type": "string",
+      "pattern": "^[A-Z_]+$"
+    },
+    "scenarios": {
+      "type": "array",
+      "maxItems": 60,
+      "items": {
+        "$ref": "#/definitions/scenario"
+      }
+    }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "status",
+        "steps"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioId"
+        },
+        "status": {
+          "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioStatus"
+        },
+        "limitation": {
+          "$ref": "engineering/controls/harness.schema.json#/definitions/limitation"
+        },
+        "steps": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/definitions/step"
+          }
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "submits"
+      ],
+      "properties": {
+        "submits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "requiredFlagged": {
+          "type": "boolean"
+        },
+        "formatFlagged": {
+          "type": "boolean"
+        },
+        "noFalseErrors": {
+          "type": "boolean"
+        },
+        "linked": {
+          "type": "boolean"
+        },
+        "focusFirst": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "empty",
+            "internal-key",
+            "markup",
+            "none"
+          ]
+        },
+        "valuesSent": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "idle",
+            "submitting",
+            "submitted",
+            "error",
+            "other"
+          ]
+        },
+        "preserved": {
+          "type": "boolean"
+        },
+        "announced": {
+          "type": "boolean"
+        },
+        "cleared": {
+          "type": "boolean"
+        },
+        "resubmitted": {
+          "type": "boolean"
+        },
+        "droppedFields": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

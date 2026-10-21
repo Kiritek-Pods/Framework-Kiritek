@@ -12,6 +12,29 @@ Los guardrails iniciales cubren:
 - políticas de versión mínima soportada para aplicaciones móviles;
 - anuncios explícitos y accesibles de módulos web nuevos.
 
+El catálogo 2.0.0 amplía la cobertura con treinta y dos guardrails (requisitos 28–59), de interfaz y de backend:
+
+- estados de carga, vacío y error en pantallas que cargan datos;
+- formularios con validación y errores accesibles;
+- llamadas de red con timeout, reintentos seguros e idempotencia;
+- feature flags con dueño, vencimiento y valor por defecto seguro;
+- sesión expirada sin bucles ni pérdida de trabajo;
+- subida de archivos con límites, progreso, cancelación y reintento;
+- listas largas paginadas sin duplicados ni saltos;
+- eventos de analytics con esquema y sin datos personales;
+- acciones destructivas con confirmación o deshacer;
+- formato de fechas, números y montos por idioma;
+- modo sin conexión con cola y sincronización;
+- permisos del dispositivo pedidos en contexto y tolerantes al rechazo;
+- rutas inexistentes, URLs mal formadas y enlaces que sobreviven al login;
+- diálogos accesibles con teclado y lector de pantalla;
+- APIs idempotentes, con errores consistentes, límites de uso y paginación acotada;
+- servicios que toleran dependencias caídas y se apagan sin cortar requests;
+- logs estructurados, correlacionados y sin datos personales ni secretos;
+- ediciones concurrentes que no se pisan, versiones de API que no rompen clientes, límites de tamaño y tiempo por request y caché HTTP explícita;
+- respuestas que cumplen su schema publicado, operaciones largas y en lote que informan su resultado;
+- migraciones compatibles con el código desplegado, borrado completo de los datos del usuario, métricas por ruta y configuración validada al arrancar.
+
 La definición integral de seguridad sigue siendo la autoridad para sus propios controles en `.kiro/specs/kiritek-init-integral-security/requirements.md` y `.kiro/specs/kiritek-init-integral-security/design.md`. Esta spec no la reemplaza ni modifica.
 
 ## 2. Principios normativos
@@ -654,6 +677,538 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 
 27.7. **CUANDO** alguna condición global no se cumpla, **EL PACK DEBERÁ** permanecer experimental o warning-only y documentar la brecha.
 
+### Requisito 28 — Control `ui.data-states`
+
+**Historia de usuario:** Como owner de una pantalla que carga datos, quiero que el usuario siempre vea en qué estado está la carga, sin pantallas en blanco ni esperas infinitas.
+
+#### Criterios de aceptación
+
+28.1. **CUANDO** una unidad con perfil `data-views` declare pantallas en su contrato de estados, **EL CONTROL DEBERÁ** verificar por comportamiento los estados de carga, contenido, vacío y error de cada pantalla declarada.
+
+28.2. **MIENTRAS** los datos cargan, **EL COMPORTAMIENTO VERIFICADO DEBERÁ** mostrar un estado de carga anunciado a tecnologías de asistencia, nunca una pantalla en blanco.
+
+28.3. **CUANDO** la carga falle o no responda dentro del `timeoutMs` declarado, **LA PANTALLA DEBERÁ** pasar a un estado de error y, si el contrato lo exige, ofrecer un reintento que vuelva a cargar.
+
+28.4. **CUANDO** la respuesta no traiga datos y el contrato exija estado vacío, **LA PANTALLA DEBERÁ** mostrar un estado vacío explícito distinto del error.
+
+28.5. **CUANDO** la pantalla se monte, **DEBERÁ** disparar una sola carga.
+
+28.6. **SI** sólo se detectan llamadas de red o librerías de datos sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn` pidiendo el contrato.
+
+28.7. **CUANDO** se reporte un finding, **EL SISTEMA NO DEBERÁ** persistir los datos cargados ni texto renderizado; el transporte del harness es sintético.
+
+### Requisito 29 — Control `ui.form-validation`
+
+**Historia de usuario:** Como owner de un formulario, quiero que valide lo que el usuario escribe, que los errores sean accesibles y que nunca se pierda lo escrito.
+
+#### Criterios de aceptación
+
+29.1. **CUANDO** una unidad con perfil `forms` declare formularios con sus campos y restricciones, **EL CONTROL DEBERÁ** verificar por comportamiento la validación, los mensajes de error y el envío.
+
+29.2. **CUANDO** el usuario intente enviar con campos obligatorios vacíos o con formato/largo inválido, **EL FORMULARIO NO DEBERÁ** enviarse y **DEBERÁ** marcar cada campo inválido sin marcar campos válidos.
+
+29.3. **CUANDO** un campo sea inválido, **SU MENSAJE DEBERÁ** estar asociado al campo para tecnologías de asistencia, ser texto legible (no vacío, sin claves internas ni markup) y el foco **DEBERÁ** ir al primer campo inválido.
+
+29.4. **CUANDO** se envíe varias veces mientras un envío está en curso, **EL FORMULARIO DEBERÁ** enviar una sola vez.
+
+29.5. **SI** el envío falla, **EL FORMULARIO DEBERÁ** conservar lo escrito, anunciar el error y permitir reenviar.
+
+29.6. **CUANDO** el usuario corrija un campo, **SU ERROR DEBERÁ** desaparecer.
+
+29.7. **CUANDO** se ejecuten los escenarios, **LOS VALORES DEBERÁN** ser sintéticos y **NO DEBERÁN** aparecer en trazas, reportes ni evidencia.
+
+### Requisito 30 — Control `net.resilient-requests`
+
+**Historia de usuario:** Como owner de un cliente de APIs, quiero que las llamadas no se cuelguen, reintenten sólo cuando es seguro y nunca dupliquen operaciones.
+
+#### Criterios de aceptación
+
+30.1. **CUANDO** una unidad con perfil `network-client` declare operaciones con timeout, política de reintento e idempotencia, **EL CONTROL DEBERÁ** verificarlas con reloj y transporte controlados.
+
+30.2. **CUANDO** el servidor no responda, **LA LLAMADA DEBERÁ** terminar dentro de lo que permiten su timeout y su política de reintentos.
+
+30.3. **CUANDO** ocurra una falla transitoria declarada como reintentable (5xx, red, timeout, 429), **EL CLIENTE DEBERÁ** reintentar sin superar `maxAttempts`, esperando según el backoff declarado y respetando `Retry-After`.
+
+30.4. **CUANDO** la respuesta sea un error del cliente (4xx distinto de 429), **EL CLIENTE NO DEBERÁ** reintentar.
+
+30.5. **SI** una operación no idempotente sufre un error ambiguo, **EL CLIENTE DEBERÁ** no reintentar o reintentar con la misma clave de idempotencia; un contrato que declare reintentos ambiguos sin clave **DEBERÁ** reportarse como inseguro.
+
+30.6. **SI** sólo se detectan llamadas HTTP sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+30.7. **CUANDO** se reporte un finding, **EL SISTEMA NO DEBERÁ** persistir URLs, payloads, headers ni claves de idempotencia.
+
+### Requisito 31 — Control `flags.lifecycle`
+
+**Historia de usuario:** Como owner de un producto con feature flags, quiero que cada flag tenga dueño y fecha de retiro, que las vencidas se noten y que una falla del proveedor nunca abra funcionalidades por error.
+
+#### Criterios de aceptación
+
+31.1. **CUANDO** una unidad con perfil `feature-flags` declare su registro de flags, **CADA FLAG DEBERÁ** tener clave única, dueño, tipo, fecha de creación y valor por defecto.
+
+31.2. **CUANDO** una flag sea temporal (`release` o `experiment`), **DEBERÁ** declarar fecha de retiro dentro de la vida máxima configurada; una flag temporal vencida **DEBERÁ** reportarse como finding determinista.
+
+31.3. **CUANDO** una flag sea de permiso, **SU VALOR POR DEFECTO DEBERÁ** ser `false`; un kill switch **DEBERÁ** ser booleano.
+
+31.4. **CUANDO** el registro declare un cliente propio, **EL CONTROL DEBERÁ** verificar que use el valor del proveedor, devuelva el default si el proveedor falla, no responde o entrega un tipo incorrecto, resuelva como apagada una flag no registrada y refleje los cambios dentro del intervalo de refresco.
+
+31.5. **CUANDO** una flag temporal venza dentro del plazo de aviso configurado, **EL SISTEMA DEBERÁ** informarlo sin tratarlo como incumplimiento.
+
+31.6. **SI** sólo se detecta el uso de un SDK de flags sin registro, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 32 — Control `auth.session-expiry`
+
+**Historia de usuario:** Como owner de una app con sesiones, quiero que una sesión vencida se renueve sin molestar o lleve al login sin que el usuario pierda lo que estaba haciendo.
+
+#### Criterios de aceptación
+
+32.1. **CUANDO** una unidad con perfil `auth-session` declare su contrato de sesión, **EL CONTROL DEBERÁ** verificar con tokens y transporte sintéticos qué ocurre ante un 401.
+
+32.2. **CUANDO** el contrato declare renovación de token y un pedido reciba 401, **EL CLIENTE DEBERÁ** renovar una vez y repetir el pedido con el token nuevo; si varios pedidos reciben 401 a la vez, **DEBERÁ** renovar una sola vez para todos.
+
+32.3. **SI** la renovación falla o el token nuevo también es rechazado, **EL CLIENTE NO DEBERÁ** seguir reintentando y **DEBERÁ** llevar al usuario al login.
+
+32.4. **CUANDO** el contrato exija conservar el trabajo, **LA APP DEBERÁ** conservar el trabajo en curso al llevar al login.
+
+32.5. **SI** sólo se detecta manejo de tokens o de 401 sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+32.6. **LOS TOKENS Y EL TRABAJO DEL USUARIO NO DEBERÁN** aparecer en trazas, reportes ni evidencia.
+
+### Requisito 33 — Control `ui.file-upload`
+
+**Historia de usuario:** Como owner de una función de subida de archivos, quiero que se rechace lo inválido antes de subir y que el usuario vea, cancele y reintente sus subidas.
+
+#### Criterios de aceptación
+
+33.1. **CUANDO** una unidad con perfil `file-upload` declare sus puntos de subida con tamaño máximo y tipos aceptados, **EL CONTROL DEBERÁ** verificarlos con archivos y transporte sintéticos.
+
+33.2. **CUANDO** un archivo supere el tamaño o no sea de un tipo aceptado, **LA APP DEBERÁ** rechazarlo antes de subir, con un mensaje legible.
+
+33.3. **MIENTRAS** se sube un archivo válido, **LA APP DEBERÁ** mostrar el progreso y **DEBERÁ** subirlo una sola vez aunque se inicie dos veces.
+
+33.4. **CUANDO** el contrato lo exija, **EL USUARIO DEBERÁ** poder cancelar una subida en curso (abortando la transferencia) y reintentar una subida fallida.
+
+33.5. **SI** el contrato acepta cualquier tipo (`*/*`) sin permiso explícito o un tamaño por encima del límite configurado, **EL CONTROL DEBERÁ** reportarlo como finding determinista.
+
+33.6. **NOMBRES Y CONTENIDO DE ARCHIVOS NO DEBERÁN** aparecer en trazas, reportes ni evidencia.
+
+### Requisito 34 — Control `ui.pagination`
+
+**Historia de usuario:** Como owner de una lista larga, quiero que cargue por páginas sin repetir, saltar ni desordenar ítems.
+
+#### Criterios de aceptación
+
+34.1. **CUANDO** una unidad con perfil `paginated-lists` declare sus listas con tamaño de página y modo, **EL CONTROL DEBERÁ** verificarlas con un dataset sintético.
+
+34.2. **AL** montar, **LA LISTA DEBERÁ** pedir una sola página del tamaño declarado.
+
+34.3. **CUANDO** se pagine hasta el final, **DEBERÁN** aparecer todos los ítems, sin duplicados, en el orden de la fuente y, si se exige, con indicación de fin; sin pedir más de una página extra ni volver a pedir después del fin.
+
+34.4. **CUANDO** se pida cargar más mientras hay una página en vuelo, **LA LISTA DEBERÁ** ignorar el segundo pedido.
+
+34.5. **SI** una página falla, **LA LISTA DEBERÁ** conservar lo ya cargado, mostrar el error y recuperar al reintentar.
+
+34.6. **CUANDO** el modo sea `cursor` y lleguen ítems nuevos al inicio, **LA PAGINACIÓN NO DEBERÁ** repetir ni saltar ítems.
+
+### Requisito 35 — Control `analytics.events`
+
+**Historia de usuario:** Como owner de analytics, quiero eventos confiables, sin datos personales y que nunca rompan la app.
+
+#### Criterios de aceptación
+
+35.1. **CUANDO** una unidad con perfil `analytics` declare su plan de tracking, **EL CONTROL DEBERÁ** verificar los eventos emitidos por los flujos reales de la app con un perfil de usuario sintético.
+
+35.2. **CADA EVENTO DEBERÁ** emitirse una vez por acción, con sus propiedades obligatorias, tipos y valores permitidos, y sin propiedades fuera del plan.
+
+35.3. **LOS EVENTOS NO DEBERÁN** contener datos personales del usuario; un plan con propiedades cuyo nombre sugiere un dato personal **DEBERÁ** reportarse como finding determinista.
+
+35.4. **SI** el envío de analytics falla, **LA ACCIÓN DEL USUARIO DEBERÁ** completarse igual y los reintentos **NO DEBERÁN** duplicar eventos.
+
+35.5. **SI** sólo se detectan llamadas de tracking sin plan, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 36 — Control `ui.destructive-actions`
+
+**Historia de usuario:** Como owner de acciones que borran, cancelan o cobran, quiero que nunca se ejecuten por accidente ni dos veces.
+
+#### Criterios de aceptación
+
+36.1. **CUANDO** una unidad con perfil `destructive-actions` declare sus acciones y su salvaguarda (`confirm`, `undo` o `confirm-and-undo`), **EL CONTROL DEBERÁ** verificarlas midiendo el efecto neto sobre un transporte sintético.
+
+36.2. **CUANDO** la salvaguarda incluya confirmación, **EL PRIMER CLIC SÓLO DEBERÁ** pedir confirmación y cancelar **NO DEBERÁ** ejecutar nada.
+
+36.3. **CUANDO** la salvaguarda incluya deshacer, **DESHACER DENTRO DE LA VENTANA DEBERÁ** dejar todo como estaba y, vencida la ventana, la acción **DEBERÁ** quedar aplicada; la ventana **DEBERÁ** declararse y ser al menos la mínima configurada.
+
+36.4. **CUANDO** el usuario repita el clic mientras la acción está en curso, **LA ACCIÓN DEBERÁ** ejecutarse una sola vez.
+
+36.5. **SI** la acción falla, **LA APP DEBERÁ** mostrarlo como error con un mensaje legible y nunca como éxito.
+
+36.6. **SI** sólo se detectan llamadas de borrado o cancelación sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 37 — Control `i18n.formatting`
+
+**Historia de usuario:** Como owner de un producto en varios idiomas o países, quiero que fechas, números y montos se vean como espera cada usuario.
+
+#### Criterios de aceptación
+
+37.1. **CUANDO** una unidad con perfil `localized` declare idiomas, idioma por defecto, moneda y formatos, **EL CONTROL DEBERÁ** comparar la capa de formato del equipo con las convenciones de `Intl` (ICU) sin exigir un texto exacto.
+
+37.2. **LAS FECHAS DEBERÁN** respetar el orden de día y mes del idioma y la zona horaria del usuario; **LOS NÚMEROS** su separador decimal; **LOS MONTOS** la moneda declarada.
+
+37.3. **SI** el idioma del usuario no está soportado, **LA APP DEBERÁ** usar el idioma por defecto; **SI** falta una traducción, **DEBERÁ** mostrar un texto legible y nunca la clave interna.
+
+37.4. **EL IDIOMA POR DEFECTO DEBERÁ** estar entre los declarados.
+
+37.5. **SI** sólo se detectan formatos armados a mano sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 38 — Control `app.offline-mode`
+
+**Historia de usuario:** Como owner de una app que se usa con mala señal, quiero que el usuario no pierda lo que hace sin conexión y que nada se duplique al volver.
+
+#### Criterios de aceptación
+
+38.1. **CUANDO** una unidad con perfil `offline-capable` declare qué acciones deben funcionar sin red y si debe avisar, **EL CONTROL DEBERÁ** verificarlas con red, transporte y almacenamiento sintéticos.
+
+38.2. **CUANDO** se exija aviso, **LA APP DEBERÁ** indicar que está sin conexión y quitar el aviso al volver.
+
+38.3. **CUANDO** una acción encolable se haga sin red, **LA APP DEBERÁ** aceptarla y, al volver la conexión, enviarla exactamente una vez, en el orden en que se hizo, vaciando la cola, aunque la app se haya reiniciado entremedio.
+
+38.4. **CUANDO** una acción sólo funcione con red, **LA APP DEBERÁ** rechazarla sin conexión y **NO DEBERÁ** enviarla después.
+
+38.5. **SI** sólo se detectan service workers o APIs de conectividad sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 39 — Control `app.device-permissions`
+
+**Historia de usuario:** Como owner de una app que usa cámara, ubicación o notificaciones, quiero pedir permisos sólo cuando hacen falta y que un "no" no rompa la app.
+
+#### Criterios de aceptación
+
+39.1. **CUANDO** una unidad con perfil `device-permissions` declare sus permisos, **EL CONTROL DEBERÁ** verificarlos con una plataforma de permisos sintética.
+
+39.2. **AL** abrir la app, **NO DEBERÁ** pedirse ningún permiso declarado; **DEBERÁ** pedirse al usar la funcionalidad, con la explicación visible en ese momento.
+
+39.3. **SI** el usuario niega el permiso, **LA APP DEBERÁ** seguir funcionando y, si el contrato lo exige, ofrecer una alternativa; **NO DEBERÁ** volver a pedirlo cada vez.
+
+39.4. **SI** el permiso está bloqueado, **LA APP NO DEBERÁ** pedirlo y **DEBERÁ** ofrecer ir a los ajustes del sistema.
+
+39.5. **SI** sólo se detectan pedidos de permiso sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 40 — Control `nav.broken-routes`
+
+**Historia de usuario:** Como owner de una app con rutas y enlaces compartibles, quiero que un enlace roto nunca deje al usuario en una pantalla en blanco ni pierda su destino.
+
+#### Criterios de aceptación
+
+40.1. **CUANDO** una unidad con perfil `routed-app` declare sus rutas, **EL CONTROL DEBERÁ** verificarlas con URLs sintéticas armadas desde el contrato.
+
+40.2. **UNA RUTA INEXISTENTE DEBERÁ** mostrar una página de "no encontrado" con una salida; **UNA URL MAL FORMADA NO DEBERÁ** romper la app.
+
+40.3. **CUANDO** se exijan enlaces profundos, **UN ENLACE A UNA RUTA PROTEGIDA SIN SESIÓN DEBERÁ** llevar al login y, tras iniciar sesión, al destino original con sus parámetros.
+
+40.4. **SI** sólo se detecta un router sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+40.5. **LAS URLS NO DEBERÁN** aparecer en trazas, reportes ni evidencia.
+
+### Requisito 41 — Control `ui.accessible-dialogs`
+
+**Historia de usuario:** Como owner de una interfaz con modales y menús, quiero que se puedan usar con teclado y lector de pantalla.
+
+#### Criterios de aceptación
+
+41.1. **CUANDO** una unidad con perfil `dialogs` declare sus diálogos (modal, menú o panel) y si son descartables, **EL CONTROL DEBERÁ** verificarlos según los patrones de WAI-ARIA.
+
+41.2. **AL** abrir, **EL FOCO DEBERÁ** entrar al diálogo; en modales y paneles **DEBERÁ** quedar dentro con Tab y Shift+Tab y el fondo **DEBERÁ** quedar inactivo.
+
+41.3. **ESCAPE Y CLIC AFUERA DEBERÁN** cerrar un diálogo descartable devolviendo el foco al botón que lo abrió, y **NO DEBERÁN** cerrar uno no descartable.
+
+41.4. **EL DIÁLOGO DEBERÁ** tener el rol correcto y un nombre accesible.
+
+41.5. **SI** sólo se detectan modales sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 42 — Control `api.idempotency`
+
+**Historia de usuario:** Como owner de una API que modifica datos, quiero que un pedido repetido nunca duplique su efecto.
+
+#### Criterios de aceptación
+
+42.1. **CUANDO** una unidad con perfil `http-api` declare endpoints con clave de idempotencia, **EL CONTROL DEBERÁ** verificarlos llamando al handler real con dependencias sintéticas que cuentan los efectos.
+
+42.2. **CUANDO** llegue dos veces el mismo pedido con la misma clave, en secuencia o a la vez, **LA API DEBERÁ** ejecutar el efecto una sola vez, devolver la misma respuesta y no responder 5xx.
+
+42.3. **CUANDO** se reutilice una clave con otro cuerpo, **LA API DEBERÁ** rechazarlo (409/422) sin ejecutar nada; **CUANDO** la clave sea obligatoria y falte, **DEBERÁ** rechazarlo (400/428).
+
+42.4. **SI** sólo se detectan endpoints que modifican datos sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 43 — Control `api.error-responses`
+
+**Historia de usuario:** Como consumidor de una API, quiero errores predecibles que no expongan el interior del sistema.
+
+#### Criterios de aceptación
+
+43.1. **CUANDO** una unidad con perfil `http-api` declare su formato de error y endpoints con cuerpos inválidos sintéticos, **EL CONTROL DEBERÁ** verificar las respuestas de error.
+
+43.2. **UNA ENTRADA INVÁLIDA DEBERÁ** responder 400/422; **UN JSON MAL FORMADO**, 400; **UNA RUTA INEXISTENTE**, 404; **UNA FALLA INTERNA**, un 5xx controlado.
+
+43.3. **TODO ERROR DEBERÁ** seguir el formato declarado (`application/problem+json` o los campos declarados) y **NO DEBERÁ** exponer stack traces, rutas del servidor, SQL, IPs internas ni mensajes de dependencias, ni en el cuerpo ni en los headers.
+
+43.4. **SI** el formato es `custom`, **EL CONTRATO DEBERÁ** declarar los campos obligatorios.
+
+### Requisito 44 — Control `api.rate-limit`
+
+**Historia de usuario:** Como owner de una API pública, quiero que un cliente abusivo no afecte a los demás.
+
+#### Criterios de aceptación
+
+44.1. **CUANDO** una unidad con perfil `http-api` declare límites por endpoint (cantidad, ventana e identidad), **EL CONTROL DEBERÁ** verificarlos con reloj virtual e identidades sintéticas.
+
+44.2. **DENTRO DEL LÍMITE NO DEBERÁ** responderse 429; **AL SUPERARLO DEBERÁ** responderse 429 con `Retry-After` entre 1 segundo y la ventana.
+
+44.3. **EL LÍMITE DEBERÁ** contarse por cliente y reiniciarse al pasar la ventana.
+
+44.4. **LÍMITES MAYORES A MIL PEDIDOS POR VENTANA** quedan sin evidencia conductual y **SÓLO DEBERÁN** avisar.
+
+### Requisito 45 — Control `api.pagination`
+
+**Historia de usuario:** Como owner de una API con listados, quiero respuestas acotadas y paginación que no repita ni salte datos.
+
+#### Criterios de aceptación
+
+45.1. **CUANDO** una unidad con perfil `http-api` declare sus listados (modo, tamaños y nombres de campos), **EL CONTROL DEBERÁ** verificarlos con un almacén sintético.
+
+45.2. **SIN PARÁMETROS DEBERÁ** devolverse el tamaño por defecto; **UN LÍMITE MAYOR AL MÁXIMO DEBERÁ** recortarse o rechazarse con 4xx; **UN LÍMITE O CURSOR INVÁLIDO NO DEBERÁ** producir 5xx.
+
+45.3. **RECORRER TODAS LAS PÁGINAS DEBERÁ** traer todos los ítems, sin duplicados, en orden estable y con final detectable; en modo cursor, la llegada de ítems nuevos **NO DEBERÁ** repetir ni saltar ítems.
+
+45.4. **EL MÁXIMO DECLARADO NO DEBERÁ** superar el límite configurado ni ser menor que el tamaño por defecto.
+
+### Requisito 46 — Control `svc.dependency-failure`
+
+**Historia de usuario:** Como owner de un servicio, quiero que la caída de una base o de un servicio externo no arrastre a todo el sistema.
+
+#### Criterios de aceptación
+
+46.1. **CUANDO** una unidad con perfil `backend-service` declare sus dependencias con timeout, circuit breaker y modo degradado, **EL CONTROL DEBERÁ** verificarlas reemplazándolas por dependencias sintéticas que responden, se cuelgan o fallan.
+
+46.2. **SI** una dependencia se cuelga o falla, **EL SERVICIO DEBERÁ** responder dentro de su timeout con 503/504 controlado, o con una respuesta degradada 2xx cuando así se declare, y nunca con 500 ni una excepción.
+
+46.3. **CUANDO** se exija circuit breaker, **EL SERVICIO DEBERÁ** dejar de llamar a la dependencia tras fallas repetidas y volver a 2xx cuando la dependencia se recupere.
+
+46.4. **EL TIMEOUT DECLARADO NO DEBERÁ** superar el máximo configurado.
+
+### Requisito 47 — Control `svc.health-shutdown`
+
+**Historia de usuario:** Como owner de un servicio desplegado en un orquestador, quiero que los despliegues y reinicios no corten requests ni manden tráfico a instancias que no pueden atenderlo.
+
+#### Criterios de aceptación
+
+47.1. **CUANDO** una unidad con perfil `backend-service` declare liveness, readiness, dependencias, un endpoint de trabajo y el tiempo de gracia, **EL CONTROL DEBERÁ** verificarlos con dependencias sintéticas.
+
+47.2. **LIVENESS DEBERÁ** responder 2xx mientras el proceso funciona, sin depender de las dependencias; **READINESS DEBERÁ** responder 2xx con todo sano y 503 si una dependencia declarada no responde.
+
+47.3. **AL** recibir la señal de apagado, **EL SERVICIO DEBERÁ** terminar las requests en curso, dejar de estar "ready", rechazar las nuevas con 503 y terminar dentro del tiempo de gracia, aunque haya trabajo que no termina.
+
+47.4. **EL TIEMPO DE GRACIA NO DEBERÁ** superar el máximo configurado.
+
+### Requisito 48 — Control `svc.log-hygiene`
+
+**Historia de usuario:** Como owner de un servicio, quiero logs útiles para diagnosticar que nunca expongan datos de los usuarios ni secretos.
+
+#### Criterios de aceptación
+
+48.1. **CUANDO** una unidad con perfil `backend-service` declare el formato de sus logs, el header de correlación y endpoints a ejercitar, **EL CONTROL DEBERÁ** capturar la salida del logger real mientras atiende requests sintéticas.
+
+48.2. **CADA LÍNEA DE LOG DEBERÁ** ser un objeto JSON con los campos declarados de nivel y mensaje.
+
+48.3. **TODAS LAS LÍNEAS DE UNA REQUEST DEBERÁN** llevar el id de correlación recibido en el header declarado o, si no llegó, un id generado y estable para esa request.
+
+48.4. **LOS LOGS NO DEBERÁN** contener datos personales (email, teléfono, tarjeta) ni secretos (tokens, cookies, contraseñas) presentes en cuerpo, headers, query o mensajes de error.
+
+48.5. **CUANDO** una dependencia falle, **DEBERÁ** registrarse un evento de nivel error.
+
+48.6. **SI** sólo se detectan llamadas a loggers sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 49 — Control `api.concurrency`
+
+**Historia de usuario:** Como owner de una API, quiero que dos ediciones simultáneas del mismo recurso nunca se pisen en silencio.
+
+#### Criterios de aceptación
+
+49.1. **CUANDO** una unidad con perfil `http-api` declare sus recursos editables y cómo viaja la versión (ETag/If-Match o campo), **EL CONTROL DEBERÁ** ejercitar el handler real con un almacén sintético asíncrono.
+
+49.2. **LA LECTURA DEBERÁ** exponer la versión, y una actualización con la versión vigente **DEBERÁ** aplicarse y cambiarla.
+
+49.3. **UNA ACTUALIZACIÓN CON VERSIÓN VIEJA DEBERÁ** responder 409 o 412 sin sobrescribir el cambio ajeno.
+
+49.4. **SALVO QUE** el contrato lo declare opcional, **UNA ACTUALIZACIÓN SIN VERSIÓN DEBERÁ** rechazarse con 4xx.
+
+49.5. **DOS ACTUALIZACIONES SIMULTÁNEAS CON LA MISMA VERSIÓN DEBERÁN** resultar en exactamente una aplicada y la otra rechazada (compare-and-set atómico).
+
+49.6. **SI** sólo se detectan endpoints de actualización sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 50 — Control `api.versioning`
+
+**Historia de usuario:** Como consumidor de una API, quiero que las versiones que uso sigan funcionando y me avisen antes de retirarse.
+
+#### Criterios de aceptación
+
+50.1. **CUANDO** una unidad con perfil `http-api` declare sus versiones (vigente, deprecada o retirada), su esquema (ruta o header) y endpoints, **EL CONTROL DEBERÁ** ejercitar cada versión en el router real.
+
+50.2. **CADA VERSIÓN NO RETIRADA DEBERÁ** responder 2xx y conservar los campos que declara.
+
+50.3. **LAS VERSIONES DEPRECADAS DEBERÁN** responder con el header `Deprecation` y, si tienen fecha de retiro, con `Sunset` de esa fecha; las vigentes no **DEBERÁN** marcarse deprecadas.
+
+50.4. **UNA VERSIÓN INEXISTENTE DEBERÁ** responder 4xx y una retirada 410 (o 404).
+
+50.5. **EL CONTRATO DEBERÁ** declarar al menos una versión vigente y ninguna deprecada con fecha de retiro vencida.
+
+50.6. **SI** sólo se detectan rutas versionadas sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 51 — Control `api.request-limits`
+
+**Historia de usuario:** Como owner de un servicio, quiero que un cuerpo enorme o una dependencia lenta no puedan tumbarlo.
+
+#### Criterios de aceptación
+
+51.1. **CUANDO** una unidad con perfil `http-api` declare el tamaño máximo de cuerpo, el timeout por request y endpoints, **EL CONTROL DEBERÁ** ejercitar el handler real con cuerpos sintéticos y una dependencia controlada.
+
+51.2. **UN CUERPO DENTRO DEL LÍMITE DEBERÁ** aceptarse; **UNO EXCEDIDO DEBERÁ** rechazarse con 413 antes de procesarse, también sin `Content-Length`.
+
+51.3. **CUANDO** la dependencia no responda, **LA REQUEST DEBERÁ** cortarse al vencer el timeout con 503, 504 o 408 y cancelar el trabajo en curso.
+
+51.4. **UNA DEPENDENCIA QUE RESPONDE DENTRO DEL TIMEOUT NO DEBERÁ** cortarse antes.
+
+51.5. **LOS LÍMITES DECLARADOS NO DEBERÁN** superar los máximos configurados.
+
+51.6. **SI** sólo se detecta configuración de parsers o timeouts sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 52 — Control `api.http-cache`
+
+**Historia de usuario:** Como owner de una API, quiero que quede explícito qué se cachea y que nada privado termine en una caché compartida.
+
+#### Criterios de aceptación
+
+52.1. **CUANDO** una unidad con perfil `http-api` declare sus recursos de lectura con visibilidad, `max-age` y validador, **EL CONTROL DEBERÁ** ejercitar el handler real con usuarios sintéticos.
+
+52.2. **CADA RESPUESTA DEBERÁ** llevar `Cache-Control`: los recursos públicos con el `max-age` declarado y los privados con `private` o `no-store`, nunca `public` ni `s-maxage`.
+
+52.3. **UNA PETICIÓN CONDICIONAL VIGENTE DEBERÁ** recibir 304 sin cuerpo, y el validador **DEBERÁ** cambiar cuando cambia el recurso.
+
+52.4. **EL VALIDADOR DE UN RECURSO PRIVADO NO DEBERÁ** producir 304 para otro usuario.
+
+52.5. **SI** sólo se detectan headers de caché sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 53 — Control `api.response-schema`
+
+**Historia de usuario:** Como consumidor de una API, quiero que lo que la API responde coincida con lo que documenta.
+
+#### Criterios de aceptación
+
+53.1. **CUANDO** una unidad con perfil `http-api` declare endpoints con el JSON Schema de su respuesta, **EL CONTROL DEBERÁ** ejercitar el handler real y validar cada respuesta contra su schema.
+
+53.2. **CADA RESPUESTA DE ÉXITO DEBERÁ** tener el código declarado, cumplir su schema y no traer campos que el schema no declare.
+
+53.3. **CUANDO** se declare un cuerpo inválido y un schema de errores, **LA RESPUESTA DEBERÁ** ser 4xx y cumplir ese schema.
+
+53.4. **LOS SCHEMAS DEL CONTRATO DEBERÁN** usar sólo palabras clave verificables; una no verificable hace incoherente al contrato.
+
+53.5. **SI** sólo se detectan specs u objetos de schema sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 54 — Control `api.long-operations`
+
+**Historia de usuario:** Como consumidor de una API, quiero que una operación pesada no me haga esperar y siempre me diga cómo terminó.
+
+#### Criterios de aceptación
+
+54.1. **CUANDO** una unidad con perfil `http-api` declare operaciones largas con su ruta de estado y duración máxima, **EL CONTROL DEBERÁ** ejercitarlas con un trabajo sintético que termina, falla o se cuelga.
+
+54.2. **INICIAR LA OPERACIÓN DEBERÁ** responder 202 enseguida con la URL de estado en `Location`.
+
+54.3. **EL ESTADO DEBERÁ** llegar al valor final declarado cuando el trabajo termina, y al valor fallido, sin detalles internos, cuando falla.
+
+54.4. **UNA OPERACIÓN QUE NO TERMINA DEBERÁ** marcarse fallida al vencer su duración máxima y cancelar el trabajo.
+
+54.5. **EL ESTADO DE UNA OPERACIÓN INEXISTENTE DEBERÁ** responder 404.
+
+54.6. **SI** sólo se detectan colas o respuestas 202 sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 55 — Control `api.batch`
+
+**Historia de usuario:** Como consumidor de una API, quiero saber qué pasó con cada ítem de un lote.
+
+#### Criterios de aceptación
+
+55.1. **CUANDO** una unidad con perfil `http-api` declare endpoints de lote con su modo (`partial` o `atomic`), tope y ejemplos de ítem válido e inválido, **EL CONTROL DEBERÁ** ejercitarlos con un almacén sintético.
+
+55.2. **UN LOTE VÁLIDO DEBERÁ** aplicarse entero, con un resultado por ítem en orden y con su referencia.
+
+55.3. **EN MODO `partial`, UN ÍTEM QUE FALLA DEBERÁ** informarse sin impedir que se apliquen los demás; **EN MODO `atomic`** no deberá quedar ninguno aplicado.
+
+55.4. **UN LOTE POR ENCIMA DEL TOPE DEBERÁ** rechazarse con 4xx sin aplicar nada, y un lote vacío no deberá responder 5xx.
+
+55.5. **SI** sólo se detectan operaciones bulk sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 56 — Control `db.compatible-migrations`
+
+**Historia de usuario:** Como owner de un servicio, quiero que las migraciones no rompan al código que sigue corriendo durante el deploy.
+
+#### Criterios de aceptación
+
+56.1. **CUANDO** una unidad con perfil `backend-service` declare su dialecto SQL y su última migración desplegada, **EL CONTROL DEBERÁ** analizar el SQL de las migraciones posteriores que entrega el adapter.
+
+56.2. **LAS MIGRACIONES POSTERIORES AL BASELINE NO DEBERÁN** borrar ni renombrar columnas o tablas en uso, cambiar tipos, agregar `NOT NULL` sin `DEFAULT` ni, en Postgres, crear índices bloqueantes sobre tablas existentes.
+
+56.3. **LOS CAMBIOS SOBRE TABLAS CREADAS DESPUÉS DEL BASELINE** no deberán contarse como incompatibles.
+
+56.4. **UNA MIGRACIÓN DE CONTRACCIÓN DECLARADA** sólo quedará exenta si su expansión está en o antes del baseline.
+
+56.5. **SI** sólo se detectan archivos de migración sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 57 — Control `data.user-erasure`
+
+**Historia de usuario:** Como usuario, quiero que borrar mi cuenta borre mis datos de todos lados.
+
+#### Criterios de aceptación
+
+57.1. **CUANDO** una unidad con perfil `backend-service` declare su endpoint de borrado, los almacenes con datos del usuario y sus lecturas, **EL CONTROL DEBERÁ** ejercitar el servicio real con dos usuarios sintéticos con datos canario.
+
+57.2. **DESPUÉS DEL BORRADO NO DEBERÁ** quedar el id ni los datos personales del usuario en ningún almacén declarado.
+
+57.3. **EL BORRADO NO DEBERÁ** modificar datos de otros usuarios, y lo borrado no deberá reaparecer en las lecturas declaradas.
+
+57.4. **REPETIR EL BORRADO O BORRAR UN USUARIO INEXISTENTE NO DEBERÁ** responder 5xx ni borrar otros datos.
+
+57.5. **SI** sólo se detecta lógica de borrado sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 58 — Control `svc.metrics`
+
+**Historia de usuario:** Como owner de un servicio, quiero medir tráfico, errores y latencia por ruta sin romper el sistema de métricas.
+
+#### Criterios de aceptación
+
+58.1. **CUANDO** una unidad con perfil `backend-service` declare su ruta de métricas, nombres y endpoints, **EL CONTROL DEBERÁ** ejercitar el servicio real y leer la exposición Prometheus.
+
+58.2. **CADA REQUEST DEBERÁ** contarse con su ruta y método, y las fallidas con su código 5xx.
+
+58.3. **LA DURACIÓN DE CADA REQUEST DEBERÁ** registrarse en el histograma declarado, medida con el reloj del servicio.
+
+58.4. **LOS LABELS DEBERÁN** usar la plantilla de la ruta y no contener datos del usuario.
+
+58.5. **SI** sólo se detectan librerías de métricas sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
+### Requisito 59 — Control `svc.startup-config`
+
+**Historia de usuario:** Como owner de un servicio, quiero que una configuración faltante o inválida se detecte al arrancar, no en producción.
+
+#### Criterios de aceptación
+
+59.1. **CUANDO** una unidad con perfil `backend-service` declare sus variables de entorno con tipo y obligatoriedad, **EL CONTROL DEBERÁ** arrancar el servicio real con entornos sintéticos.
+
+59.2. **CON TODAS LAS VARIABLES VÁLIDAS EL SERVICIO DEBERÁ** arrancar, y sin una opcional también.
+
+59.3. **SI FALTA UNA VARIABLE OBLIGATORIA O TIENE UN FORMATO INVÁLIDO, EL SERVICIO DEBERÁ** negarse a arrancar con un error que la nombre.
+
+59.4. **LOS ERRORES DE CONFIGURACIÓN NO DEBERÁN** contener valores de secretos.
+
+59.5. **SI** sólo se detectan lecturas del entorno sin contrato, **EL CONTROL DEBERÁ** emitir como máximo `warn`.
+
 ## 7. Matriz mínima de aplicabilidad
 
 | Control | Perfil requerido | Momentos mínimos | Evidencia apta para `deny` | Heurística permitida |
@@ -661,6 +1216,38 @@ Se reutilizarán, sin duplicar su lógica, los contratos relevantes de:
 | `search.input-rate` | `search` | agent, PR; release cuando aplique | Tests de comportamiento reproducibles fallidos para cadencia, mínimo, cancelación/orden o dedupe | Detección de handlers, llamadas, dependencias o patrones |
 | `app.minimum-supported-version` | `mobile-app` | PR, release | Schema/contrato inválido o tests deterministas fallidos de semver, offline, hard/soft, stores, rollback u override | Inferencia de config remota o flujos por nombres/AST incompleto |
 | `web.module-announcement` | `web` + `module-launch` | agent, PR, release | Señal requerida ausente según declaración explícita, metadata inválida, N/A inválido o tests contractuales fallidos | Inferencia de “módulo nuevo” por rutas, componentes o diff |
+| `ui.data-states` | `data-views` | agent, PR, release | Contrato inválido o escenarios fallidos de carga, vacío, error, reintento, timeout o carga duplicada | Detección de llamadas de red o librerías de datos |
+| `ui.form-validation` | `forms` | agent, PR, release | Contrato inválido o escenarios fallidos de validación, errores accesibles, doble envío o pérdida de lo escrito | Detección de formularios por patrón |
+| `net.resilient-requests` | `network-client` | agent, PR, release | Contrato inválido o inseguro, o escenarios fallidos de timeout, reintento, backoff, Retry-After o idempotencia | Detección de llamadas HTTP por patrón |
+| `flags.lifecycle` | `feature-flags` | agent, PR, release | Registro inválido, flag vencida o sin retiro, vida excesiva, default inseguro o escenarios fallidos del cliente | Detección de uso de SDK de flags |
+| `auth.session-expiry` | `auth-session` | agent, PR, release | Contrato inválido o escenarios fallidos de renovación, bucle, login o trabajo conservado | Detección de manejo de tokens o 401 |
+| `ui.file-upload` | `file-upload` | agent, PR, release | Contrato inválido o permisivo, o escenarios fallidos de límites, progreso, cancelación, reintento o subida doble | Detección de inputs de archivo |
+| `ui.pagination` | `paginated-lists` | agent, PR, release | Contrato inválido o escenarios fallidos de páginas, duplicados, orden, fin, concurrencia, errores o cursor | Detección de listas infinitas o paginadas |
+| `analytics.events` | `analytics` | agent, PR, release | Plan inválido o con propiedades personales, o escenarios fallidos de esquema, duplicados, fuga de PII o aislamiento | Detección de llamadas de tracking |
+| `ui.destructive-actions` | `destructive-actions` | agent, PR, release | Contrato inválido o escenarios fallidos de confirmación, cancelación, deshacer, ejecución doble o error | Detección de llamadas de borrado o cancelación |
+| `i18n.formatting` | `localized` | agent, PR, release | Contrato inválido o escenarios fallidos de fecha, número, moneda, zona horaria, respaldo o traducción ausente | Detección de formatos armados a mano |
+| `app.offline-mode` | `offline-capable` | agent, PR, release | Contrato inválido o escenarios fallidos de aviso, cola, sincronización, persistencia, orden o acciones online-only | Detección de service workers o APIs de conectividad |
+| `app.device-permissions` | `device-permissions` | agent, PR, release | Contrato inválido o escenarios fallidos de momento del pedido, explicación, rechazo, insistencia o bloqueo | Detección de APIs de permisos |
+| `nav.broken-routes` | `routed-app` | agent, PR, release | Contrato inválido o escenarios fallidos de ruta, "no encontrado", URL mal formada o destino tras el login | Detección de routers |
+| `ui.accessible-dialogs` | `dialogs` | agent, PR, release | Contrato inválido o escenarios fallidos de foco, teclado, cierre, rol, nombre o fondo inerte | Detección de modales por patrón |
+| `api.idempotency` | `http-api` | PR, release | Contrato inválido o escenarios fallidos de repetición, concurrencia, clave reutilizada o clave faltante | Detección de endpoints que modifican datos |
+| `api.error-responses` | `http-api` | PR, release | Contrato inválido o escenarios fallidos de código, formato o fuga de detalles internos | Detección de handlers HTTP |
+| `api.rate-limit` | `http-api` | PR, release | Contrato inválido o escenarios fallidos de límite, 429, Retry-After, conteo por cliente o ventana | Detección de endpoints públicos |
+| `api.pagination` | `http-api` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de tamaños, recorrido, cursor o parámetros inválidos | Detección de consultas de listado |
+| `svc.dependency-failure` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de timeout, respuesta ante fallas o circuit breaker | Detección de clientes de bases o servicios |
+| `svc.health-shutdown` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de liveness, readiness o apagado ordenado | Detección del arranque del servidor |
+| `svc.log-hygiene` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de formato, correlación, datos personales, secretos o log de error | Detección de llamadas a loggers |
+| `api.concurrency` | `http-api` | PR, release | Contrato inválido o escenarios fallidos de versión expuesta, actualización condicional, escritura vieja, precondición o chequeo atómico | Detección de endpoints de actualización |
+| `api.versioning` | `http-api` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de versiones servidas, avisos de deprecación, versiones desconocidas o retiradas o campos quitados | Detección de rutas versionadas |
+| `api.request-limits` | `http-api` | PR, release | Contrato inválido o con límites excesivos, o escenarios fallidos de cuerpo excedido, timeout o cancelación | Detección de parsers y timeouts |
+| `api.http-cache` | `http-api` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de Cache-Control, validadores, 304 o aislamiento entre usuarios | Detección de headers de caché |
+| `api.response-schema` | `http-api` | PR, release | Contrato inválido o con schemas no verificables, o respuestas que no cumplen su schema | Detección de specs y schemas |
+| `api.long-operations` | `http-api` | PR, release | Contrato inválido o con duraciones excesivas, o escenarios fallidos de 202, estado final, falla, timeout o inexistente | Detección de colas y respuestas 202 |
+| `api.batch` | `http-api` | PR, release | Contrato inválido o con topes excesivos, o escenarios fallidos de resultados por ítem, falla parcial o todo-o-nada, tope o lote vacío | Detección de operaciones bulk |
+| `db.compatible-migrations` | `backend-service` | PR, release | Contrato inválido, migraciones ilegibles o cambios incompatibles posteriores al baseline | Detección de archivos de migración |
+| `data.user-erasure` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de rastros, daño colateral, reaparición o errores al repetir | Detección de lógica de borrado |
+| `svc.metrics` | `backend-service` | PR, release | Contrato inválido o escenarios fallidos de exposición, conteo, errores, latencia o labels | Detección de librerías de métricas |
+| `svc.startup-config` | `backend-service` | PR, release | Contrato inválido o incoherente, o escenarios fallidos de arranque válido, rechazo temprano, error útil, opcionales o secretos | Detección de lecturas del entorno |
 
 La tabla define mínimos; el catálogo podrá ampliar momentos o evidencia sin contradecir la regla de que las heurísticas nunca bloquean.
 

@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/controls/facts.trace.schema.json",
+  "title": "Traza conductual de hechos (controles de backend T32–T37)",
+  "description": "Cada paso es un mapa de hechos derivados: sólo booleanos y enteros (códigos HTTP, conteos, milisegundos). Por construcción no puede llevar texto, cuerpos, headers ni identificadores.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "harness", "scenarios"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "harness": { "$ref": "engineering/controls/harness.schema.json#/definitions/harnessInfo" },
+    "fatal": { "type": "string", "pattern": "^[A-Z_]+$" },
+    "scenarios": { "type": "array", "maxItems": 60, "items": { "$ref": "#/definitions/scenario" } }
+  },
+  "definitions": {
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "steps"],
+      "properties": {
+        "id": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioId" },
+        "status": { "$ref": "engineering/controls/harness.schema.json#/definitions/scenarioStatus" },
+        "limitation": { "$ref": "engineering/controls/harness.schema.json#/definitions/limitation" },
+        "steps": { "type": "array", "maxItems": 4, "items": { "$ref": "#/definitions/step" } }
+      }
+    },
+    "step": {
+      "type": "object",
+      "maxProperties": 16,
+      "propertyNames": { "pattern": "^[a-z][a-zA-Z0-9]{0,31}$" },
+      "additionalProperties": { "anyOf": [{ "type": "boolean" }, { "type": "integer", "minimum": -1000000, "maximum": 100000000 }] }
+    }
+  }
+}

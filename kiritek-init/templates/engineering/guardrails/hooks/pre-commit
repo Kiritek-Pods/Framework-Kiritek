@@ -1,0 +1,30 @@
+#!/bin/sh
+# kiritek-engineering-hook: gate pre-commit del pack engineering/guardrails.
+# Evalúa SÓLO el contenido staged, offline y con checks rápidos (los tests
+# conductuales corren en PR/release). Bloquea únicamente ante un deny
+# elegible del core (exit 1); warnings y errores operativos nunca bloquean.
+
+if [ -n "${KIRITEK_ENGINEERING_HOOK_RUNNING:-}" ]; then
+  exit 0
+fi
+KIRITEK_ENGINEERING_HOOK_RUNNING=1
+export KIRITEK_ENGINEERING_HOOK_RUNNING
+
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+
+if ! command -v kiritek-init >/dev/null 2>&1; then
+  echo "kiritek engineering ⚠ kiritek-init no está en el PATH: guardrails de ingeniería no evaluados (cobertura en PR)." >&2
+  exit 0
+fi
+
+mkdir -p "$ROOT/.kiritek/tmp"
+kiritek-init guardrails scan --moment=pre-commit --offline --format=json > "$ROOT/.kiritek/tmp/engineering-pre-commit.json"
+CODE=$?
+if [ "$CODE" -eq 1 ]; then
+  echo "kiritek engineering ✖ deny determinista; detalle en .kiritek/tmp/engineering-pre-commit.json" >&2
+  exit 1
+fi
+if [ "$CODE" -ne 0 ]; then
+  echo "kiritek engineering ⚠ evaluación no disponible (exit $CODE); no bloquea. Cobertura en PR." >&2
+fi
+exit 0

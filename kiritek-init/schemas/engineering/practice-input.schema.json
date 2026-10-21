@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/practice-input.schema.json",
+  "title": "Kiritek Engineering PracticeInput",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "event", "repository", "actorType", "revision", "scope", "unit", "profileRefs", "control", "level", "effectiveConfig", "configHash", "provenance", "catalog", "observations", "applicability", "clockRef", "platformKey"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "event": { "$ref": "engineering/common.schema.json#/definitions/moment" },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rootHash"],
+      "properties": { "rootHash": { "$ref": "engineering/common.schema.json#/definitions/sha256" } }
+    },
+    "actorType": { "type": "string", "enum": ["human", "agent", "ci", "release"] },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit"],
+      "properties": {
+        "commit": { "$ref": "engineering/common.schema.json#/definitions/revision" },
+        "baseCommit": { "$ref": "engineering/common.schema.json#/definitions/revision" },
+        "range": { "type": "string", "minLength": 1 },
+        "dirtyState": { "type": "string", "enum": ["clean", "staged", "dirty"] }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["paths", "scopeHash"],
+      "properties": {
+        "paths": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/repoPath" } },
+        "scopeHash": { "$ref": "engineering/common.schema.json#/definitions/sha256" },
+        "artifactRef": { "$ref": "engineering/common.schema.json#/definitions/ref" }
+      }
+    },
+    "unit": { "$ref": "engineering/unit.schema.json" },
+    "profileRefs": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/profileRef" } },
+    "control": { "$ref": "engineering/control.schema.json" },
+    "level": { "$ref": "engineering/common.schema.json#/definitions/level" },
+    "effectiveConfig": { "type": "object" },
+    "configHash": { "$ref": "engineering/common.schema.json#/definitions/sha256" },
+    "provenance": { "type": "object", "additionalProperties": { "$ref": "engineering/common.schema.json#/definitions/provenance" } },
+    "catalog": { "$ref": "engineering/common.schema.json#/definitions/catalogRef" },
+    "observations": { "type": "array", "items": { "$ref": "engineering/observation.schema.json" } },
+    "applicability": { "$ref": "engineering/applicability.schema.json" },
+    "clockRef": { "$ref": "engineering/common.schema.json#/definitions/isoTimestamp" },
+    "platformKey": { "type": "string", "minLength": 1 }
+  }
+}

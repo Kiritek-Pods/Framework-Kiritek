@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kiritek.dev/schemas/engineering/applicability.schema.json",
+  "title": "Kiritek Engineering Applicability",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "confidence", "reasons", "sources", "unitId", "controlId", "profileRefs", "moment", "scopeHash"],
+  "properties": {
+    "status": { "type": "string", "enum": ["applicable", "not_applicable", "unknown", "unavailable"] },
+    "confidence": { "$ref": "engineering/common.schema.json#/definitions/confidence" },
+    "reasons": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/diagnostic" } },
+    "sources": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/ref" } },
+    "unitId": { "$ref": "engineering/common.schema.json#/definitions/namespacedId" },
+    "controlId": { "$ref": "engineering/common.schema.json#/definitions/controlId" },
+    "profileRefs": { "type": "array", "items": { "$ref": "engineering/common.schema.json#/definitions/profileRef" } },
+    "moment": { "$ref": "engineering/common.schema.json#/definitions/moment" },
+    "scopeHash": { "$ref": "engineering/common.schema.json#/definitions/sha256" }
+  }
+}

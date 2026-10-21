@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Parámetros de net.resilient-requests",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "clientContract": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![/~])(?![A-Za-z]:)(?!(?:.*/)?\\.\\.(?:/|$))[^\\u0000\\\\]+$"
+    },
+    "maxTimeoutMs": {
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 120000
+    },
+    "maxAttempts": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    },
+    "maxEvidenceAgeHours": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 720
+    }
+  }
+}

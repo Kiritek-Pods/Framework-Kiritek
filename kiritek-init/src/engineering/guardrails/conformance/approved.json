@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "description": "Suites de conformidad aprobadas para habilitar enforce: [{ref, digest, approvedAt, gateEvidenceRef}]. Sólo las escribe el gate de release (scripts/release-gate.js --approve) con evidencia completa; vacío mientras el gate esté bloqueado.",
+  "approved": []
+}
